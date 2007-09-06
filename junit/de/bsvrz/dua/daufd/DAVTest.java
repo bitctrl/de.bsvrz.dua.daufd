@@ -28,12 +28,11 @@ package de.bsvrz.dua.daufd;
 
 import java.util.Random;
 
+import de.bsvrz.dav.daf.main.ClientDavInterface;
+import de.bsvrz.sys.funclib.application.StandardApplication;
+import de.bsvrz.sys.funclib.application.StandardApplicationRunner;
 import de.bsvrz.sys.funclib.bitctrl.app.Pause;
-
-import stauma.dav.clientside.ClientDavInterface;
-import sys.funclib.ArgumentList;
-import sys.funclib.application.StandardApplication;
-import sys.funclib.application.StandardApplicationRunner;
+import de.bsvrz.sys.funclib.commandLineArgs.ArgumentList;
 
 /**
  * Stellt eine Datenverteiler-Verbindung
