@@ -59,6 +59,11 @@ public class SichtWeitenStufeTest  {
 	private static final String ATG_UFDS_KLASS_WFD = "atg.ufdsKlassifizierungSichtWeite";
 	private static final String ATT_UFDS_KLASS_WFD = "KlassifizierungSichtWeite";
 	
+	/**
+	 * Sendet die Parametrierung aus dem Tabellen der AFo dem DAV
+	 * @param dav DAV
+	 * @param konfBereiche konfigurationsbereiche, aus dennen alle Objekte parametriert werden
+	 */
 	public void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
 		try {
 			UfdsKlassifizierungParametrierung param = new UfdsKlassifizierungParametrierung(
