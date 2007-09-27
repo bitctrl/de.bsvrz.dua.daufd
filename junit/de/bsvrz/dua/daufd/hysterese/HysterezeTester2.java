@@ -98,7 +98,11 @@ public class HysterezeTester2 {
 				int r2 = this.hystereze(rand, j);
 				
 				Assert.assertTrue(r1 == r2);
-				System.out.println("Test OK Nr.>" + anzahlTest++ + " StufeAenderung " + (j == r2) + " Ausser Intervalle " + (r2==-1));
+				
+				System.out.println("Test OK Nr.>" + anzahlTest++ + " StufeAenderung " + (j != r2) + " Ausser Intervalle " + (r2==-1));
+				if(r2 == -1) {
+					j = r2;
+				}
 				j = r2;
 			}
 		}
