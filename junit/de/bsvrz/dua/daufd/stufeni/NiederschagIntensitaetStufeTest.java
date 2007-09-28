@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import de.bsvrz.dav.daf.main.ClientDavInterface;
 import de.bsvrz.dav.daf.main.config.ConfigurationArea;
+import de.bsvrz.dua.daufd.MesswertBearbeitungAllgemein;
 import de.bsvrz.dua.daufd.UfdsKlassifizierungParametrierung;
 import de.bsvrz.dua.daufd.hysterese.HysterezeTester2;
 import de.bsvrz.sys.funclib.debug.Debug;
@@ -77,47 +78,7 @@ public class NiederschagIntensitaetStufeTest  {
 			e.printStackTrace();
 		}
 	}
-	
-	double [] vorbereiteMesswerte() {
-		final int N = 31;
-		final int M = 32;
-		final int K = 7;
-		final int L = 30;
-		final int ANZAHL = N+M+K+L;
-	
-		double [] Messwert = new double[ANZAHL];
-		
-		// Zuerst steigende und dann sinkende Werte
-		for(int i=0; i<N; i++) {
-			Messwert[i] = 15.0 - Math.abs(i - 15.0);
-		}
-		
-		// Divergiert vom 7.5 
-		for(int i=N; i<N+M; i++) {
-			int j = i - N;
-			Messwert[i] = 7.5 - Math.pow(-1.0, j)*j/4.0;  
-		}
-		
-		// Zuerst  sinkende und dann steigende Werte, mit groesserem Gradient 
-		for(int i=N+M; i<N+M+K; i++) {
-			int j = i - N-M;
-			Messwert[i] = Math.abs(15.0-j*5);
-		}
-		
-		// Zufaellige Werte
-		for(int i=N+M+K; i<N+M+K+L; i++) {
-			Messwert[i] = Math.random() * 15.0;
-		}
-		
-		return Messwert;
-	}
-	
-	public void gerauescheMesswerte(double [] Messwert) {
-		for(int i =0; i<Messwert.length; i++) {
-			Messwert[i] += Math.random()*0.4-0.2;
-			if(Messwert[i]<0.0) Messwert[i] = 0.0;
-		}
-	}
+
 	/**
 	 * Generiert eine Reihe von Zahlen und vergleicht die geglaettet Werte mit eigenen
 	 */
@@ -125,25 +86,13 @@ public class NiederschagIntensitaetStufeTest  {
 	public void glaettungTest() {		
 		
 		final double f = 0.25;
-		double [] Messwert = vorbereiteMesswerte();
-		final int ANZAHL = Messwert.length;
-		double [] MesswertGlatt = new double[ANZAHL];
-		double [] b = new double [ANZAHL];
+		final double b0 = 0.08;
 		
-		b[0] = 0.08;
-		MesswertGlatt[0] = Messwert[0];
-		
-		for(int i=1; i<ANZAHL; i++) {
-			if(Messwert[i] == 0) {
-				MesswertGlatt[i] = 0;
-				b[i] = b[0];
-			}
-			else {
-				b[i] = b[0] + (1.0 - f* MesswertGlatt[i-1]/Messwert[i]);
-				if(b[i] < b[0] || b[i] > 1.0) b[i] = b[0];
-				MesswertGlatt[i] = b[i]*Messwert[i] + (1.0 - b[i])*MesswertGlatt[i-1];
-			}
-		}
+		double [] Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length]*1.2);
+		double [] MesswertGlatt = new double[Messwert.length];
+		double [] b = new double [Messwert.length];
+	
+		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
 		
 		/*
 		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
@@ -153,22 +102,9 @@ public class NiederschagIntensitaetStufeTest  {
 		System.out.println(Messwert);
 		
 		// Noch ein Test mit gerauschte Werte
-		gerauescheMesswerte(Messwert);
+		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.1, 10);
+		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
 		
-		b[0] = 0.08;
-		MesswertGlatt[0] = Messwert[0];
-		
-		for(int i=1; i<ANZAHL; i++) {
-			if(Messwert[i] == 0) {
-				MesswertGlatt[i] = 0;
-				b[i] = b[0];
-			}
-			else {
-				b[i] = b[0] + (1.0 - f* MesswertGlatt[i-1]/Messwert[i]);
-				if(b[i] < b[0] || b[i] > 1.0) b[i] = b[0];
-				MesswertGlatt[i] = b[i]*Messwert[i] + (1.0 - b[i])*MesswertGlatt[i-1];
-			}
-		}
 		
 		/*
 		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
@@ -184,30 +120,22 @@ public class NiederschagIntensitaetStufeTest  {
 	@Test
 	public void stufeTest() {		
 		
+		int alt;
 		final double f = 0.25;
-		double [] Messwert = vorbereiteMesswerte();
-		final int ANZAHL = Messwert.length;
-		double [] MesswertGlatt = new double[ANZAHL];
-		int [] stufe = new int[ANZAHL];
-		double [] b = new double [ANZAHL];
+		final double b0 = 0.08;
 		
-		b[0] = 0.08;
-		MesswertGlatt[0] = Messwert[0];
-		HysterezeTester2 hysTest = new HysterezeTester2();
-		hysTest.init(stufeVon, stufeBis);
-		stufe[0] = hysTest.hystereze(MesswertGlatt[0], -1);
-		
-		for(int i=1; i<ANZAHL; i++) {
-			if(Messwert[i] == 0) {
-				MesswertGlatt[i] = 0;
-				b[i] = b[0];
-			}
-			else {
-				b[i] = b[0] + (1.0 - f* MesswertGlatt[i-1]/Messwert[i]);
-				if(b[i] < b[0] || b[i] > 1.0) b[i] = b[0];
-				MesswertGlatt[i] = b[i]*Messwert[i] + (1.0 - b[i])*MesswertGlatt[i-1];
-			}
-			stufe[i] = hysTest.hystereze(MesswertGlatt[i], stufe[i-1]);
+		HysterezeTester2 hystTest = new HysterezeTester2();
+		double [] Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length]*1.2);
+		double [] MesswertGlatt = new double[Messwert.length];
+		double [] b = new double [Messwert.length];
+		int [] stufen = new int [Messwert.length];
+		hystTest.init(stufeVon, stufeBis);
+	
+		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		alt = -1;
+		for(int i=0; i< MesswertGlatt.length; i++) {
+			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);
+			alt = stufen[i];
 		}
 		
 		/*
@@ -218,23 +146,12 @@ public class NiederschagIntensitaetStufeTest  {
 		System.out.println(Messwert);
 		
 		// Noch ein Test mit gerauschte Werte
-		gerauescheMesswerte(Messwert);
-		
-		b[0] = 0.08;
-		MesswertGlatt[0] = Messwert[0];
-		stufe[0] = hysTest.hystereze(MesswertGlatt[0], -1);
-		
-		for(int i=1; i<ANZAHL; i++) {
-			if(Messwert[i] == 0) {
-				MesswertGlatt[i] = 0;
-				b[i] = b[0];
-			}
-			else {
-				b[i] = b[0] + (1.0 - f* MesswertGlatt[i-1]/Messwert[i]);
-				if(b[i] < b[0] || b[i] > 1.0) b[i] = b[0];
-				MesswertGlatt[i] = b[i]*Messwert[i] + (1.0 - b[i])*MesswertGlatt[i-1];
-			}
-			stufe[i] = hysTest.hystereze(MesswertGlatt[i], stufe[i-1]);
+		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.1, 10);
+		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		alt = -1;
+		for(int i=0; i< MesswertGlatt.length; i++) {
+			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);
+			alt = stufen[i];
 		}
 		
 		/*

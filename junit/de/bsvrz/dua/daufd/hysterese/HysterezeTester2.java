@@ -64,7 +64,8 @@ public class HysterezeTester2 {
 	public void Test() {
 		
 		for(int i =0; i<100; i++) {
-			int intervalle  = 2 +  (int)(Math.random() * 20);  
+			// Zufaelliger Anzahl der Intervalle, 2 - 20;
+			int intervalle  = 2 +  (int)(Math.random() * 18);  
 		
 			double [] vonMenge  = new double[intervalle];
 			double [] bisMenge  = new double[intervalle];
@@ -76,7 +77,7 @@ public class HysterezeTester2 {
 			vonMenge[0] = minWert;
 			bisMenge[intervalle-1] = maxWert;
 			
-			// Zufaellige intervalle
+			// Zufaellige Intervallgrenzen
 			for(int j=0; j<intervalle-1; j++) {
 				bisMenge[j] = vonMenge[j] + Math.random() * (maxWert - vonMenge[j]);
 				vonMenge[j+1] = vonMenge[j] + Math.random() * (bisMenge[j] - vonMenge[j]);
@@ -91,21 +92,18 @@ public class HysterezeTester2 {
 			}
 			this.init(vonMenge, bisMenge);
 			
-			int j = -1;
+			// Vergleicht 1000 zufaellige Nummer
+			int alt = -1;
 			for(int k=0; k<ANZAHL_TESTS; k++) {
-				double rand = 1.2 * Math.random() * (maxWert  - minWert) - 0.1 * (maxWert - minWert);
+				double rand = 1.1 * Math.random() * (maxWert  - minWert) - 0.05 * (maxWert - minWert);
 				int r1 = hyst.getStufe(rand);
-				int r2 = this.hystereze(rand, j);
+				int r2 = this.hystereze(rand, alt);
 				
 				Assert.assertTrue(r1 == r2);
 				
-				System.out.println("Test OK Nr.>" + anzahlTest++ + " StufeAenderung " + (j != r2) + " Ausser Intervalle " + (r2==-1));
-				if(r2 == -1) {
-					j = r2;
-				}
-				j = r2;
+				System.out.println(String.format("Test Nr.  %6d  >  %2d == %2d  BESTANDEN ", anzahlTest++, r1, r2));
+				alt = r2;
 			}
 		}
-		
 	}
 }

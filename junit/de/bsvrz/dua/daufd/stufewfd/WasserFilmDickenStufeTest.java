@@ -28,9 +28,13 @@ package de.bsvrz.dua.daufd.stufewfd;
 
 import java.util.Collection;
 
+import org.junit.Test;
+
 import de.bsvrz.dav.daf.main.ClientDavInterface;
 import de.bsvrz.dav.daf.main.config.ConfigurationArea;
+import de.bsvrz.dua.daufd.MesswertBearbeitungAllgemein;
 import de.bsvrz.dua.daufd.UfdsKlassifizierungParametrierung;
+import de.bsvrz.dua.daufd.hysterese.HysterezeTester2;
 import de.bsvrz.sys.funclib.debug.Debug;
 
 
@@ -80,6 +84,88 @@ public class WasserFilmDickenStufeTest  {
 			Debug.getLogger().error("Fehler bei Parametrierung der WasserFilmDicke:" + e.getMessage());
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Generiert eine Reihe von Zahlen und vergleicht die geglaettet Werte mit eigenen
+	 */
+	@Test
+	public void glaettungTest() {		
+		
+		final double f = 0.25;
+		final double b0 = 0.08;
+		
+		double [] Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length]*1.2);
+		double [] MesswertGlatt = new double[Messwert.length];
+		double [] b = new double [Messwert.length];
+	
+		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		
+		/*
+		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
+		 * 
+		 */
+		
+		System.out.println(Messwert);
+		
+		// Noch ein Test mit gerauschte Werte
+		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.1, 10);
+		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		
+		
+		/*
+		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
+		 * 
+		 */
+		System.out.println(Messwert);
+	}
+	
+	
+	/**
+	 * Generiert eine Reihe von Zahlen und vergleicht mit der getesteten Klasse
+	 */
+	@Test
+	public void stufeTest() {		
+		
+		int alt;
+		final double f = 0.25;
+		final double b0 = 0.08;
+		
+		HysterezeTester2 hystTest = new HysterezeTester2();
+		double [] Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length]*1.2);
+		double [] MesswertGlatt = new double[Messwert.length];
+		double [] b = new double [Messwert.length];
+		int [] stufen = new int [Messwert.length];
+		hystTest.init(stufeVon, stufeBis);
+	
+		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		alt = -1;
+		for(int i=0; i< MesswertGlatt.length; i++) {
+			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);
+			alt = stufen[i];
+		}
+		
+		/*
+		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
+		 * 
+		 */
+		
+		System.out.println(Messwert);
+		
+		// Noch ein Test mit gerauschte Werte
+		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.1, 10);
+		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		alt = -1;
+		for(int i=0; i< MesswertGlatt.length; i++) {
+			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);
+			alt = stufen[i];
+		}
+		
+		/*
+		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
+		 * 
+		 */
+		System.out.println(Messwert);
 	}
 
 }
