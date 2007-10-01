@@ -54,8 +54,7 @@ public class Hysterese {
 	 * die Hysterese-Stufe, die zuletzt errechnet wurde
 	 */
 	private int stufeAlt = -1;
-	
-	
+
 	/**
 	 * Initialisiert dieses Hysterese mit <code>double</code>-Intervallen
 	 * 

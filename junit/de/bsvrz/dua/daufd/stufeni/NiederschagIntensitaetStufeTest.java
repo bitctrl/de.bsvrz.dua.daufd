@@ -27,11 +27,17 @@
 package de.bsvrz.dua.daufd.stufeni;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 import org.junit.Test;
 
 import de.bsvrz.dav.daf.main.ClientDavInterface;
+import de.bsvrz.dav.daf.main.DataDescription;
+import de.bsvrz.dav.daf.main.SenderRole;
 import de.bsvrz.dav.daf.main.config.ConfigurationArea;
+import de.bsvrz.dav.daf.main.config.ObjectTimeSpecification;
+import de.bsvrz.dav.daf.main.config.SystemObject;
+import de.bsvrz.dav.daf.main.config.SystemObjectType;
 import de.bsvrz.dua.daufd.MesswertBearbeitungAllgemein;
 import de.bsvrz.dua.daufd.UfdsKlassifizierungParametrierung;
 import de.bsvrz.dua.daufd.hysterese.HysterezeTester2;
@@ -58,10 +64,19 @@ public class NiederschagIntensitaetStufeTest  {
 	private final double stufeBis[] = new double[] {
 		0.3, 1.2, 5.0, 12.0, 200.0 // Max Wert vom DaK 	
 	};
+	/**
+	 * Koefizient fuer Glaettung
+	 */
+	private final double b0 = 0.08;
+	/**
+	 * Koefizient fuer Glaettung
+	 */
+	private final double fb = 0.25;
 	
 	private static final String TYP_UFDS_NI = "typ.ufdsNiederschlagsIntensität";
 	private static final String ATG_UFDS_KLASS_NI = "atg.ufdsKlassifizierungNiederschlagsIntensität";
 	private static final String ATT_UFDS_KLASS_NI = "KlassifizierungNiederschlagsIntensität";
+	private static final String ATG_UFDS_AGGREG_NI =  "atg.ufdsAggregationNiederschlagsIntensität";
 	
 	/**
 	 * Sendet die Parametrierung aus dem Tabellen der AFo dem DAV
@@ -71,7 +86,7 @@ public class NiederschagIntensitaetStufeTest  {
 	public void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
 		try {
 			UfdsKlassifizierungParametrierung param = new UfdsKlassifizierungParametrierung(
-					TYP_UFDS_NI, ATG_UFDS_KLASS_NI, ATT_UFDS_KLASS_NI, stufeVon, stufeBis);
+					TYP_UFDS_NI, ATG_UFDS_KLASS_NI, ATT_UFDS_KLASS_NI, ATG_UFDS_AGGREG_NI, stufeVon, stufeBis, b0, fb);
 			param.ParametriereUfds(dav, konfBereiche);
 		} catch (Exception e) {
 			Debug.getLogger().error("Fehler bei Parametrierung der NiederschlagIntensitaet:" + e.getMessage());
@@ -88,11 +103,11 @@ public class NiederschagIntensitaetStufeTest  {
 		final double f = 0.25;
 		final double b0 = 0.08;
 		
-		double [] Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length]*1.2);
+		double [] Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length-1]*1.2);
 		double [] MesswertGlatt = new double[Messwert.length];
 		double [] b = new double [Messwert.length];
 	
-		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
 		
 		/*
 		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
@@ -103,7 +118,7 @@ public class NiederschagIntensitaetStufeTest  {
 		
 		// Noch ein Test mit gerauschte Werte
 		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.1, 10);
-		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
 		
 		
 		/*
@@ -131,7 +146,7 @@ public class NiederschagIntensitaetStufeTest  {
 		int [] stufen = new int [Messwert.length];
 		hystTest.init(stufeVon, stufeBis);
 	
-		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
 		alt = -1;
 		for(int i=0; i< MesswertGlatt.length; i++) {
 			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);
@@ -147,7 +162,7 @@ public class NiederschagIntensitaetStufeTest  {
 		
 		// Noch ein Test mit gerauschte Werte
 		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.1, 10);
-		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
 		alt = -1;
 		for(int i=0; i< MesswertGlatt.length; i++) {
 			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);

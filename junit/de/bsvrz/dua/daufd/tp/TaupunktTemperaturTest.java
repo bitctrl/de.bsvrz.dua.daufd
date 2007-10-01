@@ -1,17 +1,67 @@
+/**
+ * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.6 Abfrage Pufferdaten
+ * Copyright (C) 2007 BitCtrl Systems GmbH 
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * Contact Information:<br>
+ * BitCtrl Systems GmbH<br>
+ * Weißenfelser Straße 67<br>
+ * 04229 Leipzig<br>
+ * Phone: +49 341-490670<br>
+ * mailto: info@bitctrl.de
+ */
 package de.bsvrz.dua.daufd.tp;
 
 import org.junit.Test;
 
+
+/**
+ * Testet den Modul Taupunkt
+ * 
+ * @author BitCtrl Systems GmbH, Bachraty
+ * 
+ */
 public class TaupunktTemperaturTest {
 
+	/**
+	 * Berechnet dem Taupunkt fuer Luftemperatur
+	 * @param relativeLuftFeuchtigkeit Feuchte
+	 * @param luftTemperatur Temperatur
+	 * @return Taupunkt
+	 */
 	public double taupunktTemperaturLuft(double relativeLuftFeuchtigkeit, double luftTemperatur) {
 		return taupunktTemperatur(relativeLuftFeuchtigkeit, luftTemperatur);
-	}
+	}	
 	
+	/**
+	 * Berechnet dem Taupunkt fuer fahrbahntemperatur
+	 * @param relativeLuftFeuchtigkeit Feuchte 
+	 * @param fahrBahnTemperatur Temperatur
+	 * @return Taupunkt
+	 */
 	public double taupunktTemperaturFahrbahn(double relativeLuftFeuchtigkeit, double fahrBahnTemperatur) {
 		return taupunktTemperatur(relativeLuftFeuchtigkeit, fahrBahnTemperatur);
 	}
-	
+
+	/**
+	 * Berechnet dem Taupunkt 
+	 * @param feuchtigkeit Feuchte
+	 * @param temperatur Temperatur
+	 * @return Taupunkt
+	 */
 	public double taupunktTemperatur(double feuchtigkeit, double temperatur) {
 		double RF = feuchtigkeit;
 		double T = temperatur;
@@ -23,6 +73,11 @@ public class TaupunktTemperaturTest {
 		return TPT;
 	}
 	
+	/**
+	 * Berechnet dem Mittelwert der Werte im Array
+	 * @param werte Array von double Werten
+	 * @return Mittelwert
+	 */
 	public double mittelWert(double [] werte) {
 		double sum = 0.0;
 		for(int i = 0; i< werte.length; i++)
@@ -30,6 +85,14 @@ public class TaupunktTemperaturTest {
 		
 		return sum/werte.length;
 	}
+	/**
+	 * Extrapoliert aus der Tabelle der x,y werte mit Hilfe der kleinsten Kvadrate ( Least square method)
+	 * eine lineare funktion und extrapoliert dem Wert im Zeitpunkt t 
+	 * @param werte Y-Werte
+	 * @param zeitPunkte X-Werte
+	 * @param t X-Wert zu dem man Y extrapolieren moechtet
+	 * @return Y-Wert zum t
+	 */
 	public double trendExtrapolationKorrekt(double [] werte, double [] zeitPunkte, double t) {
 		
 		double wertMittel;
@@ -57,7 +120,17 @@ public class TaupunktTemperaturTest {
 		
 		return a * t + b;
 	}
-
+	/**
+	 * Extrapoliert aus der Tabelle der x,y werte mit Hilfe der kleinsten Kvadrate ( Least square method)
+	 * eine lineare funktion und extrapoliert dem Wert im Zeitpunkt t
+	 *  
+	 * Fehlerhafte Formel aus AFo
+	 *  
+	 * @param werte Y-Werte
+	 * @param zeitPunkte X-Werte
+	 * @param t X-Wert zu dem man Y extrapolieren moechtet
+	 * @return Y-Wert zum t
+	 */
 	public double trendExtrapolation(double [] werte, double [] zeitPunkte, double t) {
 		
 		double wertMittel;

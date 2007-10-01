@@ -27,6 +27,8 @@
 package de.bsvrz.dua.daufd.stufenaesse;
 
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 import de.bsvrz.dav.daf.main.ClientDavInterface;
@@ -39,8 +41,11 @@ import de.bsvrz.dav.daf.main.config.ConfigurationArea;
 import de.bsvrz.dav.daf.main.config.ObjectTimeSpecification;
 import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dav.daf.main.config.SystemObjectType;
+import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickenStufeTest;
+import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickeStufe.WFD_Stufe;
 import de.bsvrz.sys.funclib.debug.Debug;
-
+import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe.NI_Stufe;
+import de.bsvrz.dua.daufd.stufenaesse.NaesseStufe.NS_Stufe;
 
 /**
  * Testet den Modul NaesseStufe
@@ -79,6 +84,61 @@ public class NaesseStufeTest implements ClientSenderInterface {
 		"ZeitNass2Nass1", "ZeitNass1Trocken"
 	};
 
+	/**
+	 *  Tabelle aus AFo - Ermitellt aus WFD und NI stufe die NaesseStufe
+	 * 
+	 * Die Tabelle bildet WFDStufen an Tabellen von  NiStufen ab
+	 * Jede Zeile ist eine Tabelle von NI-Stufen und NaesseStufen
+	 */
+	static Hashtable<WFD_Stufe, 
+			Hashtable<NI_Stufe, NS_Stufe>> tabelle = new Hashtable<WFD_Stufe, Hashtable<NI_Stufe,NS_Stufe>>();
+	static {
+		Hashtable<NI_Stufe, NS_Stufe> zeile = new Hashtable<NI_Stufe, NS_Stufe>();
+		zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_TROCKEN);
+		zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_TROCKEN);
+		zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS1);
+		zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS2);
+		zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS2);
+		zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_TROCKEN);
+		tabelle.put(WFD_Stufe.WFD_STUFE0, zeile);
+		
+		zeile = new Hashtable<NI_Stufe, NS_Stufe>();
+		zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_NASS1);
+		zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_NASS1);
+		zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS2);
+		zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS3);
+		zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS4);
+		zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_NASS1);
+		tabelle.put(WFD_Stufe.WFD_STUFE1, zeile);
+		
+
+		zeile = new Hashtable<NI_Stufe, NS_Stufe>();
+		zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_NASS2);
+		zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_NASS2);
+		zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS2);
+		zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS3);
+		zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS4);
+		zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_NASS2);
+		tabelle.put(WFD_Stufe.WFD_STUFE2, zeile);
+		
+		zeile = new Hashtable<NI_Stufe, NS_Stufe>();
+		zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_NASS2);
+		zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_NASS2);
+		zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS3);
+		zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS3);
+		zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS4);
+		zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_NASS3);
+		tabelle.put(WFD_Stufe.WFD_STUFE3, zeile);
+		
+		zeile = new Hashtable<NI_Stufe, NS_Stufe>();
+		zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_TROCKEN);
+		zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_NASS1);
+		zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS2);
+		zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS3);
+		zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS4); 
+		zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_WERT_NV);
+		tabelle.put(WFD_Stufe.WFD_WERT_NV, zeile);
+	};
 
 	/**
 	 * Parametriert die Verzoegerung bei der Abtrocknungphasen
@@ -111,11 +171,13 @@ public class NaesseStufeTest implements ClientSenderInterface {
 				LOGGER.error("Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ " + TYP_UFDMS + ":" + e.getMessage());
 				e.printStackTrace();
 			}
+			Thread.sleep(200);
 			
 			for(SystemObject so : ufdsObjekte ) {
 				dataRequest(so, DD_ABTROCKNUNG_PHASEN, START_SENDING);
+				//Thread.sleep(2);
 			}
-			
+			//Thread.sleep(200);
 			DAV.unsubscribeSender(this, ufdsObjekte, DD_ABTROCKNUNG_PHASEN);
 
 		} catch (Exception e) {

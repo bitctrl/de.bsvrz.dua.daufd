@@ -65,10 +65,19 @@ public class WasserFilmDickenStufeTest  {
 	private final double stufeBis[] = new double[] {
 		0.21, 0.28, 1.70, 200.0   // Max Wert vom DaK 	
 	};
+	/**
+	 * Koefizient fuer Glaettung
+	 */
+	private final double b0 = 0.08;
+	/**
+	 * Koefizient fuer Glaettung
+	 */
+	private final double fb = 0.25;
 	
 	private static final String TYP_UFDS_WFD = "typ.ufdsWasserFilmDicke";
 	private static final String ATG_UFDS_KLASS_WFD = "atg.ufdsKlassifizierungWasserFilmDicke";
 	private static final String ATT_UFDS_KLASS_WFD = "KlassifizierungWasserFilmDicke";
+	private static final String ATG_UFDS_AGGREG_WFD = "atg.ufdsAggregationWasserFilmDicke";
 	
 	/**
 	 * Sendet die Parametrierung aus dem Tabellen der AFo dem DAV
@@ -78,7 +87,7 @@ public class WasserFilmDickenStufeTest  {
 	public void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
 		try {
 			UfdsKlassifizierungParametrierung param = new UfdsKlassifizierungParametrierung(
-					TYP_UFDS_WFD, ATG_UFDS_KLASS_WFD, ATT_UFDS_KLASS_WFD, stufeVon, stufeBis);
+					TYP_UFDS_WFD, ATG_UFDS_KLASS_WFD, ATT_UFDS_KLASS_WFD, ATG_UFDS_AGGREG_WFD, stufeVon, stufeBis, b0, fb);
 			param.ParametriereUfds(dav, konfBereiche);
 		} catch (Exception e) {
 			Debug.getLogger().error("Fehler bei Parametrierung der WasserFilmDicke:" + e.getMessage());
@@ -99,7 +108,7 @@ public class WasserFilmDickenStufeTest  {
 		double [] MesswertGlatt = new double[Messwert.length];
 		double [] b = new double [Messwert.length];
 	
-		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
 		
 		/*
 		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
@@ -110,7 +119,7 @@ public class WasserFilmDickenStufeTest  {
 		
 		// Noch ein Test mit gerauschte Werte
 		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.1, 10);
-		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
 		
 		
 		/*
@@ -138,7 +147,7 @@ public class WasserFilmDickenStufeTest  {
 		int [] stufen = new int [Messwert.length];
 		hystTest.init(stufeVon, stufeBis);
 	
-		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
 		alt = -1;
 		for(int i=0; i< MesswertGlatt.length; i++) {
 			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);
@@ -154,7 +163,7 @@ public class WasserFilmDickenStufeTest  {
 		
 		// Noch ein Test mit gerauschte Werte
 		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.1, 10);
-		MesswertBearbeitungAllgemein.geglaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
 		alt = -1;
 		for(int i=0; i< MesswertGlatt.length; i++) {
 			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);

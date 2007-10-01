@@ -103,13 +103,14 @@ public class KlassifizierungParametrierungTest implements StandardApplication {
 		
 		NiederschagIntensitaetStufeTest test1 = new NiederschagIntensitaetStufeTest();		
 		test1.ParametriereUfds(DAV, konfBereiche);
-		
+	//	 Der DAV ist zu langsam, er schafft nicht so  viele telegramme zu bearbeiten
+		Thread.sleep(800);
 		WasserFilmDickenStufeTest test2 = new WasserFilmDickenStufeTest();
 		test2.ParametriereUfds(DAV, konfBereiche);
-		
+		Thread.sleep(800);
 		SichtWeitenStufeTest test3 = new SichtWeitenStufeTest();
 		test3.ParametriereUfds(DAV, konfBereiche);
-		
+		Thread.sleep(800);
 		NaesseStufeTest test4 = new NaesseStufeTest();
 		test4.ParametriereUfds(DAV, konfBereiche);
 	}

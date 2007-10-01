@@ -43,7 +43,9 @@ import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
 import de.bsvrz.sys.funclib.debug.Debug;
 
 /**
- * Eine genesrische UFdsModul Parametrierung Klasse
+ * Eine generische UfdsModul Parametrierung Klasse, parametriert die 
+ * Attributgruppen Klasifizierung und Aggregation, erwartet, dass
+ * die Parametrierung der Parametrierung schon gemacht wurde
  * 
  * @author BitCtrl Systems GmbH, Bachraty
  *
@@ -54,6 +56,11 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 	 * Datenbeschreibung fuer die  Klasifizierung Daten
 	 */
 	private DataDescription DD_KLASIFIZIERUNG = null;
+
+	/**
+	 * Datenbeschreibung fuer die  Aggregation Daten
+	 */
+	private DataDescription DD_AGGREGATION = null;
 	/**
 	 * Der Logger
 	 */
@@ -71,13 +78,17 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 	 */
 	private String TYP = null;
 	/**
-	 * Attributgruppe des Objektes
+	 * Attributgruppe des Objektes fuer Klassifizierung
 	 */
-	private String ATG = null;
+	private String ATG_KLASS = null;
 	/**
-	 * Attribut zur Parametrierung
+	 * Attributgruppe des Objektes fuer Aggregation
 	 */
-	private String ATT = null;
+	private String ATG_AGGREG = null;
+	/**
+	 * Attribut zur Parametrierung fuer Klassifizierung
+	 */
+	private String ATT_KLASS = null;
 	/**
 	 * Untere Grenzwerte
 	 */
@@ -86,27 +97,40 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 	 * Obere Grenzwerte
 	 */
 	private double [] stufeBis = null;
+	/**
+	 * Koefizient fuer Glaettung
+	 */
+	private double b0;
+	/**
+	 * Koefizient fuer Glaettung
+	 */
+	private double fb;
 	
 	/**
 	 * Standardkonstruktor
 	 * 
 	 * @param typ Typ des parametrierendes Objekts
-	 * @param atg Attributgruppe des parametrierendes Objekts
-	 * @param att Parametrierendes AttributArray
+	 * @param atgKlassifizierung Attributgruppe des parametrierendes Objekts
+	 * @param attKlasifizierung Parametrierendes AttributArray
 	 * @param stufeVon untere Grenzwerte
 	 * @param stufeBis obere Grenzwerte
+	 * @param b0 b_0 Koefizient
+ 	 * @param fb f_b Koefizient
 	 * @throws DUAInitialisierungsException Bei fehlerhafen Eingabe der Stufen
 	 */
-	public UfdsKlassifizierungParametrierung(String typ, String atg, String att, double [] stufeVon, double [] stufeBis) throws DUAInitialisierungsException {	
+	public UfdsKlassifizierungParametrierung(String typ, String atgKlassifizierung, String attKlasifizierung, String atgAggregation, double [] stufeVon, double [] stufeBis, double b0, double fb) throws DUAInitialisierungsException {	
 		this.TYP = typ;
-		this.ATG = atg;
-		this.ATT = att;
+		this.ATG_KLASS = atgKlassifizierung;
+		this.ATT_KLASS = attKlasifizierung;
+		this.ATG_AGGREG = atgAggregation;
 		
 		if(stufeBis == null || stufeBis == null || stufeVon.length != stufeBis.length)
 			throw new DUAInitialisierungsException("StufeVon oder StufeBis nicht korrekt eingegeben");
 		
 		this.stufeVon = stufeVon;
 		this.stufeBis = stufeBis;
+		this.fb = fb;
+		this.b0 = b0;
 	}
 	
 	/**
@@ -120,7 +144,11 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		this.DAV = dav;
 		
 		DD_KLASIFIZIERUNG = new DataDescription(
-				DAV.getDataModel().getAttributeGroup(ATG),
+				DAV.getDataModel().getAttributeGroup(ATG_KLASS),
+				DAV.getDataModel().getAspect(ASP_PARAM_VORGABE), (short)0);
+		
+		DD_AGGREGATION = new DataDescription(
+				DAV.getDataModel().getAttributeGroup(ATG_AGGREG),
 				DAV.getDataModel().getAspect(ASP_PARAM_VORGABE), (short)0);
 
 		Collection<SystemObjectType> sotMenge = new LinkedList<SystemObjectType>();
@@ -135,8 +163,11 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		
 		try {
 			DAV.subscribeSender(this, ufdsObjekte, DD_KLASIFIZIERUNG, SenderRole.sender());
+			// Der DAV ist zu langsam und antwortet mit "Sendeanmeldung nocht nicht bestaettigt"
+			Thread.sleep(400);
+			DAV.subscribeSender(this, ufdsObjekte, DD_AGGREGATION, SenderRole.sender());
 			// Der DAV ist zu langsam und antwortet mit "Sendeanmeldung nocht nicht bestaettigt" 
-			Thread.sleep(800);
+			Thread.sleep(400);
 		} catch (Exception e) {
 			LOGGER.error("Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ " + TYP + ":" + e.getMessage());
 			e.printStackTrace();
@@ -144,6 +175,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		
 		for(SystemObject so : ufdsObjekte ) {
 			dataRequest(so, DD_KLASIFIZIERUNG, START_SENDING);
+			dataRequest(so, DD_AGGREGATION, START_SENDING);
 		}
 		
 		DAV.unsubscribeSender(this, ufdsObjekte, DD_KLASIFIZIERUNG);
@@ -155,12 +187,12 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 	 */
 	public void dataRequest(SystemObject object,
 			DataDescription dataDescription, byte state) {
-		if(dataDescription.getAttributeGroup().getPid().equals(ATG) 
+		if(dataDescription.getAttributeGroup().getPid().equals(ATG_KLASS) 
 				&& state == START_SENDING ) {
 			
-			Data datei = DAV.createData(DAV.getDataModel().getAttributeGroup(ATG));
+			Data datei = DAV.createData(DAV.getDataModel().getAttributeGroup(ATG_KLASS));
 			
-			Data.Array stufen = datei.getArray(ATT);
+			Data.Array stufen = datei.getArray(ATT_KLASS);
 			stufen.setLength(stufeBis.length);
 			
 			for(int i=0; i<stufeBis.length; i++) {
@@ -171,9 +203,27 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 			
 			try {
 				DAV.sendData(resDatei);
-				System.out.println("Objekt " + object.getPid() + " parametriert " + ATG);
+				System.out.println("Objekt " + object.getPid() + " parametriert " + ATG_KLASS);
 			} catch (Exception e) {
-				LOGGER.error("Fehler bei Sendung von Daten für Klassifizierung Niederschlaginetnsitaet des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
+				LOGGER.error("Fehler bei Sendung von Daten für Klassifizierung des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		else if(dataDescription.getAttributeGroup().getPid().equals(ATG_AGGREG) 
+				&& state == START_SENDING ) {
+
+			Data datei = DAV.createData(DAV.getDataModel().getAttributeGroup(ATG_AGGREG));
+			
+			datei.getScaledValue("b0").set(b0);
+			datei.getScaledValue("fb").set(fb);
+			
+			ResultData resDatei = new ResultData(object, DD_AGGREGATION, System.currentTimeMillis(), datei);
+			
+			try {
+				DAV.sendData(resDatei);
+				System.out.println("Objekt " + object.getPid() + " parametriert " + ATG_KLASS);
+			} catch (Exception e) {
+				LOGGER.error("Fehler bei Sendung von Daten für Aggregation des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
 				e.printStackTrace();
 			}
 		}
