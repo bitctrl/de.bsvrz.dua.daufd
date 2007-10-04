@@ -27,6 +27,10 @@ package de.bsvrz.dua.daufd.tp;
 
 import org.junit.Test;
 
+import com.sun.java_cup.internal.version;
+
+import de.bsvrz.dua.daufd.vew.VerwaltungAufbereitungUFD;
+
 
 /**
  * Testet den Modul Taupunkt
@@ -34,8 +38,19 @@ import org.junit.Test;
  * @author BitCtrl Systems GmbH, Bachraty
  * 
  */
-public class TaupunktTemperaturTest {
+public class TaupunktTemperaturTest extends Taupunkt {
 
+	/**
+	 * Verbindungsdaten
+	 */
+	private static final String[] CON_DATA = new String[] {
+			"-datenverteiler=localhost:8083",  
+			"-benutzer=Tester", 
+			"-authentifizierung=c:\\passwd", 
+			"-debugLevelStdErrText=WARNING", 
+			"-debugLevelFileText=WARNING",
+			"-kb=kb.UFD_Konfig_B27" }; 
+	
 	/**
 	 * Berechnet dem Taupunkt fuer Luftemperatur
 	 * @param relativeLuftFeuchtigkeit Feuchte
@@ -155,7 +170,6 @@ public class TaupunktTemperaturTest {
 		return a * t + b;
 	}
 	
-	@Test
 	public void Test() {
 		
 		double [] x = new double [] { 1, 2, 3, 4, 5 };
