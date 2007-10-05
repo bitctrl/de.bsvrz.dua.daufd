@@ -282,10 +282,10 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 			nichtermittelbar = true;
 
 		// Initializierung wegen dummen Compiler
-		long fbofT = 0, rlF = 0; 
+		long luftT = 0, rlF = 0; 
 		if(!nichtermittelbar) {
-			fbofT = lDaten.luftTemperatur.getItem("LuftTemperatur").getUnscaledValue("Wert").longValue();
-			if(fbofT<1000 ||
+			luftT = lDaten.luftTemperatur.getItem("LuftTemperatur").getUnscaledValue("Wert").longValue();
+			if(luftT<1000 ||
 					lDaten.luftTemperatur.getItem("LuftTemperatur")
 						.getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").byteValue()==1)  {
 				nichtermittelbar = true;
@@ -309,8 +309,8 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		}
 		
 		double relFeucht = rlF;
-		double fobofTemp = 0.1 * fbofT;
-		double ergebnis = Berechnetaupunkt(relFeucht, fobofTemp);
+		double luftTemp = 0.1 *luftT;
+		double ergebnis = Berechnetaupunkt(relFeucht, luftTemp);
 		
 		lDaten.taupunktLuft.getItem("TaupunktTemperaturLuft").asScaledValue().set(ergebnis);
 		lDaten.tpLuftZeitStemepel = zeitStemepel;
@@ -364,7 +364,6 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 * {@inheritDoc}
 	 */
 	public ModulTyp getModulTyp() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

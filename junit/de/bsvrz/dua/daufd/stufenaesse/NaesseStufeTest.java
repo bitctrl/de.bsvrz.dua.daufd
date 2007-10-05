@@ -59,7 +59,7 @@ public class NaesseStufeTest implements ClientSenderInterface {
 	 * Abtrocknungphasen Verzoegerung [AFo]
 	 */
 	private final long abtrocknungPhasen[] = new long[] {
-		60, 60, 60, 180
+		180, 60, 60, 60 
 	};
 	/**
 	 * Verbindung zum DAV
@@ -80,64 +80,8 @@ public class NaesseStufeTest implements ClientSenderInterface {
 	
 	private static final String TYP_UFDMS = "typ.umfeldDatenMessStelle";
 	private static final String ATG_UFDMS_AP = "atg.ufdmsAbtrockungsPhasen";
-	private static final String ATT_STUFE[] = new String [] { "ZeitNass4Nass3", "ZeitNass3Nass2",
-		"ZeitNass2Nass1", "ZeitNass1Trocken"
-	};
-
-	/**
-	 *  Tabelle aus AFo - Ermitellt aus WFD und NI stufe die NaesseStufe
-	 * 
-	 * Die Tabelle bildet WFDStufen an Tabellen von  NiStufen ab
-	 * Jede Zeile ist eine Tabelle von NI-Stufen und NaesseStufen
-	 */
-	static Hashtable<WFD_Stufe, 
-			Hashtable<NI_Stufe, NS_Stufe>> tabelle = new Hashtable<WFD_Stufe, Hashtable<NI_Stufe,NS_Stufe>>();
-	static {
-		Hashtable<NI_Stufe, NS_Stufe> zeile = new Hashtable<NI_Stufe, NS_Stufe>();
-		zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_TROCKEN);
-		zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_TROCKEN);
-		zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS1);
-		zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS2);
-		zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS2);
-		zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_TROCKEN);
-		tabelle.put(WFD_Stufe.WFD_STUFE0, zeile);
-		
-		zeile = new Hashtable<NI_Stufe, NS_Stufe>();
-		zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_NASS1);
-		zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_NASS1);
-		zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS2);
-		zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS3);
-		zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS4);
-		zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_NASS1);
-		tabelle.put(WFD_Stufe.WFD_STUFE1, zeile);
-		
-
-		zeile = new Hashtable<NI_Stufe, NS_Stufe>();
-		zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_NASS2);
-		zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_NASS2);
-		zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS2);
-		zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS3);
-		zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS4);
-		zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_NASS2);
-		tabelle.put(WFD_Stufe.WFD_STUFE2, zeile);
-		
-		zeile = new Hashtable<NI_Stufe, NS_Stufe>();
-		zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_NASS2);
-		zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_NASS2);
-		zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS3);
-		zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS3);
-		zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS4);
-		zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_NASS3);
-		tabelle.put(WFD_Stufe.WFD_STUFE3, zeile);
-		
-		zeile = new Hashtable<NI_Stufe, NS_Stufe>();
-		zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_TROCKEN);
-		zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_NASS1);
-		zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS2);
-		zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS3);
-		zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS4); 
-		zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_WERT_NV);
-		tabelle.put(WFD_Stufe.WFD_WERT_NV, zeile);
+	private static final String ATT_STUFE[] = new String [] { 
+		 "ZeitNass1Trocken", "ZeitNass4Nass3", "ZeitNass3Nass2", "ZeitNass2Nass1"
 	};
 
 	/**

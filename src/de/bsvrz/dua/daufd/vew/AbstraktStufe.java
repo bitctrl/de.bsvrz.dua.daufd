@@ -26,7 +26,9 @@
 
 package de.bsvrz.dua.daufd.vew;
 
+import java.util.Collection;
 import java.util.Hashtable;
+import java.util.LinkedList;
 
 import de.bsvrz.dav.daf.main.ClientReceiverInterface;
 import de.bsvrz.dav.daf.main.ClientSenderInterface;
@@ -37,6 +39,8 @@ import de.bsvrz.dav.daf.main.ReceiveOptions;
 import de.bsvrz.dav.daf.main.ReceiverRole;
 import de.bsvrz.dav.daf.main.ResultData;
 import de.bsvrz.dav.daf.main.Data.Array;
+import de.bsvrz.dav.daf.main.config.ConfigurationObject;
+import de.bsvrz.dav.daf.main.config.ObjectSet;
 import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dua.daufd.hysterese.Hysterese;
 import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
@@ -45,6 +49,13 @@ import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IBearbeitungsKnoten;
 import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IVerwaltung;
 import de.bsvrz.sys.funclib.debug.Debug;
 
+/**
+ * Generelle formel un Berechnungen fuer die Module
+ * NiederschlagintensitaetStufe, SichtweiteStufe und WasserfilmdickeStufe  
+ * 
+ * @author BitCtrl Systems GmbH, Bachraty
+ *
+ */
 public  abstract class AbstraktStufe 
 implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 	/**
@@ -75,6 +86,10 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 	 * Datenbeschreibung fuer Ausgabedatensaete
 	 */
 	protected DataDescription DD_QUELLE;
+	/**
+	 * Sensoren, deren Daten bearebietet werden sollen
+	 */
+	protected Collection<SystemObject> sensoren = new LinkedList<SystemObject>();
 	
 	/**
 	 * Parameter und Daten, die pro Sensor gespeichert werden sollen
@@ -82,7 +97,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 *
 	 */
-	private class SensorParameter {
+	protected class SensorParameter {
 		/**
 		 * Untere Grenzwerte
 		 */
@@ -107,79 +122,72 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 		 * Geglaettetes Messwert aus dem vorherigen Zyklus
 		 */
 		public double MesswertGlatti_1 = Double.NaN;
-
+		/**
+		 * Letzte berechnete Stufe
+		 */
+		public int stufe = -1;
 	};
-		
-	/**
-	 * Attributgruppe des Objektes fuer Klassifizierung
+	/** 
+	 *  Menge der Sensoren die zu eine Messstelle gehoeren
 	 */
-	protected String ATG_KLASS = null;
+	private static final String MNG_SENSOREN = "UmfeldDatenSensoren";
 	/**
-	 * Attributgruppe des Objektes fuer Aggregation
+	 *  Aspekt Parameter-Soll
 	 */
-	protected String ATG_AGGREG = null;
+	private final String ASP_SOLL_PARAM = "asp.parameterSoll";
 	/**
-	 * Attributgruppe des Objektes fuer die Quelldaten
+	 *  Aspekt Klassifizierung
 	 */
-	protected String ATG_QUELLE = null;
-	/**
-	 * Attributgruppe der Daten zu bearbeiten
-	 */ 
-	protected String ATG_MESSWERTE = null;
-	/**
-	 * Attribut des Objektes fuer die Quelldaten
-	 */
-	protected String ATT_MESSWERTE = null;
-	/**
-	 * Attribut zur Parametrierung fuer Klassifizierung
-	 */
-	protected String ATT_KLASS = null;
+	private final String ASP_KLASSIFIZIERUNG = "asp.klassifizierung";
 	/**
 	 * Abbildet dem SystemObjekt Sensor auf eine Sturuktur mit Parameter des Sensors
 	 */
 	protected Hashtable<SystemObject , SensorParameter> sensorDaten = new Hashtable<SystemObject, SensorParameter>();
-	
-	private final String ASP_SOLL_PARAM = "asp.parameterSoll";
-	private final String ASP_KLASSIFIZIERUNG = "asp.klassifizierung";
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void initialisiere(IVerwaltung verwaltung)
 			throws DUAInitialisierungsException {
-		this.verwaltung = verwaltung;	
-		
-		ATG_KLASS = getKlasseifizierungsAttributGruppe();
-		ATG_AGGREG = getAggregationsAtrributGruppe();
-		ATG_QUELLE = getStufeAttributGruppe();
-		ATG_MESSWERTE = getMesswertAttributGruppe();
-		ATT_MESSWERTE = getMesswertAttribut();
-		ATT_KLASS = getKlasseifizierungsAttribut();
-		
-		
+		this.verwaltung = verwaltung;		
 		DD_KLASSIFIZIERUNG = new DataDescription(
-				verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_KLASS),
+				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getKlasseifizierungsAttributGruppe()),
 				verwaltung.getVerbindung().getDataModel().getAspect(ASP_SOLL_PARAM), (short)0);
 		
 		DD_AGGREGATION = new DataDescription(
-				verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_AGGREG),
+				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getAggregationsAtrributGruppe()),
 				verwaltung.getVerbindung().getDataModel().getAspect(ASP_SOLL_PARAM), (short)0);
 		
 		DD_QUELLE = new DataDescription(
-				verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_QUELLE),
+				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getStufeAttributGruppe()),
 				verwaltung.getVerbindung().getDataModel().getAspect(ASP_KLASSIFIZIERUNG), (short)0);
 		
 		
-		for(SystemObject so: verwaltung.getSystemObjekte()) 
-			try {			
-				ResultData resultate = new ResultData(so, DD_QUELLE, System.currentTimeMillis(), null);
-				verwaltung.getVerbindung().subscribeSource(this, resultate);
-				sensorDaten.put(so, new SensorParameter());
-		
-			} catch (OneSubscriptionPerSendData e) {
-				LOGGER.error("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());	
+		for(SystemObject so: verwaltung.getSystemObjekte())  {
+			if(!(so  instanceof ConfigurationObject)) continue;
+			ConfigurationObject confObjekt = (ConfigurationObject)so;
+			ObjectSet sensorMenge = confObjekt.getObjectSet(MNG_SENSOREN);
+			for( SystemObject sensor : sensorMenge.getElements()) {
+				if(getSensorTyp().equals(sensor.getType().getPid())) {
+					try {			
+						ResultData resultate = new ResultData(so, DD_QUELLE, System.currentTimeMillis(), null);
+						verwaltung.getVerbindung().subscribeSource(this, resultate);
+						sensorDaten.put(so, new SensorParameter());
+						sensoren.add(sensor);
+					} catch (OneSubscriptionPerSendData e) {
+						LOGGER.error("Anmeldung als Quelle fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());	
+					}
+				}
 			}
-		verwaltung.getVerbindung().subscribeReceiver(this, verwaltung.getSystemObjekte(), DD_AGGREGATION, ReceiveOptions.normal(), ReceiverRole.receiver());
-		verwaltung.getVerbindung().subscribeReceiver(this, verwaltung.getSystemObjekte(), DD_KLASSIFIZIERUNG, ReceiveOptions.normal(), ReceiverRole.receiver());
+		}
+		
+		verwaltung.getVerbindung().subscribeReceiver(this, sensoren, DD_AGGREGATION, ReceiveOptions.normal(), ReceiverRole.receiver());
+		verwaltung.getVerbindung().subscribeReceiver(this, sensoren, DD_KLASSIFIZIERUNG, ReceiveOptions.normal(), ReceiverRole.receiver());
 	}	
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void update(ResultData[] results) {
 		for(ResultData resData : results) {
 			DataDescription dataDescription = resData.getDataDescription();
@@ -188,8 +196,8 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			SystemObject objekt = resData.getObject();
 			SensorParameter param = sensorDaten.get(objekt);
 			
-			if(dataDescription.getAttributeGroup().getPid().equals(ATG_KLASS)) {
-				Array stufen = daten.getArray(ATT_KLASS);
+			if(dataDescription.getAttributeGroup().getPid().equals(getKlasseifizierungsAttributGruppe())) {
+				Array stufen = daten.getArray(getKlasseifizierungsAttribut());
 				
 				int laenge  = stufen.getLength();
 				param.stufeBis = new double[laenge];
@@ -206,7 +214,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 					LOGGER.error("Fehler bei Initialisierung der Hystereze Klasse:" + e.getMessage());
 				}
 			}
-			else if(dataDescription.getAttributeGroup().getPid().equals(ATG_AGGREG)) {
+			else if(dataDescription.getAttributeGroup().getPid().equals(getAggregationsAtrributGruppe())) {
 				param.b0 = daten.getScaledValue("b0").doubleValue();
 				param.fb = daten.getScaledValue("fb").doubleValue();
 			} 
@@ -225,13 +233,14 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			SystemObject objekt = resData.getObject();
 			SensorParameter param = sensorDaten.get(objekt);
 				
-			if(dataDescription.getAttributeGroup().getPid().equals(ATG_MESSWERTE)) {
+			if(dataDescription.getAttributeGroup().getPid().equals(getMesswertAttributGruppe())) {
 				int stufe = -1;
-				if(daten.getItem(ATT_MESSWERTE).getItem("Wert").asUnscaledValue().longValue()>=0) {
-					double messwert = daten.getItem(ATT_MESSWERTE).getItem("Wert").asScaledValue().doubleValue();
+				if(daten.getItem(getMesswertAttribut()).getItem("Wert").asUnscaledValue().longValue()>=0) {
+					double messwert = daten.getItem(getMesswertAttribut()).getItem("Wert").asScaledValue().doubleValue();
 					double messwertGeglaettet = berechneMesswertGlaettung(param, messwert);
 					stufe = param.hysterese.getStufe(messwertGeglaettet);
 				}
+				param.stufe  = stufe;
 				SendeStufe(resData.getObject(), stufe, resData.getDataTime());
 			}
 		}
@@ -239,19 +248,30 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			naechsterBearbeitungsKnoten.aktualisiereDaten(resultate);
 	}
 
+	/**
+	 * Sendet einen Datensatz mit Messwert Klassifizierung
+	 * @param objekt Sensor
+	 * @param stufe Stufe
+	 * @param zeitStempel Zeitpunkt
+	 */
 	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel) {
 		Data data = verwaltung.getVerbindung().createData(
-				verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_QUELLE));
+				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getStufeAttributGruppe()));
 		data.getItem("Stufe").asUnscaledValue().set(stufe);
 		
 		ResultData resultat = new ResultData(objekt, DD_QUELLE, zeitStempel, data);
 		try {
 			verwaltung.getVerbindung().sendData(resultat);
 		} catch (Exception e) {
-			LOGGER.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + ATG_QUELLE + " :\n" + e.getMessage());
+			LOGGER.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage());
 		}
 	}
-	
+	/**
+	 * Berechnet die Glaettung nach der Formel in [AFo]
+	 * @param param Sensorparameter (enthaelt Konstanten}
+	 * @param messwert Messwert
+	 * @return Geglaetettes Messwert
+	 */
 	public double berechneMesswertGlaettung(SensorParameter param, double messwert) {
 		double messwertGlatt;
 		double b_i;
@@ -271,34 +291,74 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 		return messwertGlatt;
 	}
 
-	
-	
+	/**
+	 * Erfragt die Klassifizierung ATG als Zeichenkette
+	 * @return Klassifizierung ATG
+	 */
 	public abstract String getKlasseifizierungsAttributGruppe();
+	/**
+	 * Erfragt die Aggregations ATG als Zeichenkette
+	 * @return Aggregations ATG
+	 */
 	public abstract String getAggregationsAtrributGruppe();
+	/**
+	 * Erfragt die Messwert ATG als Zeichenkette
+	 * @return Messwert ATG
+	 */
 	public abstract String getMesswertAttributGruppe();
+	/**
+	 * Erfragt den Attribut fuer das Sensorwert in Messwert ATG als Zeichenkette
+	 * @return Messwert Attribut
+	 */
 	public abstract String getMesswertAttribut();
+	/**
+	 * Erfragt die Stufe ATG als Zeichenkette
+	 * @return Stufe ATG
+	 */
 	public abstract String getStufeAttributGruppe();
+	/**
+	 * Erfragt den Attribut fuer Klassifizierung in Klassifizierung ATG als Zeichenkette
+	 * @return Klasifizierung Attribut
+	 */
 	public abstract String getKlasseifizierungsAttribut();
+	/**
+	 * Erfragt den Sensortyp als Zeichenkette
+	 * @return Sensortyp
+	 */
+	public abstract String getSensorTyp();
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setNaechstenBearbeitungsKnoten(IBearbeitungsKnoten knoten) {
 		this.naechsterBearbeitungsKnoten = knoten;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setPublikation(boolean publizieren) {
 		this.publizieren = publizieren;
 	}
 
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void dataRequest(SystemObject object,
 			DataDescription dataDescription, byte state) {
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean isRequestSupported(SystemObject object,
 			DataDescription dataDescription) {
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public ModulTyp getModulTyp() {
 		return null;
 	}
