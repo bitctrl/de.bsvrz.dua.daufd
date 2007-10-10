@@ -1,3 +1,28 @@
+/**
+ * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+ * Copyright (C) 2007 BitCtrl Systems GmbH 
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * Contact Information:<br>
+ * BitCtrl Systems GmbH<br>
+ * Weißenfelser Straße 67<br>
+ * 04229 Leipzig<br>
+ * Phone: +49 341-490670<br>
+ * mailto: info@bitctrl.de
+ */
 package de.bsvrz.dua.daufd.stufeni;
 
 import de.bsvrz.dav.daf.main.config.SystemObject;
@@ -67,20 +92,6 @@ public class NiederschlagIntensitaetStufe  extends AbstraktStufe {
 	protected final static NI_Stufe mapIntStufe [] = new NI_Stufe [] 
     { NI_Stufe.NI_STUFE0, NI_Stufe.NI_STUFE1, NI_Stufe.NI_STUFE2, NI_Stufe.NI_STUFE3, NI_Stufe.NI_STUFE4};
 
-	/**
-	 * Ergibt die NI Stufe fuer ein bestimmtes Sensor
-	 * @param sensor Sensoer
-	 * @return NI Stufe
-	 */
-	public NI_Stufe getStufe(SystemObject sensor) {
-		
-		NI_Stufe stufe;
-		SensorParameter sensorDaten = this.sensorDaten.get(sensor);
-		if( sensorDaten.stufe < 0 || sensorDaten.stufe > mapIntStufe.length)
-			stufe = NI_Stufe.NI_WERT_NV;
-		else stufe = mapIntStufe[sensorDaten.stufe];
-		return stufe;
-	}
 	
 	/**
 	 * Konvertiert die NI_stufe aus Integer ins symbolischen Format

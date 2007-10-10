@@ -1,3 +1,28 @@
+/**
+ * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+ * Copyright (C) 2007 BitCtrl Systems GmbH 
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * Contact Information:<br>
+ * BitCtrl Systems GmbH<br>
+ * Weißenfelser Straße 67<br>
+ * 04229 Leipzig<br>
+ * Phone: +49 341-490670<br>
+ * mailto: info@bitctrl.de
+ */
 package de.bsvrz.dua.daufd.stufenaesse;
 
 import java.util.Hashtable;
@@ -96,19 +121,29 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 		 */
 		public long [] abtrocknungsPhasen = new long[ATT_STUFE.length];
 		/**
+		 * ZeitStempel der NaesseSteufe der MessStelle
+		 */
+		public long nsStufeZeitStempel = 0;
+		/**
 		 * NaesseSteufe der MessStelle
 		 */
 		public NS_Stufe nsStufe = NS_Stufe.NS_WERT_NE;
 		/**
+		 * NaesseSteufe der MessStelle die erreicht werden soll bei verzoegerten Aenderungen
+		 */
+		public NS_Stufe zielNsStufe = NS_Stufe.NS_WERT_NE;
+		/**
 		 * Akutlaisiert die NaesseStufe nach den Abtrocknungsphasen
 		 */
-		public void alarm() {
+		synchronized public void alarm() {
 			int intStufe = mapNSStufeInt.get(nsStufe).intValue();
-			if(intStufe>0) {
+			if(nsStufe != zielNsStufe && intStufe>0) {
 				intStufe--;
-				aktualisiereNaesseStufe(this, mapIntNSStufe[intStufe]);
+				this.nsStufe = mapIntNSStufe[intStufe];
+				nsStufeZeitStempel = nsStufeZeitStempel + abtrocknungsPhasen[intStufe];
+				publiziereNsStufe(messObject, nsStufe, nsStufeZeitStempel);
 				if(intStufe>0) {
-					stufeAkutalisierer.setWecker(this, System.currentTimeMillis() + abtrocknungsPhasen[intStufe-1]);
+					stufeAkutalisierer.setWecker(this, nsStufeZeitStempel + abtrocknungsPhasen[intStufe-1]);
 				}
 			}
 		}
@@ -122,13 +157,14 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	 *  
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 */
-	public enum  NS_Stufe {
+	public enum  NS_Stufe implements Comparable<NS_Stufe> {
 		NS_TROCKEN,
 		NS_NASS1,
 		NS_NASS2,
 		NS_NASS3,
 		NS_NASS4,
-		NS_WERT_NE // Wert nicht ermittelbar
+		NS_WERT_NE; // Wert nicht ermittelbar
+		
 	};
 	/**
 	 * Abbildet symbolische konstanten auf Integer Werte die in Datensaetzen eingeschrieben werden sein koennen
@@ -220,7 +256,6 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	
 	public void aktualisiereDaten(ResultData[] resultate) {
 
-		if(publizieren)
 		for(ResultData resData : resultate) {
 			
 			Data data = resData.getData();
@@ -232,21 +267,27 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 			if( ATG_NI_STUFE.equals(resData.getDataDescription().getAttributeGroup().getPid()) &&
 					ASP_KLASSIFIZIERUNG.equals(resData.getDataDescription().getAspect().getPid()))
 			{
-				int stufe = data.getItem("Stufe").asUnscaledValue().intValue();
-				NI_Stufe niStufe = NiederschlagIntensitaetStufe.getStufe(stufe);
-
-				// TODO
+				synchronized (messStelleDaten) {
+					int stufe = data.getItem("Stufe").asUnscaledValue().intValue();
+					NI_Stufe niStufe = NiederschlagIntensitaetStufe.getStufe(stufe);
+					messStelleDaten.niStufe = niStufe;
+					messStelleDaten.niStufeZeitStempel = zeitStempel;
+					NS_Stufe nsStufe = tabelleWFDNIzumNS.get(messStelleDaten.wfdStufe).get(messStelleDaten.niStufe);					
+					aktualisiereNaesseStufe(messStelleDaten, nsStufe);
+				}
 			}
 			else if( ATG_WFD_STUFE.equals(resData.getDataDescription().getAttributeGroup().getPid()) &&
 					ASP_KLASSIFIZIERUNG.equals(resData.getDataDescription().getAspect().getPid()))
 			{
-				int stufe = data.getItem("Stufe").asUnscaledValue().intValue();
-				WFD_Stufe wfdStufe = WasserFilmDickeStufe.getStufe(stufe);
-				messStelleDaten.wfdStufe = wfdStufe;
-				messStelleDaten.wfdStufeZeitStempel = zeitStempel;
-				NS_Stufe nsStufe = tabelleWFDNIzumNS.get(messStelleDaten.wfdStufe).get(messStelleDaten.nsStufe);
-				aktualisiereNaesseStufe(messStelleDaten, nsStufe);
-				/// TODO 
+				synchronized (messStelleDaten) {
+					int stufe = data.getItem("Stufe").asUnscaledValue().intValue();
+					WFD_Stufe wfdStufe = WasserFilmDickeStufe.getStufe(stufe);
+					messStelleDaten.wfdStufe = wfdStufe;
+					messStelleDaten.wfdStufeZeitStempel = zeitStempel;
+					NS_Stufe nsStufe = tabelleWFDNIzumNS.get(messStelleDaten.wfdStufe).get(messStelleDaten.niStufe);
+					//messStelleDaten.zielNsStufe = nsStufe;
+					aktualisiereNaesseStufe(messStelleDaten, nsStufe);
+				}
 			}
 		}
 
@@ -255,15 +296,76 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	}
 	
 	public void aktualisiereNaesseStufe(MessStelleDaten messStelleDaten, NS_Stufe neueStufe){
-		// TODO - aktualiseren
+		messStelleDaten.zielNsStufe = neueStufe;
+		loesche(messStelleDaten);
+		
+		// nicht ermittelbar
+		if(neueStufe == NS_Stufe.NS_WERT_NE) {
+			messStelleDaten.nsStufe = neueStufe;
+			messStelleDaten.nsStufeZeitStempel = (messStelleDaten.wfdStufeZeitStempel > messStelleDaten.niStufeZeitStempel) ? messStelleDaten.wfdStufeZeitStempel : messStelleDaten.niStufeZeitStempel;
+			publiziereNsStufe(messStelleDaten.messObject, neueStufe, messStelleDaten.nsStufeZeitStempel);
+			return;
+		}
+		
+		// beide Stufe Daten sind vorhanden, oder nur die NI_STUFE faehlt
+		if(messStelleDaten.niStufeZeitStempel <= messStelleDaten.wfdStufeZeitStempel) {
+			
+			// Stufe geht nach oben
+			if(neueStufe.compareTo(messStelleDaten.nsStufe)>=0) {
+				messStelleDaten.nsStufe = neueStufe;
+				messStelleDaten.nsStufeZeitStempel = messStelleDaten.wfdStufeZeitStempel;
+				publiziereNsStufe(messStelleDaten.messObject, neueStufe, messStelleDaten.nsStufeZeitStempel);
+			}
+			// Wir gehen mehr als eine Stufe nach unten
+			else if(neueStufe.compareTo(messStelleDaten.nsStufe)<-1) {
+				int intStufe = mapNsStufeZumInt(messStelleDaten.nsStufe);
+				intStufe--;
+				messStelleDaten.nsStufe = mapIntNSStufe[intStufe];
+				messStelleDaten.nsStufeZeitStempel = messStelleDaten.wfdStufeZeitStempel;
+				publiziereNsStufe(messStelleDaten.messObject, messStelleDaten.nsStufe, messStelleDaten.nsStufeZeitStempel);
+				erstelleAuktualisierungsAuftrag(messStelleDaten, messStelleDaten.abtrocknungsPhasen[intStufe]);
+			}
+			// Wir gehen gerade eine Stufe nach unten
+			else {
+				messStelleDaten.nsStufe = neueStufe;
+				messStelleDaten.nsStufeZeitStempel = messStelleDaten.wfdStufeZeitStempel;
+				publiziereNsStufe(messStelleDaten.messObject, neueStufe, messStelleDaten.nsStufeZeitStempel);
+			}
+		}
+		//faehld die WFD
+		else {
+			
+		}
+	}
+	
+	public void publiziereNsStufe(SystemObject objekt, NS_Stufe stufe, long zeitStempel) {
+		
+		int intStufe = mapNsStufeZumInt(stufe);
+		Data data = verwaltung.getVerbindung().createData(
+				verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_UFDMS_NS));
+		data.getItem("NässeStufe").asUnscaledValue().set(intStufe);
+		
+		ResultData resultat = new ResultData(objekt, DD_NAESSE_STUFE, zeitStempel, data);
+		try {
+			verwaltung.getVerbindung().sendData(resultat);
+		} catch (Exception e) {
+			LOGGER.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + ATG_UFDMS_NS + " :\n" + e.getMessage());
+		}
 	}
 	
 	/**
 	 * Loescht alle AktualisierungsAuftraege fuer die MessStelle
-	 * @param messStelleDaten Messtelle mit daten
+	 * @param messStelleDaten Messtelle mit Daten
 	 */
 	public void loesche(MessStelleDaten messStelleDaten) {
 		stufeAkutalisierer.setWecker(messStelleDaten, ObjektWecker.AUS);
+	}
+	/**
+	 * Fuegt ein AktualisierungsAuftraeg fuer die MessStelle ein
+	 * @param messStelleDaten Messtelle mit Daten
+	 */
+	public void erstelleAuktualisierungsAuftrag(MessStelleDaten messStelleDaten, long zeitIntervall) {
+		stufeAkutalisierer.setWecker(messStelleDaten, messStelleDaten.nsStufeZeitStempel + zeitIntervall);
 	}
 
 	public ModulTyp getModulTyp() {
@@ -303,8 +405,6 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	}
 
 	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void dataRequest(SystemObject object,
@@ -329,5 +429,11 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					messStelleDaten.abtrocknungsPhasen[i] = daten.getItem(ATT_STUFE[i]).asTimeValue().getMillis();
 			}
 		}
+	}
+	
+	public static int mapNsStufeZumInt(NS_Stufe stufe) {
+		int intStufe = stufe.ordinal();
+		if(stufe == NS_Stufe.NS_WERT_NE) intStufe = -1;
+		return intStufe;
 	}
 }
