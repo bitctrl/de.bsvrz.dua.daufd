@@ -32,9 +32,9 @@ import java.util.LinkedList;
 import de.bsvrz.dav.daf.main.ClientDavInterface;
 import de.bsvrz.dav.daf.main.config.ConfigurationArea;
 import de.bsvrz.dua.daufd.stufenaesse.NaesseStufeTest;
-import de.bsvrz.dua.daufd.stufeni.NiederschagIntensitaetStufeTest;
-import de.bsvrz.dua.daufd.stufesw.SichtWeitenStufeTest;
-import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickenStufeTest;
+import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufeTest;
+import de.bsvrz.dua.daufd.stufesw.SichtWeiteStufeTest;
+import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickeStufeTest;
 import de.bsvrz.sys.funclib.application.StandardApplication;
 import de.bsvrz.sys.funclib.application.StandardApplicationRunner;
 import de.bsvrz.sys.funclib.commandLineArgs.ArgumentList;
@@ -57,7 +57,7 @@ public class KlassifizierungParametrierungTest implements StandardApplication {
 			"-authentifizierung=c:\\passwd", 
 			"-debugLevelStdErrText=WARNING", 
 			"-debugLevelFileText=WARNING",
-			"-kb=kb.UFD_Konfig_B27" }; 
+			"-KonfigurationsBereichsPid=kb.UFD_Konfig_B27"}; 
 	
 	/**
 	 * Der Logger
@@ -101,14 +101,14 @@ public class KlassifizierungParametrierungTest implements StandardApplication {
 				konfBereiche.add(ca);
 		}
 		
-		NiederschagIntensitaetStufeTest test1 = new NiederschagIntensitaetStufeTest();		
+		NiederschlagIntensitaetStufeTest test1 = new NiederschlagIntensitaetStufeTest();		
 		test1.ParametriereUfds(DAV, konfBereiche);
 	//	 Der DAV ist zu langsam, er schafft nicht so  viele telegramme zu bearbeiten
 		Thread.sleep(800);
-		WasserFilmDickenStufeTest test2 = new WasserFilmDickenStufeTest();
+		WasserFilmDickeStufeTest test2 = new WasserFilmDickeStufeTest();
 		test2.ParametriereUfds(DAV, konfBereiche);
 		Thread.sleep(800);
-		SichtWeitenStufeTest test3 = new SichtWeitenStufeTest();
+		SichtWeiteStufeTest test3 = new SichtWeiteStufeTest();
 		test3.ParametriereUfds(DAV, konfBereiche);
 		Thread.sleep(800);
 		NaesseStufeTest test4 = new NaesseStufeTest();
@@ -119,7 +119,7 @@ public class KlassifizierungParametrierungTest implements StandardApplication {
 	 * {@inheritDoc}
 	 */
 	public void parseArguments(ArgumentList argumentList) throws Exception {
-		strKonfBereiche = argumentList.fetchArgument("-kb").asString().split(",");
+		strKonfBereiche = argumentList.fetchArgument("-KonfigurationsBereichsPid").asString().split(",");
 	}
 	
 	/**

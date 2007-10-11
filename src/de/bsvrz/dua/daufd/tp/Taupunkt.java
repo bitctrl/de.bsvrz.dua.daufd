@@ -25,7 +25,9 @@
  */
 package de.bsvrz.dua.daufd.tp;
 
+import java.util.Collection;
 import java.util.Hashtable;
+import java.util.LinkedList;
 
 import de.bsvrz.dav.daf.main.ClientSenderInterface;
 import de.bsvrz.dav.daf.main.Data;
@@ -62,10 +64,6 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 */
 	private IBearbeitungsKnoten naechsterBearbeitungsKnoten = null;
 	/**
-	 * Ob man Daten ins DAV puiblizieren soll
-	 */
-	private boolean publizieren = false;
-	/**
 	 * DatenBeschreibung des Datensatzes mit  Taupunkttemperatur  der Fahrbahn
 	 */
 	private DataDescription DD_UFDMS_TT_FB = null;
@@ -73,25 +71,39 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 * DatenBeschreibung des Datensatzes mit  Taupunkttemperatur  der Fahrbahn
 	 */
 	private DataDescription DD_UFDMS_TT_L = null;
+	/**
+	 * LuftTemperatur Sensoren, deren Daten bearebietet werden sollen
+	 */
+	protected Collection<SystemObject> ltSensoren = new LinkedList<SystemObject>();
+	/**
+	 * FahrbahnoOberflaecheTemperatur Sensoren, deren Daten bearebietet werden sollen
+	 */
+	protected Collection<SystemObject> fbofSensoren = new LinkedList<SystemObject>();
+	/**
+	 * LuftFeuchte Sensoren, deren Daten bearebietet werden sollen
+	 */
+	protected Collection<SystemObject> rlfSensoren = new LinkedList<SystemObject>();
 	
-	private static final String ATG_UFDMS_TTFB = "atg.ufdmsTaupunktTemperaturFahrBahn"; 
-	private static final String ATG_UFDMS_TTL = "atg.ufdmsTaupunktTemperaturLuft";
-	private static final String ATG_UFDS_LT = "atg.ufdsLuftTemperatur";
-	private static final String ATG_UFDS_FBOFT = "atg.ufdsFahrBahnOberFlächenTemperatur";
-	private static final String ATG_UFDS_RLF = "aUfdsRelativeLuftFeuchte";
+	
+	public static final String ATG_UFDMS_TTFB = "atg.ufdmsTaupunktTemperaturFahrBahn"; 
+	public static final String ATG_UFDMS_TTL = "atg.ufdmsTaupunktTemperaturLuft";
+	public static final String ATG_UFDS_LT = "atg.ufdsLuftTemperatur";
+	public static final String ATG_UFDS_FBOFT = "atg.ufdsFahrBahnOberFlächenTemperatur";
+	public static final String ATG_UFDS_RLF = "atg.ufdsRelativeLuftFeuchte";
 	
 	private static final String ASP_ANALYSE = "asp.analyse";
 	private static final String ASP_MESSWERT_ERSETZUNG = "asp.messWertErsetzung";
 	private static final String MNG_SENSOREN = "UmfeldDatenSensoren";
 	private static final String TYP_UFDS_LT = "typ.ufdsLuftTemperatur";
 	private static final String TYP_UFDS_FBOFT = "typ.ufdsFahrBahnOberFlächenTemperatur";
+	private static final String TYP_UFDS_RLF = "typ.ufdsRelativeLuftFeuchte";
 	
 	/**
 	 * Eintraege in der Lokalen Tabelle mit letzten datensaetzen pro MessStelle
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 *
 	 */
-	private class LetzteDaten {
+	protected class LetzteDaten {
 		/**
 		 * Standardkonstruktor
 		 */
@@ -158,8 +170,6 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 * {@inheritDoc}
 	 */
 	public void aktualisiereDaten(ResultData[] resultate) {
-
-		if(publizieren)
 		for(ResultData resData : resultate) {
 			
 			Data data = resData.getData();
@@ -171,7 +181,10 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 				long T =  data.getTimeValue("T").getMillis();
 				SystemObject messStelle = mapSenzorMessStelle.get(resData.getObject());
 				LetzteDaten lDaten = taupunktTabelle.get(messStelle);
-				
+				if(lDaten == null) {
+					LOGGER.warning("Objekt " + messStelle + " in der Hashtabelle nicht gefunden");
+					continue;
+				}
 				BerechneTaupunktTemperaturLuft(messStelle, lDaten, resData.getDataTime() - T);
 				
 				lDaten.luftTemperatur = data;
@@ -186,6 +199,10 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 				SystemObject messStelle = mapSenzorMessStelle.get(resData.getObject());
 				LetzteDaten lDaten = taupunktTabelle.get(messStelle);
 				
+				if(lDaten == null) {
+					LOGGER.warning("Objekt " + messStelle + " in der Hashtabelle nicht gefunden");
+					continue;
+				}
 				BerechneTaupunktTemperaturFbof(messStelle, lDaten, resData.getDataTime() - T);
 				
 				lDaten.fbofTemperatur = data;
@@ -198,7 +215,10 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 				long T =  data.getTimeValue("T").getMillis();
 				SystemObject messStelle = mapSenzorMessStelle.get(resData.getObject());
 				LetzteDaten lDaten = taupunktTabelle.get(messStelle);
-				
+				if(lDaten == null) {
+					LOGGER.warning("Objekt " + messStelle + " in der Hashtabelle nicht gefunden");
+					continue;
+				}
 				BerechneTaupunktTemperaturFbof(messStelle, lDaten, resData.getDataTime() - T);
 				BerechneTaupunktTemperaturLuft(messStelle, lDaten, resData.getDataTime() - T);
 				
@@ -223,8 +243,8 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		boolean nichtermittelbar = false;
 		
 		// Nicht beide DS fuer letztes intervall vorhanden sind
-		if(lDaten.fboftZeitStemepel != lDaten.rlZeitStemepel)
-			nichtermittelbar = true;
+		if(lDaten.fboftZeitStemepel != lDaten.rlZeitStemepel) return;
+		
 		if(lDaten.fbofTemperatur == null || lDaten.relativeLuftFeuchte == null)
 			nichtermittelbar = true;
 
@@ -275,8 +295,8 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		boolean nichtermittelbar = false;
 		
 		// Nicht beide DS fuer letztes intervall vorhanden sind
-		if(lDaten.ltZeitStemepel != lDaten.rlZeitStemepel)
-			nichtermittelbar = true;
+		if(lDaten.ltZeitStemepel != lDaten.rlZeitStemepel) return;
+		
 		if(lDaten.luftTemperatur == null || lDaten.relativeLuftFeuchte == null)
 			nichtermittelbar = true;
 
@@ -372,9 +392,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	public void initialisiere(IVerwaltung verwaltung)
 			throws DUAInitialisierungsException {
 		this.verwaltung = verwaltung;
-		if(! publizieren) return;
 	
-		
 		DD_UFDMS_TT_FB = new DataDescription(
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_UFDMS_TTFB), 
 				verwaltung.getVerbindung().getDataModel().getAspect(ASP_ANALYSE));
@@ -383,25 +401,40 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_UFDMS_TTL), 
 				verwaltung.getVerbindung().getDataModel().getAspect(ASP_ANALYSE));
 		
+		if(verwaltung.getSystemObjekte() == null || verwaltung.getSystemObjekte().length == 0) return;
+		
 		for(SystemObject so: verwaltung.getSystemObjekte()) 
 			try {
 				if(!(so  instanceof ConfigurationObject)) continue;
 				taupunktTabelle.put(so, new LetzteDaten());
 				ConfigurationObject confObjekt = (ConfigurationObject)so;
 				ObjectSet sensorMenge = confObjekt.getObjectSet(MNG_SENSOREN);
+				boolean hatRLFSensor, hatLTSensor, hatFBOFSensor;
+				hatFBOFSensor = hatLTSensor = hatRLFSensor = false;
 				for( SystemObject sensor : sensorMenge.getElements()) {
 					if(TYP_UFDS_LT.equals(sensor.getType().getPid())) {
 						mapSenzorMessStelle.put(sensor, so);
-						
-						ResultData resultate = new ResultData(so, DD_UFDMS_TT_L, System.currentTimeMillis(), null);
-						verwaltung.getVerbindung().subscribeSource(this, resultate);
+						ltSensoren.add(sensor);
+						hatLTSensor = true;
 					}
 					else if(TYP_UFDS_FBOFT.equals(sensor.getType().getPid())) {
 						mapSenzorMessStelle.put(sensor, so);
-						
-						ResultData resultate = new ResultData(so, DD_UFDMS_TT_FB, System.currentTimeMillis(), null);
-						verwaltung.getVerbindung().subscribeSource(this, resultate);
+						fbofSensoren.add(sensor);
+						hatFBOFSensor = true;
 					}
+					else if(TYP_UFDS_RLF.equals(sensor.getType().getPid())) {
+						mapSenzorMessStelle.put(sensor, so);
+						rlfSensoren.add(sensor);
+						hatRLFSensor = true;
+					}
+				}
+				if(hatFBOFSensor && hatRLFSensor) {
+					ResultData resultate = new ResultData(so, DD_UFDMS_TT_FB, System.currentTimeMillis(), null);
+					verwaltung.getVerbindung().subscribeSource(this, resultate);
+				}
+				if(hatLTSensor && hatRLFSensor) {
+					ResultData resultate = new ResultData(so, DD_UFDMS_TT_L, System.currentTimeMillis(), null);
+					verwaltung.getVerbindung().subscribeSource(this, resultate);
 				}
 			} catch (OneSubscriptionPerSendData e) {
 				LOGGER.error("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());	
@@ -418,7 +451,6 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 * {@inheritDoc}
 	 */
 	public void setPublikation(boolean publizieren) {
-		this.publizieren = publizieren;
 	}
 	/**
 	 * {@inheritDoc}
@@ -441,4 +473,17 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public Collection<SystemObject> getRlfSensoren() {
+		return this.rlfSensoren;
+	}
+	
+	public Collection<SystemObject> getLtSensoren() {
+		return this.ltSensoren;
+	}
+	
+	public Collection<SystemObject> getFbofSensoren() {
+		return this.fbofSensoren;
+	}
+	
 }

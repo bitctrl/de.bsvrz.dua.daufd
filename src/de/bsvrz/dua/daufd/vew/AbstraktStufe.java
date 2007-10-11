@@ -162,6 +162,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getStufeAttributGruppe()),
 				verwaltung.getVerbindung().getDataModel().getAspect(ASP_KLASSIFIZIERUNG), (short)0);
 		
+		if(verwaltung.getSystemObjekte() == null || verwaltung.getSystemObjekte().length == 0) return;
 		
 		for(SystemObject so: verwaltung.getSystemObjekte())  {
 			if(!(so  instanceof ConfigurationObject)) continue;
@@ -170,9 +171,9 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			for( SystemObject sensor : sensorMenge.getElements()) {
 				if(getSensorTyp().equals(sensor.getType().getPid())) {
 					try {			
-						ResultData resultate = new ResultData(so, DD_QUELLE, System.currentTimeMillis(), null);
+						ResultData resultate = new ResultData(sensor, DD_QUELLE, System.currentTimeMillis(), null);
 						verwaltung.getVerbindung().subscribeSource(this, resultate);
-						sensorDaten.put(so, new SensorParameter());
+						sensorDaten.put(sensor, new SensorParameter());
 						sensoren.add(sensor);
 					} catch (OneSubscriptionPerSendData e) {
 						LOGGER.error("Anmeldung als Quelle fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());	
@@ -196,6 +197,10 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			SystemObject objekt = resData.getObject();
 			SensorParameter param = sensorDaten.get(objekt);
 			
+			if(param == null) {
+				LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
+				return;
+			}
 			if(dataDescription.getAttributeGroup().getPid().equals(getKlasseifizierungsAttributGruppe())) {
 				Array stufen = daten.getArray(getKlasseifizierungsAttribut());
 				
@@ -232,8 +237,12 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			if(daten == null) continue;
 			SystemObject objekt = resData.getObject();
 			SensorParameter param = sensorDaten.get(objekt);
-				
+		
 			if(dataDescription.getAttributeGroup().getPid().equals(getMesswertAttributGruppe())) {
+				if(param == null) {
+					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
+					continue;
+				}
 				int stufe = -1;
 				if(daten.getItem(getMesswertAttribut()).getItem("Wert").asUnscaledValue().longValue()>=0) {
 					double messwert = daten.getItem(getMesswertAttribut()).getItem("Wert").asScaledValue().doubleValue();
@@ -259,9 +268,13 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getStufeAttributGruppe()));
 		data.getItem("Stufe").asUnscaledValue().set(stufe);
 		
-		ResultData resultat = new ResultData(objekt, DD_QUELLE, zeitStempel, data);
+		ResultData [] resultate = new ResultData[1];
+		resultate[0] = new ResultData(objekt, DD_QUELLE, zeitStempel, data);
+		
 		try {
-			verwaltung.getVerbindung().sendData(resultat);
+			verwaltung.getVerbindung().sendData(resultate);
+			if(naechsterBearbeitungsKnoten !=  null)
+				naechsterBearbeitungsKnoten.aktualisiereDaten(resultate);
 		} catch (Exception e) {
 			LOGGER.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage());
 		}
@@ -361,5 +374,12 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 	 */
 	public ModulTyp getModulTyp() {
 		return null;
+	}
+	/**
+	 * erfragt die menge der bearbeiteten Sensoren
+	 * @return Menge der Sensoren
+	 */
+	public Collection<SystemObject> getSensoren() {
+		return this.sensoren;
 	}
 }

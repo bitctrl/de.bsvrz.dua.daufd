@@ -27,8 +27,6 @@
 package de.bsvrz.dua.daufd.stufenaesse;
 
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.LinkedList;
 
 import de.bsvrz.dav.daf.main.ClientDavInterface;
@@ -41,11 +39,7 @@ import de.bsvrz.dav.daf.main.config.ConfigurationArea;
 import de.bsvrz.dav.daf.main.config.ObjectTimeSpecification;
 import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dav.daf.main.config.SystemObjectType;
-import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickenStufeTest;
-import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickeStufe.WFD_Stufe;
 import de.bsvrz.sys.funclib.debug.Debug;
-import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe.NI_Stufe;
-import de.bsvrz.dua.daufd.stufenaesse.NaesseStufe.NS_Stufe;
 
 /**
  * Testet den Modul NaesseStufe
@@ -53,7 +47,8 @@ import de.bsvrz.dua.daufd.stufenaesse.NaesseStufe.NS_Stufe;
  * @author BitCtrl Systems GmbH, Bachraty
  * 
  */
-public class NaesseStufeTest implements ClientSenderInterface {
+public class NaesseStufeTest extends NaesseStufe 
+implements ClientSenderInterface {
 	
 	/**
 	 * Abtrocknungphasen Verzoegerung [AFo]

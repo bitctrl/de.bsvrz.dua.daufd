@@ -24,45 +24,47 @@
  * mailto: info@bitctrl.de
  */
 
-package de.bsvrz.dua.daufd.stufeni;
+package de.bsvrz.dua.daufd.stufewfd;
 
 import java.util.Collection;
-import java.util.LinkedList;
 
 import org.junit.Test;
 
 import de.bsvrz.dav.daf.main.ClientDavInterface;
-import de.bsvrz.dav.daf.main.DataDescription;
-import de.bsvrz.dav.daf.main.SenderRole;
 import de.bsvrz.dav.daf.main.config.ConfigurationArea;
-import de.bsvrz.dav.daf.main.config.ObjectTimeSpecification;
-import de.bsvrz.dav.daf.main.config.SystemObject;
-import de.bsvrz.dav.daf.main.config.SystemObjectType;
 import de.bsvrz.dua.daufd.MesswertBearbeitungAllgemein;
 import de.bsvrz.dua.daufd.UfdsKlassifizierungParametrierung;
 import de.bsvrz.dua.daufd.hysterese.HysterezeTester2;
 import de.bsvrz.sys.funclib.debug.Debug;
+import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickeStufe;
 
 
 /**
- *  Testet den Modul NiederschalIntensitaetStufe
- *  
- *  @author BitCtrl Systems GmbH, Bachraty
+ * Testet den Modul WasserFilmDickenStufe
+ * 
+ * @author BitCtrl Systems GmbH, Bachraty
  * 
  */
-public class NiederschagIntensitaetStufeTest  {
+public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 	
+	/*
+	 *  ################ WARNUNG #################
+	 *  
+	 *  Werte im Afo sind mit genuaigkeit 0.01 mm 
+	 *  wobei die Skalierung ist 0.1 mm
+	 * 
+	 */
 	/**
-	 * NI-Stufe untere Grenzwerte [AFo]
+	 * WFD-Stufe untere Grenzwerte [AFo]
 	 */
 	private final double stufeVon[] = new double[] {
-		0.0, 0.2, 1.0, 4.0, 10.0 	
+		0.0, 0.20, 0.27, 1.60 	
 	};
 	/**
-	 * NI-Stufe obere Grenzwerte [AFo]
+	 * WFD-Stufe obere Grenzwerte [AFo]
 	 */
 	private final double stufeBis[] = new double[] {
-		0.3, 1.2, 5.0, 12.0, 200.0 // Max Wert vom DaK 	
+		0.21, 0.28, 1.70, 200.0   // Max Wert vom DaK 	
 	};
 	/**
 	 * Koefizient fuer Glaettung
@@ -73,10 +75,10 @@ public class NiederschagIntensitaetStufeTest  {
 	 */
 	private final double fb = 0.25;
 	
-	private static final String TYP_UFDS_NI = "typ.ufdsNiederschlagsIntensität";
-	private static final String ATG_UFDS_KLASS_NI = "atg.ufdsKlassifizierungNiederschlagsIntensität";
-	private static final String ATT_UFDS_KLASS_NI = "KlassifizierungNiederschlagsIntensität";
-	private static final String ATG_UFDS_AGGREG_NI =  "atg.ufdsAggregationNiederschlagsIntensität";
+	private static final String TYP_UFDS_WFD = "typ.ufdsWasserFilmDicke";
+	private static final String ATG_UFDS_KLASS_WFD = "atg.ufdsKlassifizierungWasserFilmDicke";
+	private static final String ATT_UFDS_KLASS_WFD = "KlassifizierungWasserFilmDicke";
+	private static final String ATG_UFDS_AGGREG_WFD = "atg.ufdsAggregationWasserFilmDicke";
 	
 	/**
 	 * Sendet die Parametrierung aus dem Tabellen der AFo dem DAV
@@ -86,14 +88,14 @@ public class NiederschagIntensitaetStufeTest  {
 	public void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
 		try {
 			UfdsKlassifizierungParametrierung param = new UfdsKlassifizierungParametrierung(
-					TYP_UFDS_NI, ATG_UFDS_KLASS_NI, ATT_UFDS_KLASS_NI, ATG_UFDS_AGGREG_NI, stufeVon, stufeBis, b0, fb);
+					TYP_UFDS_WFD, ATG_UFDS_KLASS_WFD, ATT_UFDS_KLASS_WFD, ATG_UFDS_AGGREG_WFD, stufeVon, stufeBis, b0, fb);
 			param.ParametriereUfds(dav, konfBereiche);
 		} catch (Exception e) {
-			Debug.getLogger().error("Fehler bei Parametrierung der NiederschlagIntensitaet:" + e.getMessage());
+			Debug.getLogger().error("Fehler bei Parametrierung der WasserFilmDicke:" + e.getMessage());
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Generiert eine Reihe von Zahlen und vergleicht die geglaettet Werte mit eigenen
 	 */
@@ -103,7 +105,7 @@ public class NiederschagIntensitaetStufeTest  {
 		final double f = 0.25;
 		final double b0 = 0.08;
 		
-		double [] Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length-1]*1.2);
+		double [] Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length]*1.2);
 		double [] MesswertGlatt = new double[Messwert.length];
 		double [] b = new double [Messwert.length];
 	

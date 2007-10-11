@@ -36,6 +36,7 @@ import de.bsvrz.dua.daufd.MesswertBearbeitungAllgemein;
 import de.bsvrz.dua.daufd.UfdsKlassifizierungParametrierung;
 import de.bsvrz.dua.daufd.hysterese.HysterezeTester2;
 import de.bsvrz.sys.funclib.debug.Debug;
+import de.bsvrz.dua.daufd.stufesw.SichtWeiteStufe;
 
 
 /**
@@ -44,7 +45,7 @@ import de.bsvrz.sys.funclib.debug.Debug;
  * @author BitCtrl Systems GmbH, Bachraty
  * 
  */
-public class SichtWeitenStufeTest  {
+public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	
 	/**
 	 * SW-Stufe untere Grenzwerte [AFo]
