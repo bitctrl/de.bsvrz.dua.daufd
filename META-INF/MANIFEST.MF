@@ -4,8 +4,7 @@ Bundle-Name: Daufd
 Bundle-SymbolicName: de.bsvrz.dua.daufd
 Bundle-Version: 1.0.0
 Bundle-Localization: plugin
-Require-Bundle: de.bitctrl.dav.daf,
- de.bitctrl.sys.funclib
+Require-Bundle: de.bsvrz.sys.funclib.bitctrl
 Export-Package: de.bsvrz.dua.daufd,
  de.bsvrz.dua.daufd.hysterese,
  de.bsvrz.dua.daufd.vew
