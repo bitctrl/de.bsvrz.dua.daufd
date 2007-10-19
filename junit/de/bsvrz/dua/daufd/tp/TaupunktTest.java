@@ -29,16 +29,12 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.sun.java_cup.internal.version;
-
 import de.bsvrz.dav.daf.main.ClientDavInterface;
 import de.bsvrz.dav.daf.main.Data;
 import de.bsvrz.dav.daf.main.DataDescription;
 import de.bsvrz.dav.daf.main.ResultData;
 import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dua.daufd.VerwaltungAufbereitungUFDTest;
-import de.bsvrz.dua.daufd.tp.Taupunkt.LetzteDaten;
-import de.bsvrz.dua.daufd.vew.VerwaltungAufbereitungUFD;
 import de.bsvrz.sys.funclib.application.StandardApplicationRunner;
 import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
 import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IVerwaltung;
@@ -64,13 +60,21 @@ public class TaupunktTest extends Taupunkt {
 			"-KonfigurationsBereichsPid=kb.UFD_Konfig_B27" }; 
 
 	/**
-	 * Der Reihenfolge des TestWertes im Array
+	 * Der Index des aktuelles TestWertes im Array
 	 */
-	private static int testWert = 0;
+	private static int testWertLuft = 0, testWertFbof = 0;
 	/**
 	 * Die TestWerte
 	 */
-	private static double taupunkt [] = null;
+	private static double taupunktLuft [] = null, taupunktFbof [] = null;
+	/**
+	 * Die ZeitStempel der Testwerte
+	 */
+	private static long zeitStempel [] = null;
+	/**
+	 * Intervall der Datenerzeugung;
+	 */
+	private final static long ZEIT_INTERVALL = 300;
 	/**
 	 * Die EingabeDaten
 	 */
@@ -80,9 +84,18 @@ public class TaupunktTest extends Taupunkt {
 	 */
 	private static ClientDavInterface  dav;
 	/**
-	 * SystemObjekt zum TestZwecken
+	 * SystemObjekte zum TestZwecken - liefern die Testdaten
 	 */
 	private static SystemObject rleSensor, ltSensor, fbofSensor;
+	/**
+	 * Synchronizierung
+	 */
+	private static boolean mussWartenFbof = true, mussWartenLuft = true;
+	/**
+	 * Der Verwaltungsmodul
+	 */
+	private static VerwaltungAufbereitungUFDTest hauptModul;
+
 	/**
 	 * Berechnet dem Taupunkt fuer Luftemperatur
 	 * @param relativeLuftFeuchtigkeit Feuchte
@@ -202,6 +215,9 @@ public class TaupunktTest extends Taupunkt {
 		return a * t + b;
 	}
 	
+	/**
+	 * Testet die TrendExtrapolation ( in Glaettprognose )
+	 */
 	public void TestTrendExtrapolation() {
 		
 		double [] x = new double [] { 1, 2, 3, 4, 5 };
@@ -217,21 +233,30 @@ public class TaupunktTest extends Taupunkt {
 		
 	}
 	
-	public void sendeDaten(SystemObject so, DataDescription datenTyp, String att, double wert) {
+	/**
+	 * Sendet Daten fuer Testzwecken 
+	 * @param so SystemObjekt
+	 * @param datenBeschreibung Datenbeschreibung
+	 * @param att Name des Attributs
+	 * @param wert Wert
+	 * @param zeitStemepel ZeitStemepl
+	 * @param implausibel True, wenn Datum Implausibel ist
+	 */
+	public void sendeDaten(SystemObject so, DataDescription datenBeschreibung, String att, double wert, long zeitStemepel, int implausibel) {
 		
-		Data data = dav.createData(datenTyp.getAttributeGroup());
-		data.getTimeValue("T").setMillis(0);
-		data.getItem(att).getUnscaledValue("Wert").set(wert);
+		Data data = dav.createData(datenBeschreibung.getAttributeGroup());
+		data.getTimeValue("T").setMillis(ZEIT_INTERVALL);
+		data.getItem(att).getScaledValue("Wert").set(wert);
 	
 		data.getItem(att).getItem("Status").getItem("Erfassung").getUnscaledValue("NichtErfasst").set(0);
 		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMax").set(0);
 		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);	
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").set(0);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").set(implausibel);
 		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
-		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(0);
+		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
 		
-		ResultData result = new ResultData(so, datenTyp, System.currentTimeMillis(), data);
+		ResultData result = new ResultData(so, datenBeschreibung, zeitStemepel, data);
 		try { 
 			dav.sendData(result);
 		} catch (Exception e) {
@@ -240,6 +265,9 @@ public class TaupunktTest extends Taupunkt {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override 
 	public void initialisiere(IVerwaltung verwaltung)
 	throws DUAInitialisierungsException {
@@ -248,6 +276,7 @@ public class TaupunktTest extends Taupunkt {
 		ResultData resultate;
 		dav = verwaltung.getVerbindung();
 		
+		// findet Objekte die Testdaten liefern koennen
 		for(SystemObject so :getRlfSensoren())
 			if(so != null) {
 				rleSensor = so;
@@ -287,55 +316,108 @@ public class TaupunktTest extends Taupunkt {
 			e.printStackTrace();
 		}
 	}
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void sendeTaupunktTemperaturLuft(SystemObject messStelle, LetzteDaten lDaten) {
+	public void sendeTaupunktTemperaturLuft(LokaleDaten lDaten) {
 
-		super.sendeTaupunktTemperaturLuft(messStelle, lDaten);		
-		Assert.assertEquals(taupunkt[testWert],lDaten.taupunktLuft.getScaledValue("TaupunktTemperaturLuft"));
-		synchronized (this) {
-			this.notify();
+		super.sendeTaupunktTemperaturLuft(lDaten);
+		double diff;
+		double messwert = lDaten.taupunktLuft.getUnscaledValue("TaupunktTemperaturLuft").doubleValue();
+		if(messwert>=-1000)
+			messwert = lDaten.taupunktLuft.getScaledValue("TaupunktTemperaturLuft").doubleValue();
+		diff = taupunktLuft[testWertLuft] - messwert;
+
+		Assert.assertTrue("DIfferenz = " + diff + " taupunkt " + taupunktLuft[testWertLuft] + "DS " + lDaten.taupunktLuft, Math.abs(diff)<=0.05);
+		Assert.assertEquals(lDaten.tpLuftZeitStemepel, zeitStempel[testWertLuft]);
+		System.out.println(String.format("[ %4d ] Luft Taupunkt T OK: %15.7f == %15.7f  Differrez: %15.7f", testWertLuft, taupunktLuft[testWertLuft], messwert, diff));
+		testWertLuft++;
+		
+		if(testWertLuft == taupunktLuft.length-1) synchronized (this) {
+			mussWartenLuft = false;
+			notify();
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void sendeTaupunktTemperaturFbof(SystemObject messStelle, LetzteDaten lDaten) {		
-		super.sendeTaupunktTemperaturFbof(messStelle, lDaten);		
-		Assert.assertEquals(taupunkt[testWert],lDaten.taupunktFbof.getScaledValue("TaupunktTemperaturFahrBahn"));
-		synchronized (this) {
-			this.notify();
+	public void sendeTaupunktTemperaturFbof(LokaleDaten lDaten) {		
+		super.sendeTaupunktTemperaturFbof(lDaten);		
+		double diff;
+		double messwert = lDaten.taupunktFbof.getUnscaledValue("TaupunktTemperaturFahrBahn").doubleValue();
+		if(messwert>=-1000)
+			messwert = lDaten.taupunktFbof.getScaledValue("TaupunktTemperaturFahrBahn").doubleValue();
+		
+		diff = taupunktFbof[testWertFbof] - messwert;
+		Assert.assertTrue(testWertFbof + " DIfferenz = " + diff + " taupunkt " + taupunktFbof[testWertFbof] + "DS " + lDaten.taupunktFbof, Math.abs(diff)<=0.05);
+		Assert.assertEquals(lDaten.tpFbofZeitStemepel, zeitStempel[testWertFbof]);
+		System.out.println(String.format("[ %4d ] Fbof Taupunkt T OK: %15.7f == %15.7f  Differrez: %15.7f", testWertFbof, taupunktFbof[testWertFbof], messwert, diff));
+		testWertFbof++;
+		
+		if(testWertFbof == taupunktFbof.length-1) synchronized (this) {
+			mussWartenFbof = false;
+			notify();
 		}
 	}
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Test
 	public void TestTaupunkt() {
-		double T [] = new double [] { 0.1, -0.2, 0.0, 1.1 -1.0};
-		double feuchte [] = new double [] { 83, 99.9, 100.0, 70.1, 6.2 };
-		taupunkt = new double[T.length * feuchte.length];
-		
-		for(int i = 0; i< T.length; i++ )
-			for(int j = 0; j< feuchte.length; j++)
-			{
-				taupunkt[i*feuchte.length + j] = taupunktTemperatur(feuchte[j], T[i]); 
-			}
+		double T [] = new double [] { 0.1, -0.2, 0.0, 1.1, -1.0};
+		double feuchte [] = new double [] { 83, 99, 100, 70, 6 };
+		taupunktLuft = new double[T.length * feuchte.length];
+		taupunktFbof = new double[T.length * feuchte.length];
+		zeitStempel = new long[taupunktLuft.length];
 
-		VerwaltungAufbereitungUFD verwaltung = new VerwaltungAufbereitungUFDTest();
-		StandardApplicationRunner.run(verwaltung, CON_DATA);
 		
-		testWert = 0;
+		hauptModul = new VerwaltungAufbereitungUFDTest();
+		String connArgs [] =   new String [CON_DATA.length] ;
+		for(int i=0; i<CON_DATA.length; i++)
+			connArgs[i] = CON_DATA[i];
+		StandardApplicationRunner.run(hauptModul, connArgs);
+	
+		
+		long zeit = System.currentTimeMillis();
 		for(int i = 0; i< T.length; i++ )
 			for(int j = 0; j< feuchte.length; j++)
 			{
-				sendeDaten(fbofSensor, DD_SENDE_FBOFT_DATEN, "FahrBahnOberFlächenTemperatur", T[i]);
-				sendeDaten(rleSensor, DD_SENDE_RLF_DATEN, "RelativeLuftFeuchte", feuchte[j]);
-				testWert = i*feuchte.length + j;
-				synchronized (this) {
-					try {
-						this.wait();
-					}catch (Exception e) { }
+				double d = taupunktTemperatur(feuchte[j], T[i]);
+				// runden wegen Sklierung 0.1
+				taupunktLuft[i*feuchte.length + j] = ((double)Math.round(d*10.0))/10.0;
+				taupunktFbof[i*feuchte.length + j] = ((double)Math.round(d*10.0))/10.0;
+				zeitStempel[i*feuchte.length + j] = zeit;
+				zeit += ZEIT_INTERVALL;
+	
+				// normale daten
+				if((j+i) % 5 != 0) 
+					sendeDaten(ltSensor, DD_SENDE_LT_DATEN, "LuftTemperatur", T[i], zeitStempel[i*feuchte.length + j],0);
+				// nicht ermittelbar
+				else {
+					// implausibel
+					if((j+i) % 10 == 0)
+						sendeDaten(ltSensor, DD_SENDE_LT_DATEN, "LuftTemperatur", T[i], zeitStempel[i*feuchte.length + j],1);
+					// oder gar nichts
+					else {}
+					taupunktLuft[i*feuchte.length + j] = -1001; 
 				}
+				sendeDaten(fbofSensor, DD_SENDE_FBOFT_DATEN, "FahrBahnOberFlächenTemperatur", T[i], zeitStempel[i*feuchte.length + j],0);
+				sendeDaten(rleSensor, DD_SENDE_RLF_DATEN, "RelativeLuftFeuchte", feuchte[j], zeitStempel[i*feuchte.length + j],0);
+				
+				try {
+					Thread.sleep(10);
+				} catch (Exception e) { }
 			}
 		
-		
+		synchronized (this) {
+			try {
+				while(mussWartenLuft || mussWartenFbof) wait();
+			} catch (Exception e) { }
+		}
+		hauptModul.disconnect();
+		hauptModul = null;
 	}
 }

@@ -50,7 +50,7 @@ import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IVerwaltung;
 import de.bsvrz.sys.funclib.debug.Debug;
 
 /**
- * Generelle formel un Berechnungen fuer die Module
+ * Generelle Formel und Berechnungen fuer die Module
  * NiederschlagintensitaetStufe, SichtweiteStufe und WasserfilmdickeStufe  
  * 
  * @author BitCtrl Systems GmbH, Bachraty
@@ -130,15 +130,15 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 	/** 
 	 *  Menge der Sensoren die zu eine Messstelle gehoeren
 	 */
-	private static final String MNG_SENSOREN = "UmfeldDatenSensoren";
+	protected static final String MNG_SENSOREN = "UmfeldDatenSensoren";
 	/**
 	 *  Aspekt Parameter-Soll
 	 */
-	private final String ASP_SOLL_PARAM = "asp.parameterSoll";
+	protected final String ASP_SOLL_PARAM = "asp.parameterSoll";
 	/**
 	 *  Aspekt Klassifizierung
 	 */
-	private final String ASP_KLASSIFIZIERUNG = "asp.klassifizierung";
+	protected final String ASP_KLASSIFIZIERUNG = "asp.klassifizierung";
 	/**
 	 * Abbildet dem SystemObjekt Sensor auf eine Sturuktur mit Parameter des Sensors
 	 */
@@ -197,12 +197,14 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			SystemObject objekt = resData.getObject();
 			SensorParameter param = sensorDaten.get(objekt);
 			
-			if(param == null) {
-				LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
-				return;
-			}
-			if(dataDescription.getAttributeGroup().getPid().equals(getKlasseifizierungsAttributGruppe())) {
+			if(dataDescription.getAttributeGroup().getPid().equals(getKlasseifizierungsAttributGruppe()) &&
+					dataDescription.getAspect().getPid().equals(ASP_SOLL_PARAM)) {
 				Array stufen = daten.getArray(getKlasseifizierungsAttribut());
+			
+				if(param == null) {
+					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
+					return;
+				}
 				
 				int laenge  = stufen.getLength();
 				param.stufeBis = new double[laenge];
@@ -219,7 +221,13 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 					LOGGER.error("Fehler bei Initialisierung der Hystereze Klasse:" + e.getMessage());
 				}
 			}
-			else if(dataDescription.getAttributeGroup().getPid().equals(getAggregationsAtrributGruppe())) {
+			else if(dataDescription.getAttributeGroup().getPid().equals(getAggregationsAtrributGruppe()) &&
+					dataDescription.getAspect().getPid().equals(ASP_SOLL_PARAM)) {
+				
+				if(param == null) {
+					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
+					return;
+				}
 				param.b0 = daten.getScaledValue("b0").doubleValue();
 				param.fb = daten.getScaledValue("fb").doubleValue();
 			} 
@@ -268,16 +276,17 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getStufeAttributGruppe()));
 		data.getItem("Stufe").asUnscaledValue().set(stufe);
 		
+		//  Mann muss ein Array dem naechsten Knoten weitergeben
 		ResultData [] resultate = new ResultData[1];
 		resultate[0] = new ResultData(objekt, DD_QUELLE, zeitStempel, data);
-		
+
 		try {
 			verwaltung.getVerbindung().sendData(resultate);
-			if(naechsterBearbeitungsKnoten !=  null)
-				naechsterBearbeitungsKnoten.aktualisiereDaten(resultate);
 		} catch (Exception e) {
 			LOGGER.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage());
 		}
+		if(naechsterBearbeitungsKnoten !=  null)
+			naechsterBearbeitungsKnoten.aktualisiereDaten(resultate);
 	}
 	/**
 	 * Berechnet die Glaettung nach der Formel in [AFo]
@@ -290,9 +299,14 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 		double b_i;
 		
 		// erstes Wert
-		if(param.MesswertGlatti_1 == Double.NaN) {
+		if(Double.isNaN(param.MesswertGlatti_1)) {
 			param.MesswertGlatti_1 = messwert;
 			return messwert;
+		}
+		// Messwert gleich 0
+		if(Math.abs(messwert)<0.000001) {
+			param.MesswertGlatti_1 = 0.0;
+			return 0.0;
 		}
 		
 		b_i = param.b0 + (1.0 - param.fb * param.MesswertGlatti_1/messwert);
@@ -375,6 +389,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 	public ModulTyp getModulTyp() {
 		return null;
 	}
+	
 	/**
 	 * erfragt die menge der bearbeiteten Sensoren
 	 * @return Menge der Sensoren

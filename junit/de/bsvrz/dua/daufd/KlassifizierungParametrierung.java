@@ -38,15 +38,15 @@ import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickeStufeTest;
 import de.bsvrz.sys.funclib.application.StandardApplication;
 import de.bsvrz.sys.funclib.application.StandardApplicationRunner;
 import de.bsvrz.sys.funclib.commandLineArgs.ArgumentList;
-import de.bsvrz.sys.funclib.debug.Debug;
 
 /**
- * Ermoeglicht alle Ufds*Stufe Module zu Parametrieren
+ * Ermoeglicht alle Ufds[Niederschlagintensitaet, Wasserfilmdicke, Sichtweite]Stufe 
+ * Module zu Parametrieren
  * 
  * @author BitCtrl Systems GmbH, Bachraty
  *
  */
-public class KlassifizierungParametrierungTest implements StandardApplication {
+public class KlassifizierungParametrierung implements StandardApplication {
 	
 	/**
 	 * Verbindungsdaten
@@ -58,17 +58,13 @@ public class KlassifizierungParametrierungTest implements StandardApplication {
 			"-debugLevelStdErrText=WARNING", 
 			"-debugLevelFileText=WARNING",
 			"-KonfigurationsBereichsPid=kb.UFD_Konfig_B27"}; 
-	
-	/**
-	 * Der Logger
-	 */
-	private Debug LOGGER = Debug.getLogger(); 
+
 	/**
 	 * Verbindung zum DAV
 	 */
-	private  ClientDavInterface DAV = null;
+	private ClientDavInterface DAV = null;
 	/**
-	 * Die KOnfigurationsbereiche in dem die Objekte Parametriert werden
+	 * Die Konfigurationsbereiche in dem die Objekte Parametriert werden
 	 */
 	private Collection<ConfigurationArea> konfBereiche = null;
 	/**
@@ -82,10 +78,9 @@ public class KlassifizierungParametrierungTest implements StandardApplication {
 	 */
 	public static void main(String args[]) {
 		
-		KlassifizierungParametrierungTest test = new KlassifizierungParametrierungTest();
+		KlassifizierungParametrierung test = new KlassifizierungParametrierung();
 		StandardApplicationRunner.run(test, CON_DATA);
 		test.disconnect();
-		
 	}
 
 	/**
@@ -102,15 +97,20 @@ public class KlassifizierungParametrierungTest implements StandardApplication {
 		}
 		
 		NiederschlagIntensitaetStufeTest test1 = new NiederschlagIntensitaetStufeTest();		
-		test1.ParametriereUfds(DAV, konfBereiche);
-	//	 Der DAV ist zu langsam, er schafft nicht so  viele telegramme zu bearbeiten
+		test1.ParametriereUfds(DAV, konfBereiche);		
+		// Der DAV ist zu langsam, er schafft nicht so  viele Telegramme zu bearbeiten
 		Thread.sleep(800);
+		
 		WasserFilmDickeStufeTest test2 = new WasserFilmDickeStufeTest();
 		test2.ParametriereUfds(DAV, konfBereiche);
+		// Der DAV ist zu langsam, er schafft nicht so  viele Telegramme zu bearbeiten
 		Thread.sleep(800);
+		
 		SichtWeiteStufeTest test3 = new SichtWeiteStufeTest();
 		test3.ParametriereUfds(DAV, konfBereiche);
+		//	Der DAV ist zu langsam, er schafft nicht so  viele Telegramme zu bearbeiten
 		Thread.sleep(800);
+		
 		NaesseStufeTest test4 = new NaesseStufeTest();
 		test4.ParametriereUfds(DAV, konfBereiche);
 	}

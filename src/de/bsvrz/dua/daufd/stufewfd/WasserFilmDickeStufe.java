@@ -25,11 +25,17 @@
  */
 package de.bsvrz.dua.daufd.stufewfd;
 
-import de.bsvrz.dav.daf.main.config.SystemObject;
-import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe.NI_Stufe;
 import de.bsvrz.dua.daufd.vew.AbstraktStufe;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.schnittstellen.IDatenFlussSteuerung;
 
+/**
+ * Berechnet die WasserFilmDickeStufe aus den Messwerten
+ * Die eigentliche berechnung ins fuer mehrere Module gemeinsam
+ * in der Klasse AbstraktStufe 
+ * 
+ * @author BitCtrl Systems GmbH, Bachraty
+ * 
+ */
 public class WasserFilmDickeStufe extends AbstraktStufe {
 
 	@Override
@@ -67,9 +73,11 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 		return "typ.ufdsWasserFilmDicke";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	/**
@@ -103,5 +111,18 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 		else stufeSymb = mapIntStufe[stufe];
 		return stufeSymb;
 	}
+	
 
+	/**
+	 * Konvertiert die WFD_stufe aus  symbolischen Format ins Integer
+	 * @param stufe WFD_Stufe symbolisch
+	 * @return Stufe int
+	 */
+	static public int getStufe(WFD_Stufe stufe) {
+		int intStufe = -1;
+		if(stufe != WFD_Stufe.WFD_WERT_NV) {
+			intStufe = stufe.ordinal();
+		}
+		return intStufe;
+	}
 }

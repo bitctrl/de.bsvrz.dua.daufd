@@ -56,7 +56,6 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 	 * Datenbeschreibung fuer die  Klasifizierung Daten
 	 */
 	private DataDescription DD_KLASIFIZIERUNG = null;
-
 	/**
 	 * Datenbeschreibung fuer die  Aggregation Daten
 	 */

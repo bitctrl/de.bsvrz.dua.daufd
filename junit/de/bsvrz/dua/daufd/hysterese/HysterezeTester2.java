@@ -134,7 +134,7 @@ public class HysterezeTester2 {
 				
 				Assert.assertTrue(r1 == r2);
 				
-				System.out.println(String.format("Test Nr.  %6d  >  %2d == %2d  BESTANDEN ", anzahlTest++, r1, r2));
+				System.out.println(String.format("[ %6d ] Test bestanden: %2d == %2d", anzahlTest++, r1, r2));
 				alt = r2;
 			}
 		}

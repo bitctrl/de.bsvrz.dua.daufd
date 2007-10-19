@@ -29,6 +29,14 @@ import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dua.daufd.vew.AbstraktStufe;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.schnittstellen.IDatenFlussSteuerung;
 
+/**
+ * Berechnet die Sichtweitestufe aus den Messwerten
+ * Die eigentliche berechnung ins fuer mehrere Module gemeinsam
+ * in der Klasse AbstraktStufe 
+ * 
+ * @author BitCtrl Systems GmbH, Bachraty
+ * 
+ */
 public class SichtWeiteStufe  extends AbstraktStufe {
 
 	@Override
@@ -66,6 +74,9 @@ public class SichtWeiteStufe  extends AbstraktStufe {
 		return "typ.ufdsSichtWeite";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 		// TODO Auto-generated method stub
 		

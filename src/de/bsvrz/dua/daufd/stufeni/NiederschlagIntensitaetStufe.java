@@ -25,12 +25,18 @@
  */
 package de.bsvrz.dua.daufd.stufeni;
 
-import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dua.daufd.vew.AbstraktStufe;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.schnittstellen.IDatenFlussSteuerung;
 
+/**
+ * Berechnet die Niederschlagintensitaetstufe aus den Messwerten
+ * Die eigentliche berechnung ins fuer mehrere Module gemeinsam
+ * in der Klasse AbstraktStufe 
+ * 
+ * @author BitCtrl Systems GmbH, Bachraty
+ * 
+ */
 public class NiederschlagIntensitaetStufe  extends AbstraktStufe {
-
 
 	@Override
 	public String getAggregationsAtrributGruppe() {
@@ -67,6 +73,9 @@ public class NiederschlagIntensitaetStufe  extends AbstraktStufe {
 		return "typ.ufdsNiederschlagsIntensität";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 		// TODO Auto-generated method stub
 		
@@ -90,13 +99,13 @@ public class NiederschlagIntensitaetStufe  extends AbstraktStufe {
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
 	protected final static NI_Stufe mapIntStufe [] = new NI_Stufe [] 
-    { NI_Stufe.NI_STUFE0, NI_Stufe.NI_STUFE1, NI_Stufe.NI_STUFE2, NI_Stufe.NI_STUFE3, NI_Stufe.NI_STUFE4};
+    { NI_Stufe.NI_STUFE0, NI_Stufe.NI_STUFE1, NI_Stufe.NI_STUFE2, NI_Stufe.NI_STUFE3, NI_Stufe.NI_STUFE4 };
 
 	
 	/**
-	 * Konvertiert die NI_stufe aus Integer ins symbolischen Format
-	 * @param stufe Stufe Int
-	 * @return NI Stufe symbolisch
+	 * Konvertiert die NI_stufe aus Integer ins symbolische Format
+	 * @param stufe Stufe int
+	 * @return NI_Stufe symbolisch
 	 */
 	static public NI_Stufe getStufe(int stufe) {
 		NI_Stufe stufeSymb;
@@ -104,6 +113,19 @@ public class NiederschlagIntensitaetStufe  extends AbstraktStufe {
 			stufeSymb = NI_Stufe.NI_WERT_NV;
 		else stufeSymb = mapIntStufe[stufe];
 		return stufeSymb;
+	}
+	
+	/**
+	 * Konvertiert die NI_stufe aus  symbolischen Format ins Integer
+	 * @param stufe NI_Stufe symbolisch
+	 * @return Stufe int
+	 */
+	static public int getStufe(NI_Stufe stufe) {
+		int intStufe = -1;
+		if(stufe != NI_Stufe.NI_WERT_NV) {
+			intStufe = stufe.ordinal();
+		}
+		return intStufe;
 	}
 	
 }

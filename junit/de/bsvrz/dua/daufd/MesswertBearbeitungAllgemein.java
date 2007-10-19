@@ -27,7 +27,7 @@
 package de.bsvrz.dua.daufd;
 
 /**
- * Allgemenie Klasse die Werte generiert und mit allgemeinen Formel glaettet, wird
+ * Allgemenie Klasse die Eingabewerte generiert und mit allgemeinen Formel glaettet, wird
  * zum Testfaellen benutzt
  * 
  * @author BitCtrl Systems GmbH, Bachraty
@@ -83,14 +83,15 @@ public class MesswertBearbeitungAllgemein {
 	}
 	
 	/**
-	 * Generiert gerausch und setzt zufaellige Werte als  0 
+	 * Generiert Geraeusch und setzt zufaellige Werte als  0
+	 *  
 	 * @param Messwert Original Array
 	 * @param intervall Intervall des Gerausches
 	 * @param anzahlNullWerte Anzahl der Messwerte, die als 0 gesetzt werden
 	 */
 	public static void gerauescheMesswerte(double [] Messwert, double intervall, int anzahlNullWerte ) {
 		for(int i =0; i<Messwert.length; i++) {
-			Messwert[i] += Math.random()*intervall-intervall/2;
+			Messwert[i] += Math.random()*intervall-intervall/2;			
 		}
 		for(int i=0; i<anzahlNullWerte; i++) {
 			int j = (int)(Math.random()*Messwert.length);
@@ -122,6 +123,29 @@ public class MesswertBearbeitungAllgemein {
 				if(b[i] < b[0] || b[i] > 1.0) b[i] = b[0];
 				MesswertGlatt[i] = b[i]*Messwert[i] + (1.0 - b[i])*MesswertGlatt[i-1];
 			}
+		}
+	}
+	/**
+	 * Rundet die Messwerte auf eine Stelle nach dem Komma, 
+	 * weil die Skalierung ist 0.1, und deswegen in Datensaetzen
+	 * genauere Werte nicht enthalten werden koennen   
+	 * 
+	 * @param Messwert
+	 */
+	public static void rundeMesswerte(double [] Messwert) {
+		double d;
+		for(int i=0; i<Messwert.length; i++) {
+			d = Math.round(Messwert[i] * 10);
+			Messwert[i] = d/10.0;
+		}
+	}
+	/**
+	 * Rundet die Messwerte auf Ganze Zahl 
+	 * @param Messwert
+	 */
+	public static void rundeMesswerteGanzeZahl(double [] Messwert) {
+		for(int i=0; i<Messwert.length; i++) {
+			Messwert[i] = Math.round(Messwert[i]);			
 		}
 	}
 }

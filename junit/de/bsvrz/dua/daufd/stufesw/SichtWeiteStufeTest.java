@@ -28,25 +28,47 @@ package de.bsvrz.dua.daufd.stufesw;
 
 import java.util.Collection;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 
 import de.bsvrz.dav.daf.main.ClientDavInterface;
+import de.bsvrz.dav.daf.main.Data;
+import de.bsvrz.dav.daf.main.DataDescription;
+import de.bsvrz.dav.daf.main.ResultData;
+import de.bsvrz.dav.daf.main.SenderRole;
 import de.bsvrz.dav.daf.main.config.ConfigurationArea;
+import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dua.daufd.MesswertBearbeitungAllgemein;
 import de.bsvrz.dua.daufd.UfdsKlassifizierungParametrierung;
+import de.bsvrz.dua.daufd.VerwaltungAufbereitungUFDTest;
 import de.bsvrz.dua.daufd.hysterese.HysterezeTester2;
+import de.bsvrz.sys.funclib.application.StandardApplicationRunner;
+import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
+import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IVerwaltung;
 import de.bsvrz.sys.funclib.debug.Debug;
 import de.bsvrz.dua.daufd.stufesw.SichtWeiteStufe;
 
 
 /**
- * Testet den Modul SichtWeite
+ * Parametriert den Modul SichtWeite
  * 
  * @author BitCtrl Systems GmbH, Bachraty
  * 
  */
 public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	
+	/**
+	 * Verbindungsdaten
+	 */
+	private static final String[] CON_DATA = new String[] {
+			"-datenverteiler=localhost:8083",  
+			"-benutzer=Tester", 
+			"-authentifizierung=c:\\passwd", 
+			"-debugLevelStdErrText=WARNING", 
+			"-debugLevelFileText=WARNING",
+			"-KonfigurationsBereichsPid=kb.UFD_Konfig_B27" }; 
+
 	/**
 	 * SW-Stufe untere Grenzwerte [AFo]
 	 */
@@ -68,11 +90,55 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	 */
 	private final double fb = 0.25;
 	
+	/**
+	 * Verbindung zum dav
+	 */
+	private static ClientDavInterface  dav;
+	/**
+	 * Der Verwaltungsmodul
+	 */
+	private static VerwaltungAufbereitungUFDTest hauptModul;
+	
+	/**
+	 * String-Konstanten
+	 */
 	private static final String TYP_UFDS_WFD = "typ.ufdsSichtWeite";
 	private static final String ATG_UFDS_KLASS_WFD = "atg.ufdsKlassifizierungSichtWeite";
 	private static final String ATT_UFDS_KLASS_WFD = "KlassifizierungSichtWeite";
 	private static final String ATG_UFDS_AGGREG_WFD = "atg.ufdsAggregationSichtWeite";
-	
+
+	/**
+	 * Einkommende Messwerte
+	 */
+	private static double [] Messwert = null;
+	/**
+	 * Erwarete Ausgabedaten - geglaettete Messawerte
+	 */
+	private static double [] MesswertGlatt = null;
+	/**
+	 * Erwarete Ausgabedaten - Stufen
+	 */
+	private static int stufen [] = null;
+	/**
+	 * Aktueller Index in Ausgabe-Testdaten 
+	 */
+	private static int index = 0;
+	/**
+	 * Erwertete Zeitstempel der Ausgabedaten
+	 */
+	private static long zeitStempel [];
+	/**
+	 * Die Messwerte die bei Testfaellen reingeschickt werden
+	 */
+	private static DataDescription DD_MESSWERTE;
+	/**
+	 * Intervall der Datenerzeugung;
+	 */
+	private final static long ZEIT_INTERVALL = 300;
+	/**
+	 * Das Sensor das die Testdaten liefert
+	 */
+	private static SystemObject testSensor;
 	/**
 	 * Sendet die Parametrierung aus dem Tabellen der AFo dem DAV
 	 * @param dav DAV
@@ -88,87 +154,181 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 			e.printStackTrace();
 		}
 	}
-	
-	/**
-	 * Generiert eine Reihe von Zahlen und vergleicht die geglaettet Werte mit eigenen
-	 */
-	@Test
-	public void glaettungTest() {		
-		
-		final double f = 0.25;
-		final double b0 = 0.08;
-		
-		double [] Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length]*1.2);
-		double [] MesswertGlatt = new double[Messwert.length];
-		double [] b = new double [Messwert.length];
-	
-		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
-		
-		/*
-		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
-		 * 
-		 */
-		
-		System.out.println(Messwert);
-		
-		// Noch ein Test mit gerauschte Werte
-		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.1, 10);
-		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
-		
-		
-		/*
-		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
-		 * 
-		 */
-		System.out.println(Messwert);
-	}
-	
-	
+
 	/**
 	 * Generiert eine Reihe von Zahlen und vergleicht mit der getesteten Klasse
 	 */
 	@Test
-	public void stufeTest() {		
+	public void test1() {	
 		
 		int alt;
-		final double f = 0.25;
-		final double b0 = 0.08;
 		
 		HysterezeTester2 hystTest = new HysterezeTester2();
-		double [] Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length]*1.2);
-		double [] MesswertGlatt = new double[Messwert.length];
+		Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length-1]*1.2);
+		MesswertGlatt = new double[Messwert.length];
 		double [] b = new double [Messwert.length];
-		int [] stufen = new int [Messwert.length];
+		stufen = new int [Messwert.length];
+		zeitStempel = new long[Messwert.length];
 		hystTest.init(stufeVon, stufeBis);
 	
-		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		MesswertBearbeitungAllgemein.rundeMesswerteGanzeZahl(Messwert);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, fb, b0);
 		alt = -1;
 		for(int i=0; i< MesswertGlatt.length; i++) {
 			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);
 			alt = stufen[i];
 		}
-		
-		/*
-		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
-		 * 
-		 */
+
+		hauptModul = new VerwaltungAufbereitungUFDTest();
+		String connArgs [] =   new String [CON_DATA.length] ;
+		for(int i=0; i<CON_DATA.length; i++)
+			connArgs[i] = CON_DATA[i];
+		StandardApplicationRunner.run(hauptModul, connArgs);
+	
 		
 		System.out.println(Messwert);
 		
-		// Noch ein Test mit gerauschte Werte
-		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.1, 10);
-		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, f, b0);
+		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
+		index = 0;
+		for(int i=0; i<MesswertGlatt.length; i++) {
+			sendeMesswert(testSensor, Messwert[i], zeitStempel[i]);
+			if(i+1<MesswertGlatt.length)
+				zeitStempel[i+1] = zeitStempel[i] + ZEIT_INTERVALL;
+			try {
+				Thread.sleep(10);
+			} catch (Exception e) { }
+		}
+		hauptModul.disconnect();
+		hauptModul = null;
+		
+	}
+	/**
+	 * Generiert eine Reihe von Zahlen und vergleicht mit der getesteten Klasse
+	 * Wie test 1 nur die Werte werden zufaellig geraeuscht
+	 */
+	@Test
+	public void test2() {		
+		
+		int alt;
+		
+		HysterezeTester2 hystTest = new HysterezeTester2();
+		Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length-1]*1.2);
+		MesswertGlatt = new double[Messwert.length];
+		double [] b = new double [Messwert.length];
+		stufen = new int [Messwert.length];
+		zeitStempel = new long[Messwert.length];
+		hystTest.init(stufeVon, stufeBis);
+	
+		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.15, 20);
+		MesswertBearbeitungAllgemein.rundeMesswerteGanzeZahl(Messwert);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, fb, b0);
 		alt = -1;
 		for(int i=0; i< MesswertGlatt.length; i++) {
 			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);
 			alt = stufen[i];
 		}
+	
+		hauptModul = new VerwaltungAufbereitungUFDTest();
+		String connArgs [] =   new String [CON_DATA.length] ;
+		for(int i=0; i<CON_DATA.length; i++)
+			connArgs[i] = CON_DATA[i];
+		StandardApplicationRunner.run(hauptModul, connArgs);
 		
-		/*
-		 * FOLGT TEST, VERGLEICHUNG MIT WERTEN VON GETESTETER KLASSE
-		 * 
-		 */
-		System.out.println(Messwert);
+		index = 0;
+		for(int i=0; i<MesswertGlatt.length; i++) {
+			sendeMesswert(testSensor, Messwert[i], zeitStempel[i]);
+			if(i+1<MesswertGlatt.length)
+				zeitStempel[i+1] = zeitStempel[i] + ZEIT_INTERVALL;
+			try {
+				Thread.sleep(10);
+			} catch (Exception e) { }
+		}
+	
+		hauptModul.disconnect();
+		hauptModul = null;
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public double berechneMesswertGlaettung(SensorParameter param, double messwert) {
+		double r = super.berechneMesswertGlaettung(param, messwert);
+		if(MesswertGlatt == null) return r;
+		double diff = MesswertGlatt[index]-r;
+		Assert.assertTrue( index + " Wert : " + r + " Soll : " + MesswertGlatt[index] + " Differenz : " + diff, diff<0.05);
+		System.out.println(String.format("[ %4d ] Geglaetette Wert OK: %10.8f == %10.8f  Differrez: %10.8f", index, MesswertGlatt[index], r, diff));
+		return r;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel) {
+		super.SendeStufe(objekt, stufe, zeitStempel);
+		// d.H. es laeuft gerade ein test von anderer Klasse die NiStufe daten benoetigt
+		if(stufen == null) return;		
+		Assert.assertEquals(stufen[index], stufe);
+		Assert.assertEquals(SichtWeiteStufeTest.zeitStempel[index], zeitStempel);
+		System.out.println(String.format("[ %4d ] Stufe OK: %3d == %3d", index, stufen[index], stufe));
+		
+		index++;
+	}
+	
+	/**
+	 * Sendet einen Messwert an den DAV
+	 * @param sensor Sensor, die Quelle des Messwertes
+	 * @param messwert der MessWert
+	 * @param zeitStemepel ZeitStempel
+	 */
+	private void sendeMesswert(SystemObject sensor, double messwert, long zeitStemepel) {
+		Data data = dav.createData(dav.getDataModel().getAttributeGroup(getMesswertAttributGruppe()));
+
+		String att = getMesswertAttribut();
+		data.getTimeValue("T").setMillis(ZEIT_INTERVALL);
+		data.getItem(att).getScaledValue("Wert").set(messwert);
+	
+		data.getItem(att).getItem("Status").getItem("Erfassung").getUnscaledValue("NichtErfasst").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMax").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);	
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").set(0);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
+		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
+		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
+		
+		ResultData result = new ResultData(sensor, DD_MESSWERTE, zeitStemepel, data);
+		try { 
+			dav.sendData(result);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void initialisiere(IVerwaltung verwaltung)
+		throws DUAInitialisierungsException {
+		super.initialisiere(verwaltung);
+		
+		for(SystemObject so : getSensoren())
+			if(so != null) {
+				testSensor = so;
+				break;
+			}
+	
+		DD_MESSWERTE = new DataDescription(
+				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getMesswertAttributGruppe()),
+				verwaltung.getVerbindung().getDataModel().getAspect("asp.messWertErsetzung"), (short)0);
+		
+		dav = verwaltung.getVerbindung();
+		try {
+			dav.subscribeSender(this, getSensoren(), DD_MESSWERTE, SenderRole.source());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

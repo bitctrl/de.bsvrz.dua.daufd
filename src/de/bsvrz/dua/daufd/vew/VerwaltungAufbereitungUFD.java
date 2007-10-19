@@ -35,7 +35,6 @@ import de.bsvrz.dav.daf.main.ResultData;
 import de.bsvrz.dav.daf.main.config.ObjectTimeSpecification;
 import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dav.daf.main.config.SystemObjectType;
-import de.bsvrz.dua.daufd.KlassifizierungParametrierungTest;
 import de.bsvrz.dua.daufd.stufenaesse.NaesseStufe;
 import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe;
 import de.bsvrz.dua.daufd.stufesw.SichtWeiteStufe;
@@ -46,18 +45,32 @@ import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
 import de.bsvrz.sys.funclib.bitctrl.dua.adapter.AbstraktVerwaltungsAdapter;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.typen.SWETyp;
 import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IBearbeitungsKnoten;
-import de.bsvrz.sys.funclib.commandLineArgs.ArgumentList;
-import de.bsvrz.sys.funclib.debug.Debug;
 
+/**
+ * Hauptklasse der SWE 4.8 Datenaufbereitung UFD
+ * Bildet eine Kette von Modulen, die sie weiter steuert,
+ * alle empfagene Daten gibt weiter dem ersten Modul in
+ * der Kette
+ *   
+ * @author BitCtrl Systems GmbH, Bachraty
+ *
+ */
 public class VerwaltungAufbereitungUFD
 extends AbstraktVerwaltungsAdapter {
 
-
-	
+	/**
+	 * Typ der MessStelle
+	 */
 	public final static String TYP_UFDMS = "typ.umfeldDatenMessStelle";
+	/**
+	 * ATG der Messdaten die Empfangen werden
+	 */
 	public final static String ASP_MESSWERTERSETZUNG = "asp.messWertErsetzung";
-	
+	/**
+	 * Der erste Knoten in der Kette
+	 */
 	protected IBearbeitungsKnoten ersterKnoten = null;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -76,36 +89,46 @@ extends AbstraktVerwaltungsAdapter {
 		
 		IBearbeitungsKnoten knoten1, knoten2;
 		AbstraktStufe stufeKnoten;
+		NaesseStufe naesseKnoten;
 		Taupunkt taupunkt;
 		
 		ersterKnoten = knoten2 = stufeKnoten = new NiederschlagIntensitaetStufe();
-		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		knoten2.initialisiere(this);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		
 		knoten1 = stufeKnoten = new WasserFilmDickeStufe();
-		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		knoten1.initialisiere(this);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
 		
-		knoten2 = new NaesseStufe();
+		knoten2 = naesseKnoten = new NaesseStufe();
 		knoten2.initialisiere(this);
+		anmeldeEmpfaenger(naesseKnoten.getNaSensoren(), NaesseStufe.ATG_UFDS_NA, ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(naesseKnoten.getFbofZustandSensoren(), NaesseStufe.ATG_UFDS_FBOFZS, ASP_MESSWERTERSETZUNG);
 		knoten1.setNaechstenBearbeitungsKnoten(knoten2);
 		
 		knoten1 = stufeKnoten = new SichtWeiteStufe();
-		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		knoten1.initialisiere(this);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
 		
 		knoten2 = taupunkt = new Taupunkt();
 		knoten2.initialisiere(this);
 		knoten1.setNaechstenBearbeitungsKnoten(knoten2);
+		
 		anmeldeEmpfaenger(taupunkt.getFbofSensoren(), Taupunkt.ATG_UFDS_FBOFT, ASP_MESSWERTERSETZUNG);
 		anmeldeEmpfaenger(taupunkt.getLtSensoren(), Taupunkt.ATG_UFDS_LT, ASP_MESSWERTERSETZUNG);
 		anmeldeEmpfaenger(taupunkt.getRlfSensoren(), Taupunkt.ATG_UFDS_RLF, ASP_MESSWERTERSETZUNG);
-		
+				
 		knoten2.setNaechstenBearbeitungsKnoten(null);
 	}
 	
+	/**
+	 * Meldet sich ein Als empfaenger fuer Daten
+	 * @param sensoren SystemObjekte die die Daten liefern
+	 * @param attributGruppe Atributgruppe der Daten
+	 * @param aspekt Aspek der Daten
+	 */
 	protected void anmeldeEmpfaenger(Collection<SystemObject> sensoren, String attributGruppe, String aspekt) {
 		
 		DataDescription datenBeschreibung =  new DataDescription(verbindung.getDataModel().getAttributeGroup(attributGruppe), 
@@ -127,7 +150,6 @@ extends AbstraktVerwaltungsAdapter {
 		ersterKnoten.aktualisiereDaten(results);
 	}
 
-	
 	/**
 	 * Haupmethode
 	 * @param args Aufrufsargumente
