@@ -99,20 +99,21 @@ public class KlassifizierungParametrierung implements StandardApplication {
 		NiederschlagIntensitaetStufeTest test1 = new NiederschlagIntensitaetStufeTest();		
 		test1.ParametriereUfds(DAV, konfBereiche);		
 		// Der DAV ist zu langsam, er schafft nicht so  viele Telegramme zu bearbeiten
-		Thread.sleep(800);
+		Thread.sleep(1000);
 		
 		WasserFilmDickeStufeTest test2 = new WasserFilmDickeStufeTest();
 		test2.ParametriereUfds(DAV, konfBereiche);
 		// Der DAV ist zu langsam, er schafft nicht so  viele Telegramme zu bearbeiten
-		Thread.sleep(800);
+		Thread.sleep(1000);
 		
 		SichtWeiteStufeTest test3 = new SichtWeiteStufeTest();
 		test3.ParametriereUfds(DAV, konfBereiche);
 		//	Der DAV ist zu langsam, er schafft nicht so  viele Telegramme zu bearbeiten
-		Thread.sleep(800);
+		Thread.sleep(1000);
 		
 		NaesseStufeTest test4 = new NaesseStufeTest();
 		test4.ParametriereUfds(DAV, konfBereiche);
+		System.out.println("Alles parametriert");
 	}
 
 	/**

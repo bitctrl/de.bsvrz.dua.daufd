@@ -176,7 +176,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 						sensorDaten.put(sensor, new SensorParameter());
 						sensoren.add(sensor);
 					} catch (OneSubscriptionPerSendData e) {
-						LOGGER.error("Anmeldung als Quelle fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());	
+						throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
 					}
 				}
 			}

@@ -129,11 +129,12 @@ extends AbstraktVerwaltungsAdapter {
 	 * @param attributGruppe Atributgruppe der Daten
 	 * @param aspekt Aspek der Daten
 	 */
-	protected void anmeldeEmpfaenger(Collection<SystemObject> sensoren, String attributGruppe, String aspekt) {
+	protected void anmeldeEmpfaenger(Collection<SystemObject> sensoren, String attributGruppe, String aspekt) throws DUAInitialisierungsException{
 		
 		DataDescription datenBeschreibung =  new DataDescription(verbindung.getDataModel().getAttributeGroup(attributGruppe), 
 																verbindung.getDataModel().getAspect(aspekt));
 		verbindung.subscribeReceiver(this, sensoren, datenBeschreibung, ReceiveOptions.normal(), ReceiverRole.receiver());
+		
 	}
 
 	/**

@@ -465,7 +465,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					verwaltung.getVerbindung().subscribeSource(this, resultate);
 				}
 			} catch (OneSubscriptionPerSendData e) {
-				LOGGER.error("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());	
+				throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
 			}
 	}
 

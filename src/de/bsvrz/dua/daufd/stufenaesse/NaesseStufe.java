@@ -86,7 +86,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	/**
 	 * Aktulaisiert die Stufen nachfolgend der Abtrocknungsphasen
 	 */
-	private static ObjektWecker stufeAkutalisierer = new ObjektWecker(); 
+	private static ObjektWecker stufeAkutalisierer = null; 
 	/**
 	 * Sensoren, die NiederschlagsArtDaten liefern
 	 */
@@ -590,7 +590,9 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	 */
 	public void initialisiere(IVerwaltung verwaltung)
 			throws DUAInitialisierungsException {
-		this.verwaltung = verwaltung;		
+		this.verwaltung = verwaltung;	
+		stufeAkutalisierer = new ObjektWecker();
+		
 		DD_NAESSE_STUFE = new DataDescription(
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_UFDMS_NS), 
 				verwaltung.getVerbindung().getDataModel().getAspect(ASP_KLASSIFIZIERUNG));
@@ -630,7 +632,8 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					}
 
 			} catch (OneSubscriptionPerSendData e) {
-				LOGGER.error("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());	
+				//LOGGER.error("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
+				throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
 			}
 		verwaltung.getVerbindung().subscribeReceiver(this, 
 				verwaltung.getSystemObjekte(), DD_ABTROCKNUNGSPHASEN, ReceiveOptions.normal(), ReceiverRole.receiver());
