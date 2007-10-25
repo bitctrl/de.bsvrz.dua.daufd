@@ -45,12 +45,12 @@ public class SichtWeiteStufe  extends AbstraktStufe {
 	}
 
 	@Override
-	public String getKlasseifizierungsAttribut() {
+	public String getKlassifizierungsAttribut() {
 		return "KlassifizierungSichtWeite";
 	}
 
 	@Override
-	public String getKlasseifizierungsAttributGruppe() {
+	public String getKlassifizierungsAttributGruppe() {
 		return "atg.ufdsKlassifizierungSichtWeite";
 	}
 

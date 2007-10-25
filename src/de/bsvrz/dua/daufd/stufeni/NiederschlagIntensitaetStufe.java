@@ -44,12 +44,12 @@ public class NiederschlagIntensitaetStufe  extends AbstraktStufe {
 	}
 
 	@Override
-	public String getKlasseifizierungsAttribut() {
+	public String getKlassifizierungsAttribut() {
 		return "KlassifizierungNiederschlagsIntensität";
 	}
 
 	@Override
-	public String getKlasseifizierungsAttributGruppe() {
+	public String getKlassifizierungsAttributGruppe() {
 		return "atg.ufdsKlassifizierungNiederschlagsIntensität";
 	}
 

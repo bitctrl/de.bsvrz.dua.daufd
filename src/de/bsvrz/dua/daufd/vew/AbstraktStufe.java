@@ -151,7 +151,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			throws DUAInitialisierungsException {
 		this.verwaltung = verwaltung;		
 		DD_KLASSIFIZIERUNG = new DataDescription(
-				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getKlasseifizierungsAttributGruppe()),
+				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getKlassifizierungsAttributGruppe()),
 				verwaltung.getVerbindung().getDataModel().getAspect(ASP_SOLL_PARAM), (short)0);
 		
 		DD_AGGREGATION = new DataDescription(
@@ -197,9 +197,9 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			SystemObject objekt = resData.getObject();
 			SensorParameter param = sensorDaten.get(objekt);
 			
-			if(dataDescription.getAttributeGroup().getPid().equals(getKlasseifizierungsAttributGruppe()) &&
+			if(dataDescription.getAttributeGroup().getPid().equals(getKlassifizierungsAttributGruppe()) &&
 					dataDescription.getAspect().getPid().equals(ASP_SOLL_PARAM)) {
-				Array stufen = daten.getArray(getKlasseifizierungsAttribut());
+				Array stufen = daten.getArray(getKlassifizierungsAttribut());
 			
 				if(param == null) {
 					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
@@ -322,7 +322,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 	 * Erfragt die Klassifizierung ATG als Zeichenkette
 	 * @return Klassifizierung ATG
 	 */
-	public abstract String getKlasseifizierungsAttributGruppe();
+	public abstract String getKlassifizierungsAttributGruppe();
 	/**
 	 * Erfragt die Aggregations ATG als Zeichenkette
 	 * @return Aggregations ATG
@@ -347,7 +347,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 	 * Erfragt den Attribut fuer Klassifizierung in Klassifizierung ATG als Zeichenkette
 	 * @return Klasifizierung Attribut
 	 */
-	public abstract String getKlasseifizierungsAttribut();
+	public abstract String getKlassifizierungsAttribut();
 	/**
 	 * Erfragt den Sensortyp als Zeichenkette
 	 * @return Sensortyp

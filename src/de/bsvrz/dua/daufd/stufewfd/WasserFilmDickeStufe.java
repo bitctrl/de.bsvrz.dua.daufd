@@ -44,12 +44,12 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 	}
 
 	@Override
-	public String getKlasseifizierungsAttribut() {
+	public String getKlassifizierungsAttribut() {
 		return "KlassifizierungWasserFilmDicke";
 	}
 
 	@Override
-	public String getKlasseifizierungsAttributGruppe() {
+	public String getKlassifizierungsAttributGruppe() {
 		return "atg.ufdsKlassifizierungWasserFilmDicke";
 	}
 
