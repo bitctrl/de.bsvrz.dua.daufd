@@ -124,7 +124,14 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 		public MessStelleDaten(SystemObject so) {
 			messObject = so;
 		}
+		/**
+		 * SystemObjekt UmfdMessStelle
+		 */
 		public SystemObject messObject = null;
+		/**
+		 * Die ZeitDauer, bis sich die Fahrbahnoberflaeche abtrocknet
+		 */
+		public long [] abtrocknungsPhasen = new long[ATT_STUFE.length];
 		/**
 		 * Letzte empfangene NI_Stufe
 		 */
@@ -142,9 +149,9 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 		 */
 		public long wfdStufeZeitStempel = 0;
 		/**
-		 * Die ZeitDauer, bis sich die Fahrbahnoberflaeche abtrocknet
+		 * Ob die Abtrocknungsphasen initialisiert sind
 		 */
-		public long [] abtrocknungsPhasen = new long[ATT_STUFE.length];
+		public boolean initialisiert = false;
 		/**
 		 * ZeitStempel der NaesseSteufe der MessStelle
 		 */
@@ -154,21 +161,38 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 		 */
 		public NS_Stufe nsStufe = NS_Stufe.NS_WERT_NE;
 		/**
-		 * NaesseSteufe der MessStelle die erreicht werden soll bei verzoegerten Aenderungen
+		 *  NaesseSteufe der MessStelle die erreicht werden soll bei verzoegerten Aenderungen
 		 */
 		public NS_Stufe zielNsStufe = NS_Stufe.NS_WERT_NE;
 		/**
-		 * Ob die NI Stufe unbestimmbar ist
+		 * Die aktuelle Niederschlagsart
 		 */
-		public boolean unbestimmbar = false;
+		public int niederschlagsArt = 0;
 		/**
-		 * ZeitStempel des Letzten DS der Unbestimmmbarkeit geaendert hat
+		 *  der aktuelle FahrbahnOberflaecheZustand
 		 */
-		public long unbestimmbarZeitStempel = 0;
+		public int fbofZustand = 0;
+		/**
+		 *  ZeitStempel des letzten DS mit Niederschlagsart
+		 */
+		public long niederschlagsArtZeitStemepel = 0;
+		/**
+		 *  ZeitStempel des Letzten DS mit FahrbahnOberflaecheZustand
+		 */
+		public long fbofZustandZeitStempel = 0;
 		/**
 		 *  Ob ein aktulasierungsauftrag lauft
 		 */
 		public boolean aktualisierungLaeuft = false;
+		/**
+		 *  Ob wir am letzten mal einen leeren DS bekommen haben
+		 */
+		public boolean keineDaten = false;
+		/**
+		 * Bestimmt, ob die Naessestufe unbestimmbar ist (haengt von NiederschlagsArt und
+		 * FahrbahnoberflaecheZustand ab)
+		 */
+		public boolean unbestimmbar = false;
 		/**
 		 * Akutlaisiert die NaesseStufe nach den Abtrocknungsphasen,
 		 * ermoeglicht verzoegerte Aktualsierung
@@ -188,7 +212,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 				
 				nsStufe = mapIntNSStufe[intStufe];
 				nsStufeZeitStempel += zeitIntervall;
-				publiziereNsStufe(messObject, nsStufe, nsStufeZeitStempel);
+				publiziereNsStufe(this, false);
 				
 				if(nsStufe != zielNsStufe && intStufe>0) {
 					zeitIntervall = abtrocknungsPhasen[intStufe-1]; 
@@ -338,7 +362,6 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 		for(ResultData resData : resultate) {
 			
 			Data data = resData.getData();
-			if(data == null) continue;
 			SystemObject so = resData.getObject();
 			MessStelleDaten msDaten = naesseTabelle.get(so);
 			long zeitStempel = resData.getDataTime();
@@ -351,6 +374,15 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
+				else if( !msDaten.initialisiert) continue;
+				else if(data == null) {
+					if(msDaten.keineDaten == false) { 
+						msDaten.nsStufeZeitStempel = zeitStempel;
+						publiziereNsStufe(msDaten, true);
+					}
+					continue;
+				}
+				
 				int stufe = data.getItem("Stufe").asUnscaledValue().intValue();
 				NI_Stufe niStufe = NiederschlagIntensitaetStufe.getStufe(stufe);
 				
@@ -358,7 +390,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					msDaten.niStufe = niStufe;
 					vorletzteZeitStempel = msDaten.niStufeZeitStempel; 
 					msDaten.niStufeZeitStempel = zeitStempel;					
-					aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel, false);
+					aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel);
 				}
 			}
 			else if( ATG_WFD_STUFE.equals(resData.getDataDescription().getAttributeGroup().getPid()) &&
@@ -368,6 +400,15 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
+				else if( !msDaten.initialisiert) continue;
+				else if(data == null) {
+					if(msDaten.keineDaten == false) { 
+						msDaten.nsStufeZeitStempel = zeitStempel;
+						publiziereNsStufe(msDaten, true);
+					}
+					continue;
+				}
+				
 				int stufe = data.getItem("Stufe").asUnscaledValue().intValue();
 				WFD_Stufe wfdStufe = WasserFilmDickeStufe.getStufe(stufe);
 				
@@ -375,7 +416,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					msDaten.wfdStufe = wfdStufe;
 					vorletzteZeitStempel = msDaten.wfdStufeZeitStempel; 
 					msDaten.wfdStufeZeitStempel = zeitStempel;
-					aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel, false);
+					aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel);
 				}
 			}
 			else if(ATG_UFDS_NA.equals(resData.getDataDescription().getAttributeGroup().getPid()) &&
@@ -385,29 +426,25 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
-				int implausibel = data.getItem("NiederschlagsArt").getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").intValue();
-				if(implausibel == 1) continue;
-				
-				int niederschlagsArt = data.getItem("NiederschlagsArt").getUnscaledValue("Wert").intValue();
-				// Nicht fluessig :)
-				if(niederschlagsArt>69 && niederschlagsArt<80) 
-					synchronized (msDaten) {
-						vorletzteZeitStempel = msDaten.unbestimmbarZeitStempel; 
-						msDaten.unbestimmbarZeitStempel = zeitStempel;
-						boolean warUnbestimmbar = msDaten.unbestimmbar;
-						msDaten.unbestimmbar = true;
-						if(warUnbestimmbar == false)
-							aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel, true);
-						
+				else if( !msDaten.initialisiert) continue;
+				else if(data == null) {
+					if(msDaten.keineDaten == false) { 
+						msDaten.nsStufeZeitStempel = zeitStempel;
+						publiziereNsStufe(msDaten, true);
 					}
-				else synchronized (msDaten) {
-					vorletzteZeitStempel = msDaten.unbestimmbarZeitStempel;
-					msDaten.unbestimmbarZeitStempel = zeitStempel;
-					boolean warUnbestimmbar = msDaten.unbestimmbar;
-					msDaten.unbestimmbar = false;
-					if(warUnbestimmbar == true)
-						aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel, true);
+					continue;
+				}
+				
+				int implausibel = data.getItem("NiederschlagsArt").getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").intValue();
+				int niederschlagsArt = data.getItem("NiederschlagsArt").getUnscaledValue("Wert").intValue();
+				
+				synchronized (msDaten) {
+					if(implausibel==0)
+						msDaten.niederschlagsArt = niederschlagsArt;
 					
+					vorletzteZeitStempel = msDaten.niederschlagsArtZeitStemepel;
+					msDaten.niederschlagsArtZeitStemepel = zeitStempel;
+					aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel);
 				}
 			}
 			else if(ATG_UFDS_FBOFZS.equals(resData.getDataDescription().getAttributeGroup().getPid()) &&
@@ -417,31 +454,25 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
-				int implausibel = data.getItem("FahrBahnOberFlächenZustand").getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").intValue();
-				if(implausibel == 1) continue;
-				
-				int fbZustand = data.getItem("FahrBahnOberFlächenZustand").getUnscaledValue("Wert").intValue();
-				// Mit Eis,Schnee usw. bedeckt
-				if(fbZustand>63 && fbZustand<68) 
-					synchronized (msDaten) {
-						vorletzteZeitStempel = msDaten.unbestimmbarZeitStempel;
-						msDaten.unbestimmbarZeitStempel = zeitStempel;
-						boolean warUnbestimmbar = msDaten.unbestimmbar;
-						msDaten.unbestimmbar = true;
-						if(warUnbestimmbar == false)
-							aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel, true);
-						
+				else if( !msDaten.initialisiert) continue;
+				else if(data == null) {
+					if(msDaten.keineDaten == false) { 
+						msDaten.nsStufeZeitStempel = zeitStempel;
+						publiziereNsStufe(msDaten, true);
 					}
-				else synchronized (msDaten) {
-					vorletzteZeitStempel = msDaten.unbestimmbarZeitStempel;
-					msDaten.unbestimmbarZeitStempel = zeitStempel;
-					boolean warUnbestimmbar = msDaten.unbestimmbar;
-					msDaten.unbestimmbar = false;
-					if(warUnbestimmbar == true)
-						aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel, true);
-
+					continue;
 				}
-				
+				int implausibel = data.getItem("FahrBahnOberFlächenZustand").getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").intValue();
+				int fbZustand = data.getItem("FahrBahnOberFlächenZustand").getUnscaledValue("Wert").intValue();
+				 
+				synchronized (msDaten) {
+					if(implausibel==0)
+						msDaten.fbofZustand = fbZustand;
+					vorletzteZeitStempel = msDaten.fbofZustandZeitStempel;
+					msDaten.fbofZustandZeitStempel = zeitStempel;
+					aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel);
+					
+				}
 			}		
 		}
 
@@ -450,106 +481,101 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	}
 	
 	/**
-	 * Aktualisiert die NAesseStefe einer MessStelle
-	 * @param messStelleDaten MessStelle
+	 * Aktualisiert die NaesseStefe einer MessStelle nach den Regel aus [Afo]
+	 * @param msDaten MessStelle
 	 */
-	public void aktualisiereNaesseStufe(MessStelleDaten messStelleDaten, long zeitStempel, long vorletzeZeitStemepel, boolean unbestimbarkeitAenderung){
+	public void aktualisiereNaesseStufe(MessStelleDaten msDaten, long zeitStempel, long vorletzeZeitStemepel){
 		
 		NS_Stufe neueStufe;
 	
 		// init
-		if(messStelleDaten.nsStufeZeitStempel == 0) {
-			messStelleDaten.nsStufeZeitStempel = zeitStempel-100;
+		if(msDaten.nsStufeZeitStempel == 0) {
+			msDaten.nsStufeZeitStempel = zeitStempel-100;
 		}
+		// Ob die NS Stufe unbestimmbar ist
+		if((msDaten.niederschlagsArt>69 && msDaten.niederschlagsArt<80) ||
+			(msDaten.fbofZustand>63 && msDaten.fbofZustand<68))
+				msDaten.unbestimmbar = true;
+		else msDaten.unbestimmbar = false;
 		
-		// wenn sich die Unbestimmbarkeit geaendert hat
-		if(unbestimbarkeitAenderung) {
-			if(!beiAenderungPublizieren) return;
-			loesche(messStelleDaten);
-			
-			if(messStelleDaten.unbestimmbar) 
-				neueStufe = messStelleDaten.zielNsStufe = NS_Stufe.NS_WERT_NE;
-			else 
-				neueStufe = messStelleDaten.zielNsStufe = tabelleWFDNIzumNS.get(messStelleDaten.wfdStufe).get(messStelleDaten.niStufe);
-			
-			if(zeitStempel>messStelleDaten.nsStufeZeitStempel) {
-				messStelleDaten.nsStufe = neueStufe;
-				messStelleDaten.nsStufeZeitStempel = zeitStempel;
-				publiziereNsStufe(messStelleDaten.messObject, messStelleDaten.nsStufe, messStelleDaten.nsStufeZeitStempel);
-			}
-			return;
-		}
-		
-		// Ein Datum faehlt noch - entweder NIStufe oder  WFDStufe
-		if(messStelleDaten.niStufeZeitStempel != messStelleDaten.wfdStufeZeitStempel ) {
-			loesche(messStelleDaten);
+		// Ein Datum faehlt noch
+		if(!(msDaten.niStufeZeitStempel == msDaten.wfdStufeZeitStempel && 
+			msDaten.fbofZustandZeitStempel == msDaten.niederschlagsArtZeitStemepel &&
+			msDaten.fbofZustandZeitStempel == msDaten.niStufeZeitStempel)) {
+			loesche(msDaten);
 			
 			// Auch im vorherigen zyklus faehlt ein DS, nsStufe wurde nicht publiziert
-			if(messStelleDaten.nsStufeZeitStempel< vorletzeZeitStemepel) {
-				messStelleDaten.nsStufe = messStelleDaten.zielNsStufe;
-				messStelleDaten.nsStufeZeitStempel = vorletzeZeitStemepel;
-				if(messStelleDaten.unbestimmbar) messStelleDaten.nsStufe = NS_Stufe.NS_WERT_NE;
-				publiziereNsStufe(messStelleDaten.messObject, messStelleDaten.nsStufe, messStelleDaten.nsStufeZeitStempel);
+			if(msDaten.nsStufeZeitStempel< vorletzeZeitStemepel) {
+				msDaten.nsStufe = msDaten.zielNsStufe;
+				msDaten.nsStufeZeitStempel = vorletzeZeitStemepel;
+				if(msDaten.unbestimmbar) msDaten.nsStufe = NS_Stufe.NS_WERT_NE;
+				publiziereNsStufe(msDaten, false);
 			}
 			
-			
-			if(messStelleDaten.niStufeZeitStempel < messStelleDaten.wfdStufeZeitStempel ) {
-				neueStufe = tabelleWFDNIzumNS.get(messStelleDaten.wfdStufe).get(NI_Stufe.NI_WERT_NV);
-				messStelleDaten.nsStufeZeitStempel = messStelleDaten.wfdStufeZeitStempel;
+			if(msDaten.niStufeZeitStempel < msDaten.wfdStufeZeitStempel ) {
+				neueStufe = tabelleWFDNIzumNS.get(msDaten.wfdStufe).get(NI_Stufe.NI_WERT_NV);
+				msDaten.nsStufeZeitStempel = msDaten.wfdStufeZeitStempel;
 			}
 			else {
-				neueStufe = tabelleWFDNIzumNS.get(WFD_Stufe.WFD_WERT_NV).get(messStelleDaten.niStufe);
-				messStelleDaten.nsStufeZeitStempel = messStelleDaten.niStufeZeitStempel;
+				neueStufe = tabelleWFDNIzumNS.get(WFD_Stufe.WFD_WERT_NV).get(msDaten.niStufe);
+				msDaten.nsStufeZeitStempel = msDaten.niStufeZeitStempel;
 			}
-			messStelleDaten.zielNsStufe = neueStufe;
+			msDaten.zielNsStufe = neueStufe;
 			return;
 		}
 		
-		// Beide Stufen sind vorhanden
-		neueStufe = tabelleWFDNIzumNS.get(messStelleDaten.wfdStufe).get(messStelleDaten.niStufe);
-		if(messStelleDaten.unbestimmbar) messStelleDaten.nsStufe = neueStufe = NS_Stufe.NS_WERT_NE;
-		messStelleDaten.zielNsStufe = neueStufe;
+		// Alle Daten sind vorhanden
+		neueStufe = tabelleWFDNIzumNS.get(msDaten.wfdStufe).get(msDaten.niStufe);
+		if(msDaten.unbestimmbar) msDaten.nsStufe = neueStufe = NS_Stufe.NS_WERT_NE;
+		msDaten.zielNsStufe = neueStufe;
 
 		// Wir gehen mehr als eine Stufe nach unten 
-		if(messStelleDaten.nsStufe != NS_Stufe.NS_WERT_NE && neueStufe.compareTo(messStelleDaten.nsStufe)<-1 && messStelleDaten.wfdStufe != WFD_Stufe.WFD_WERT_NV) {
-			loesche(messStelleDaten);
-			int intStufe = getStufe(messStelleDaten.nsStufe);
+		if(msDaten.nsStufe != NS_Stufe.NS_WERT_NE && neueStufe.compareTo(msDaten.nsStufe)<-1 && msDaten.wfdStufe != WFD_Stufe.WFD_WERT_NV) {
+			loesche(msDaten);
+			int intStufe = getStufe(msDaten.nsStufe);
 			intStufe--;
-			messStelleDaten.nsStufe = mapIntNSStufe[intStufe];
-			messStelleDaten.nsStufeZeitStempel = messStelleDaten.wfdStufeZeitStempel;
-			publiziereNsStufe(messStelleDaten.messObject, messStelleDaten.nsStufe, messStelleDaten.nsStufeZeitStempel);
-			erstelleAuktualisierungsAuftrag(messStelleDaten);
+			msDaten.nsStufe = mapIntNSStufe[intStufe];
+			msDaten.nsStufeZeitStempel = msDaten.wfdStufeZeitStempel;
+			publiziereNsStufe(msDaten, false);
+			erstelleAuktualisierungsAuftrag(msDaten);
 			return;
 		}
 		//  bei nachlassenden Niederschlag WFD nicht verfuegbar ist
-		if(messStelleDaten.nsStufe != NS_Stufe.NS_WERT_NE && neueStufe.compareTo(messStelleDaten.nsStufe)<0 && messStelleDaten.wfdStufe == WFD_Stufe.WFD_WERT_NV) {
-			erstelleAuktualisierungsAuftrag(messStelleDaten);
+		if(msDaten.nsStufe != NS_Stufe.NS_WERT_NE && neueStufe.compareTo(msDaten.nsStufe)<0 && msDaten.wfdStufe == WFD_Stufe.WFD_WERT_NV) {
+			erstelleAuktualisierungsAuftrag(msDaten);
 			return;
 		}
 
-		messStelleDaten.nsStufe = neueStufe;
-		messStelleDaten.nsStufeZeitStempel = messStelleDaten.wfdStufeZeitStempel;
-		publiziereNsStufe(messStelleDaten.messObject, neueStufe, messStelleDaten.nsStufeZeitStempel);		
+		msDaten.nsStufe = neueStufe;
+		msDaten.nsStufeZeitStempel = msDaten.wfdStufeZeitStempel;
+		publiziereNsStufe(msDaten, false);		
 	}
 	
 	/**
 	 * Publiziert die NS stufe einer Messstelle
-	 * @param objekt SystemObjekt MessStelle
-	 * @param stufe NS_Stufe
-	 * @param zeitStempel Zeitpunkt
+	 * @param msDaten MessStelle Daten
+	 * @param keineDaten True, wenn ein Null Datensatz geschickt werden soll
 	 */
-	public void publiziereNsStufe(SystemObject objekt, NS_Stufe stufe, long zeitStempel) {
+	public void publiziereNsStufe(MessStelleDaten msDaten, boolean keineDaten) {
 		
-		int intStufe = getStufe(stufe);
-		Data data = verwaltung.getVerbindung().createData(
-				verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_UFDMS_NS));
-		data.getItem("NässeStufe").asUnscaledValue().set(intStufe);
+		int intStufe = getStufe(msDaten.nsStufe);
+		ResultData resultat;
+		msDaten.keineDaten = keineDaten;
 		
-		ResultData resultat = new ResultData(objekt, DD_NAESSE_STUFE, zeitStempel, data);
+		if(keineDaten)
+			 resultat = new ResultData(msDaten.messObject, DD_NAESSE_STUFE, msDaten.nsStufeZeitStempel, null);
+		else {
+			Data data = verwaltung.getVerbindung().createData(
+					verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_UFDMS_NS));
+			data.getItem("NässeStufe").asUnscaledValue().set(intStufe);
+			
+			resultat = new ResultData(msDaten.messObject, DD_NAESSE_STUFE, msDaten.nsStufeZeitStempel, data);
+		}
+		
 		try {
 			verwaltung.getVerbindung().sendData(resultat);
 		} catch (Exception e) {
-			LOGGER.error("Fehler bei Sendung der Daten fuer " + objekt.getPid() + " ATG " + ATG_UFDMS_NS + " :\n" + e.getMessage());
+			LOGGER.error("Fehler bei Sendung der Daten fuer " + msDaten.messObject.getPid() + " ATG " + ATG_UFDMS_NS + " :\n" + e.getMessage());
 		}
 	}
 	
@@ -680,7 +706,6 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 		for(ResultData resData : results) {
 			DataDescription dataDescription = resData.getDataDescription();
 			Data daten = resData.getData();
-			if(daten == null) continue;
 			SystemObject objekt = resData.getObject();
 			MessStelleDaten messStelleDaten = this.naesseTabelle.get(objekt);
 		
@@ -689,11 +714,16 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 				
 				if(messStelleDaten == null) {
 					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
-					return;
+					continue;
+				}
+				if(daten == null) {
+					messStelleDaten.initialisiert = false;
+					continue;
 				}
 				// Auslesen der Parameter 
 				for(int i=0; i< ATT_STUFE.length; i++)
 					messStelleDaten.abtrocknungsPhasen[i] = daten.getItem(ATT_STUFE[i]).asTimeValue().getMillis();
+				messStelleDaten.initialisiert = true;
 			}
 		}
 	}

@@ -185,8 +185,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 	
-		
-		System.out.println(Messwert);
+	
 		
 		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
 		index = 0;
@@ -198,6 +197,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 				Thread.sleep(10);
 			} catch (Exception e) { }
 		}
+
 		hauptModul.disconnect();
 		hauptModul = null;
 		
@@ -264,8 +264,9 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel) {
-		super.SendeStufe(objekt, stufe, zeitStempel);
+	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel, boolean keineDaten) {
+		super.SendeStufe(objekt, stufe, zeitStempel, keineDaten);
+		if(keineDaten) return;
 		// d.H. es laeuft gerade ein test von anderer Klasse die NiStufe daten benoetigt
 		if(stufen == null) return;		
 		Assert.assertEquals(stufen[index], stufe);

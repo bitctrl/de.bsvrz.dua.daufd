@@ -182,8 +182,8 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 	
+
 		
-		System.out.println(Messwert);
 		
 		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
 		index = 0;
@@ -195,6 +195,7 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 				Thread.sleep(10);
 			} catch (Exception e) { }
 		}
+		
 		hauptModul.disconnect();
 		hauptModul = null;
 		
@@ -240,7 +241,7 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 				Thread.sleep(10);
 			} catch (Exception e) { }
 		}
-	
+		//try { Thread.sleep(1000000); } catch (Exception e) {}
 		hauptModul.disconnect();
 		hauptModul = null;
 	}
@@ -261,8 +262,9 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel) {
-		super.SendeStufe(objekt, stufe, zeitStempel);
+	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel, boolean keineDaten) {
+		super.SendeStufe(objekt, stufe, zeitStempel, keineDaten);
+		if(keineDaten) return;
 		// d.H. es laeuft gerade ein test von anderer Klasse die NiStufe daten benoetigt
 		if(stufen == null) return;		
 		Assert.assertEquals(NiederschlagIntensitaetStufeTest.stufen[index], stufe);

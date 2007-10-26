@@ -99,6 +99,14 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 	 */
 	protected class SensorParameter {
 		/**
+		 * Letzter Datensatz
+		 */
+		public Data letzteDaten = null;
+		/**
+		 * ZeitStempel des letzten DS
+		 */
+		public long letzteDatenZeitStempel = 0;
+		/**
 		 * Untere Grenzwerte
 		 */
 		public double [] stufeVon = null;
@@ -109,11 +117,11 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 		/**
 		 * Koefizient fuer Glaettung
 		 */
-		public double b0 = 0;
+		public double b0 = Double.NaN;
 		/**
 		 * Koefizient fuer Glaettung
 		 */
-		public double fb = 0;
+		public double fb = Double.NaN;
 		/**
 		 * Ermoeglicht die Hysterese zu berechenn
 		 */
@@ -126,6 +134,14 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 		 * Letzte berechnete Stufe
 		 */
 		public int stufe = -1;
+		/**
+		 * Ob die Parameter initialisiert sind
+		 */
+		boolean initialisiert = false;
+		/**
+		 * Ob der Letzte eingekommene DS als "keine Daten" gekennzeichnet war
+		 */
+		boolean keineDaten = false;
 	};
 	/** 
 	 *  Menge der Sensoren die zu eine Messstelle gehoeren
@@ -181,7 +197,6 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 				}
 			}
 		}
-		
 		verwaltung.getVerbindung().subscribeReceiver(this, sensoren, DD_AGGREGATION, ReceiveOptions.normal(), ReceiverRole.receiver());
 		verwaltung.getVerbindung().subscribeReceiver(this, sensoren, DD_KLASSIFIZIERUNG, ReceiveOptions.normal(), ReceiverRole.receiver());
 	}	
@@ -193,7 +208,6 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 		for(ResultData resData : results) {
 			DataDescription dataDescription = resData.getDataDescription();
 			Data daten = resData.getData();
-			if(daten == null) continue;
 			SystemObject objekt = resData.getObject();
 			SensorParameter param = sensorDaten.get(objekt);
 			
@@ -203,7 +217,11 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			
 				if(param == null) {
 					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
-					return;
+					continue;
+				}
+				else if(daten == null) {
+					param.initialisiert = false;
+					continue;
 				}
 				
 				int laenge  = stufen.getLength();
@@ -219,17 +237,30 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 					param.hysterese.initialisiere(param.stufeVon,param.stufeBis);
 				} catch (Exception e) {
 					LOGGER.error("Fehler bei Initialisierung der Hystereze Klasse:" + e.getMessage());
+					continue;
 				}
+				if(!Double.isNaN(param.b0) && !Double.isNaN(param.fb))
+					param.initialisiert = true;
+				if(param.letzteDaten != null && param.initialisiert)
+					berechneAusgabe(objekt, param, param.letzteDatenZeitStempel);
 			}
 			else if(dataDescription.getAttributeGroup().getPid().equals(getAggregationsAtrributGruppe()) &&
 					dataDescription.getAspect().getPid().equals(ASP_SOLL_PARAM)) {
 				
 				if(param == null) {
 					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
-					return;
+					continue;
+				}
+				else if(daten == null) {
+					param.initialisiert = false;
+					continue;
 				}
 				param.b0 = daten.getScaledValue("b0").doubleValue();
 				param.fb = daten.getScaledValue("fb").doubleValue();
+				if(param.hysterese != null)
+					param.initialisiert = true;
+				if(param.letzteDaten != null && param.initialisiert)
+					berechneAusgabe(objekt, param, param.letzteDatenZeitStempel);
 			} 
 		}
 	}
@@ -241,28 +272,48 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 
 		for(ResultData resData : resultate) {
 			DataDescription dataDescription = resData.getDataDescription();
-			Data daten = resData.getData();
-			if(daten == null) continue;
 			SystemObject objekt = resData.getObject();
+			Data daten = resData.getData();
 			SensorParameter param = sensorDaten.get(objekt);
-		
 			if(dataDescription.getAttributeGroup().getPid().equals(getMesswertAttributGruppe())) {
-				if(param == null) {
+				if(daten == null) {
+					if(!param.keineDaten) {
+						param.keineDaten = true;
+						SendeStufe(objekt, -1, resData.getDataTime(), true);
+					}
+					continue;
+				}
+				else if(param == null) {
 					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
-				int stufe = -1;
-				if(daten.getItem(getMesswertAttribut()).getItem("Wert").asUnscaledValue().longValue()>=0) {
-					double messwert = daten.getItem(getMesswertAttribut()).getItem("Wert").asScaledValue().doubleValue();
-					double messwertGeglaettet = berechneMesswertGlaettung(param, messwert);
-					stufe = param.hysterese.getStufe(messwertGeglaettet);
-				}
-				param.stufe  = stufe;
-				SendeStufe(resData.getObject(), stufe, resData.getDataTime());
+				param.letzteDaten = daten;
+				if(param.initialisiert)
+					berechneAusgabe(objekt, param, resData.getDataTime());
 			}
 		}
 		if(naechsterBearbeitungsKnoten !=  null)
 			naechsterBearbeitungsKnoten.aktualisiereDaten(resultate);
+	}
+	
+	/**
+	 * Berechnet die Ausgabe aus dem eingekommenen DS
+	 * @param objekt Objekt
+	 * @param param Parameter des Sensors
+	 * @param zeitStmpel  zeitStempel des letzten DS
+	 */
+	public void berechneAusgabe(SystemObject objekt, SensorParameter param, long zeitStempel) {
+		int stufe = -1;
+		// hysterese ist null im fall, dass wir noch die Klasifizierungsparameter nicht bekommen haben
+		if(param.letzteDaten.getItem(getMesswertAttribut()).getItem("Wert").asUnscaledValue().longValue()>=0) {
+			double messwert = param.letzteDaten.getItem(getMesswertAttribut()).getItem("Wert").asScaledValue().doubleValue();
+			double messwertGeglaettet = berechneMesswertGlaettung(param, messwert);
+			stufe = param.hysterese.getStufe(messwertGeglaettet);
+		}
+		param.stufe  = stufe;
+		param.keineDaten = false;
+		SendeStufe(objekt, stufe, zeitStempel, false);
+		param.letzteDaten = null;
 	}
 
 	/**
@@ -271,14 +322,19 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 	 * @param stufe Stufe
 	 * @param zeitStempel Zeitpunkt
 	 */
-	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel) {
-		Data data = verwaltung.getVerbindung().createData(
-				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getStufeAttributGruppe()));
-		data.getItem("Stufe").asUnscaledValue().set(stufe);
-		
+	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel, boolean keineDaten) {
+
 		//  Mann muss ein Array dem naechsten Knoten weitergeben
 		ResultData [] resultate = new ResultData[1];
-		resultate[0] = new ResultData(objekt, DD_QUELLE, zeitStempel, data);
+		
+		if(keineDaten)
+			resultate[0] = new ResultData(objekt, DD_QUELLE, zeitStempel, null);
+		else {
+			Data data = verwaltung.getVerbindung().createData(
+					verwaltung.getVerbindung().getDataModel().getAttributeGroup(getStufeAttributGruppe()));
+			data.getItem("Stufe").asUnscaledValue().set(stufe);
+			resultate[0] = new ResultData(objekt, DD_QUELLE, zeitStempel, data);
+		}
 
 		try {
 			verwaltung.getVerbindung().sendData(resultate);

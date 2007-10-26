@@ -290,8 +290,9 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel) {
-		super.SendeStufe(objekt, stufe, zeitStempel);
+	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel, boolean keineDaten) {
+		super.SendeStufe(objekt, stufe, zeitStempel, keineDaten);
+		if(keineDaten) return;
 		// d.H. es laeuft gerade ein test von anderer Klasse die NiStufe daten benoetigt
 		if(stufen == null) return;		
 		Assert.assertEquals(stufen[index], stufe);

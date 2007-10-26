@@ -165,6 +165,25 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		 * Zeitstempel des leztes erzeugenen Datensatzes mit Taupunkttemperatur Fbof
 		 */
 		long tpFbofZeitStemepel;
+		/**
+		 *  Wenn keine Daten vorhanden sind - die Eingabe Quelle auf "keineDaten" gestellt ist
+		 */
+		boolean keineFbofDaten = false;
+		/**
+		 *  Wenn keine Daten vorhanden sind - die Eingabe Quelle auf "keineDaten" gestellt ist
+		 */
+		boolean keineLuftDaten = false;
+		/**
+		 * Bestimmt, ob der Fbof TP becrechnet wird (falls es z.B. keinen FbofTemp Sensor gbit, 
+		 * wird der Fbof TP nicht berechnet)
+		 */
+		boolean berechnetFbofTaupunkt = true;
+		/**
+		 * Bestimmt, ob der Luft TP becrechnet wird (falls es z.B. keinen LuftTemp Sensor gbit, 
+		 * wird der Luft TP nicht berechnet)
+		 */
+		boolean berechnetLuftTaupunkt = true;
+		
 	};
 	/**
 	 * HashTablelle mit letzten eingekommenen Datensaetzen
@@ -179,7 +198,6 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		for(ResultData resData : resultate) {
 			
 			Data data = resData.getData();
-			if(data == null) continue;
 			SystemObject so = resData.getObject();
 			LokaleDaten lDaten = taupunktTabelle.get(so);
 			
@@ -190,11 +208,17 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
+				else if(data == null) {
+					if(lDaten.keineLuftDaten == false && lDaten.berechnetLuftTaupunkt)
+						// sende keine Daten
+						sendeTaupunktTemperaturLuft(lDaten, resData.getDataTime(), true);
+					continue;
+				}
 				long T =  data.getTimeValue("T").getMillis();
 				lDaten.luftTemperatur = data;
 				lDaten.ltZeitStemepel = resData.getDataTime();
-				
-				BerechneTaupunktTemperaturLuft(lDaten, resData.getDataTime(), T);
+				if(lDaten.berechnetLuftTaupunkt)
+					BerechneTaupunktTemperaturLuft(lDaten, resData.getDataTime(), T);
 			}
 			else if( ATG_UFDS_FBOFT.equals(resData.getDataDescription().getAttributeGroup().getPid()) &&
 					ASP_MESSWERT_ERSETZUNG.equals(resData.getDataDescription().getAspect().getPid()))
@@ -202,26 +226,43 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 				if(lDaten == null) {
 					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
+				} else if(data == null) {
+					if(lDaten.keineFbofDaten == false && lDaten.berechnetFbofTaupunkt)
+						// sende keine Daten
+						sendeTaupunktTemperaturFbof(lDaten, resData.getDataTime(), true);
+					continue;
 				}
 				long T =  data.getTimeValue("T").getMillis();
 				lDaten.fbofTemperatur = data;
 				lDaten.fboftZeitStemepel = resData.getDataTime();
-				BerechneTaupunktTemperaturFbof(lDaten, resData.getDataTime(), T);
+				if(lDaten.berechnetFbofTaupunkt)
+					BerechneTaupunktTemperaturFbof(lDaten, resData.getDataTime(), T);
 
 			}
 			else if( ATG_UFDS_RLF.equals(resData.getDataDescription().getAttributeGroup().getPid()) &&
 					ASP_MESSWERT_ERSETZUNG.equals(resData.getDataDescription().getAspect().getPid()))
 			{
+
 				if(lDaten == null) {
 					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
+					continue;
+				} else if(data == null) {
+					if(lDaten.keineLuftDaten == false && lDaten.berechnetLuftTaupunkt)
+						// sende keine Daten
+						sendeTaupunktTemperaturLuft(lDaten, resData.getDataTime(), true);
+					else if(lDaten.keineFbofDaten == false && lDaten.berechnetFbofTaupunkt)
+						// sende keine Daten
+						sendeTaupunktTemperaturFbof(lDaten, resData.getDataTime(), true);
 					continue;
 				}
 				long T =  data.getTimeValue("T").getMillis();
 				lDaten.relativeLuftFeuchte= data;
 				lDaten.rlfZeitStemepel = resData.getDataTime();
 				
-				BerechneTaupunktTemperaturFbof(lDaten, resData.getDataTime(), T);
-				BerechneTaupunktTemperaturLuft(lDaten, resData.getDataTime(), T);
+				if(lDaten.berechnetFbofTaupunkt)
+					BerechneTaupunktTemperaturFbof(lDaten, resData.getDataTime(), T);
+				if(lDaten.berechnetLuftTaupunkt)
+					BerechneTaupunktTemperaturLuft(lDaten, resData.getDataTime(), T);
 			}
 		}
 
@@ -249,10 +290,9 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		// Beide (Feuchte Temeperatur) Datensaetze noch nicht gekommen sind
 		if(lDaten.fboftZeitStemepel != lDaten.rlfZeitStemepel ) {
 			lDaten.taupunktFbof.getItem("TaupunktTemperaturFahrBahn").asUnscaledValue().set(-1001);
-			// Es faehlt mehr ale ein DS von einem Typ 
+			// Es faehlt mehr als ein DS von einem Typ 
 			while(lDaten.tpFbofZeitStemepel + zeitIntervall < zeitStemepel) {
-				lDaten.tpFbofZeitStemepel += zeitIntervall;
-				sendeTaupunktTemperaturFbof(lDaten);
+				sendeTaupunktTemperaturFbof(lDaten, lDaten.tpFbofZeitStemepel + zeitIntervall, false);
 			}
 			return;
 		}
@@ -283,8 +323,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		// Wir senden einen DS der "nicht ermittelbar" gekennzeichnet ist 
 		if(nichtermittelbar) {
 			lDaten.taupunktFbof.getItem("TaupunktTemperaturFahrBahn").asUnscaledValue().set(-1001);
-			lDaten.tpFbofZeitStemepel = zeitStemepel;
-			sendeTaupunktTemperaturFbof(lDaten);
+			sendeTaupunktTemperaturFbof(lDaten, zeitStemepel, false);
 			return;
 		}
 		// Berechnung und Sendung
@@ -293,8 +332,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		double ergebnis = Berechnetaupunkt(relFeucht, fobofTemp);
 		
 		lDaten.taupunktFbof.getItem("TaupunktTemperaturFahrBahn").asScaledValue().set(ergebnis);
-		lDaten.tpFbofZeitStemepel = zeitStemepel;
-		sendeTaupunktTemperaturFbof(lDaten);
+		sendeTaupunktTemperaturFbof(lDaten, zeitStemepel, false);
 	}
 	/**
 	 * Berechnet die Taupunkttempereatur der Luft fuer eine Messtelle
@@ -320,8 +358,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 			lDaten.taupunktLuft.getItem("TaupunktTemperaturLuft").asUnscaledValue().set(-1001);
 			// Es faehlt mehr ale ein DS von einem Typ 
 			while(lDaten.tpLuftZeitStemepel + zeitIntervall < zeitStemepel) {
-				lDaten.tpLuftZeitStemepel += zeitIntervall;
-				sendeTaupunktTemperaturLuft(lDaten);
+				sendeTaupunktTemperaturLuft(lDaten, lDaten.tpLuftZeitStemepel + zeitIntervall, false);
 			}
 			return;
 		}
@@ -350,8 +387,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		// Wir senden einen DS der "nicht ermittelbar" gekennzeichnet ist 
 		if(nichtermittelbar) {
 			lDaten.taupunktLuft.getItem("TaupunktTemperaturLuft").asUnscaledValue().set(-1001);
-			lDaten.tpLuftZeitStemepel = zeitStemepel;
-			sendeTaupunktTemperaturLuft(lDaten);
+			sendeTaupunktTemperaturLuft(lDaten, zeitStemepel, false);
 			return;
 		}
 		// Berechnung und Sendung
@@ -360,17 +396,25 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		double ergebnis = Berechnetaupunkt(relFeucht, luftTemp);
 		
 		lDaten.taupunktLuft.getItem("TaupunktTemperaturLuft").asScaledValue().set(ergebnis);
-		lDaten.tpLuftZeitStemepel = zeitStemepel;
-		sendeTaupunktTemperaturLuft(lDaten);
+		sendeTaupunktTemperaturLuft(lDaten, zeitStemepel, false);
 	}
 	
 	/**
 	 * Sendet einen DS mit TP Temperatur der FBOF
 	 * @param messStelle Messstelle
 	 * @param lDaten Struktur mit erzeugten DS
+	 * @param zeitStempel ZeitStempel des DS
+	 * @param keineDaten Bestimmt, ob man einen leren Datensatz senden soll
 	 */
-	public void sendeTaupunktTemperaturFbof(LokaleDaten lDaten) {
-		ResultData resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_FB, lDaten.tpFbofZeitStemepel, lDaten.taupunktFbof);
+	public void sendeTaupunktTemperaturFbof(LokaleDaten lDaten, long zeitStempel, boolean keineDaten) {
+		ResultData resDatei;
+		lDaten.keineFbofDaten = keineDaten;
+		lDaten.tpFbofZeitStemepel = zeitStempel;
+		
+		if(keineDaten)
+			resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_FB, lDaten.tpFbofZeitStemepel, null);
+		else
+			resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_FB, lDaten.tpFbofZeitStemepel, lDaten.taupunktFbof);
 		try {
 			verwaltung.getVerbindung().sendData(resDatei);
 		} catch (Exception e) {
@@ -382,9 +426,19 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 * Sendet einen DS mit TP Temperatur der Luft
 	 * @param messStelle Messstelle
 	 * @param lDaten Struktur mit erzeugten DS
+	 * @param zeitStempel ZeitStempel des DS
+	 * @param keineDaten Bestimmt, ob man einen leren Datensatz senden soll
 	 */
-	public void sendeTaupunktTemperaturLuft(LokaleDaten lDaten) {
-		ResultData resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_L, lDaten.tpLuftZeitStemepel, lDaten.taupunktLuft);
+	public void sendeTaupunktTemperaturLuft(LokaleDaten lDaten, long zeitStemepel, boolean keineDaten) {		
+		ResultData resDatei;
+		lDaten.keineLuftDaten = keineDaten;
+		lDaten.tpLuftZeitStemepel = zeitStemepel;
+		
+		if(keineDaten)
+			resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_L, lDaten.tpLuftZeitStemepel, null);
+		else 
+			resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_L, lDaten.tpLuftZeitStemepel, lDaten.taupunktLuft);
+		
 		try {
 			verwaltung.getVerbindung().sendData(resDatei);
 		} catch (Exception e) {
@@ -392,7 +446,6 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					+ lDaten.messStelle.getPid() + " unerfolgreich:\n" + e.getMessage());
 		}
 	}
-	
 	/**
 	 * Berechnet die Taupunkttemperatur aus er Feuchte und Temperatur
 	 * @param feuchte relative Feuchte
@@ -460,10 +513,14 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					ResultData resultate = new ResultData(so, DD_UFDMS_TT_FB, System.currentTimeMillis(), null);
 					verwaltung.getVerbindung().subscribeSource(this, resultate);
 				}
+				else lDaten.berechnetFbofTaupunkt = false;
+				
 				if(hatLTSensor && hatRLFSensor) {
 					ResultData resultate = new ResultData(so, DD_UFDMS_TT_L, System.currentTimeMillis(), null);
 					verwaltung.getVerbindung().subscribeSource(this, resultate);
 				}
+				else lDaten.berechnetLuftTaupunkt = false;
+				
 			} catch (OneSubscriptionPerSendData e) {
 				throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
 			}

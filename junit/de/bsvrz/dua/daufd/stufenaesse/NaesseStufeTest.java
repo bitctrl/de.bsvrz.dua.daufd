@@ -44,6 +44,7 @@ import de.bsvrz.dav.daf.main.config.ObjectTimeSpecification;
 import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dav.daf.main.config.SystemObjectType;
 import de.bsvrz.dua.daufd.VerwaltungAufbereitungUFDTest;
+import de.bsvrz.dua.daufd.stufenaesse.NaesseStufe.MessStelleDaten;
 import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe;
 import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe.NI_Stufe;
 import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickeStufe;
@@ -293,15 +294,15 @@ implements ClientSenderInterface {
 	 * {@inheritDoc}
 	 */
 	@Override
-	synchronized public void publiziereNsStufe(SystemObject objekt, NS_Stufe stufe, long zeitStempel) {
-		super.publiziereNsStufe(objekt, stufe, zeitStempel);
-		
+	public void publiziereNsStufe(MessStelleDaten msDaten, boolean keineDaten) {
+		super.publiziereNsStufe(msDaten,keineDaten);
+		if(keineDaten) return;
 		// d.H. es laeuft gerade ein test von anderer Klasse die NiStufe daten benoetigt
 		if(ausgabe == null) return;
 		
-		Assert.assertEquals(ausgabe[ausgabeIndex].ordinal(), stufe.ordinal());
-		Assert.assertEquals(ausgabeZeitStempel[ausgabeIndex], zeitStempel);
-		System.out.println(String.format("[ %4d ] NS Stufe OK: %-10s == %-10s", ausgabeIndex, ausgabe[ausgabeIndex], stufe));
+		Assert.assertEquals(ausgabe[ausgabeIndex].ordinal(), msDaten.nsStufe.ordinal());
+		Assert.assertEquals(ausgabeZeitStempel[ausgabeIndex], msDaten.nsStufeZeitStempel);
+		System.out.println(String.format("[ %4d ] NS Stufe OK: %-10s == %-10s", ausgabeIndex, ausgabe[ausgabeIndex],  msDaten.nsStufe));
 		ausgabeIndex++;
 	}
 	
@@ -313,7 +314,7 @@ implements ClientSenderInterface {
 	 */
 	private void sendeWfdStufe(SystemObject objekt, WFD_Stufe stufe, long zeitStempel) {		
 		int intStufe = WasserFilmDickeStufe.getStufe(stufe);
-		hauptModul.getWfdKnotne().SendeStufe(objekt, intStufe, zeitStempel);
+		hauptModul.getWfdKnotne().SendeStufe(objekt, intStufe, zeitStempel, false);
 	}
 
 	/**
@@ -324,7 +325,7 @@ implements ClientSenderInterface {
 	 */
 	private void sendeNiStufe(SystemObject objekt, NI_Stufe stufe, long zeitStempel) {
 		int intStufe = NiederschlagIntensitaetStufe.getStufe(stufe);
-		hauptModul.getNiKnoten().SendeStufe(objekt, intStufe, zeitStempel);
+		hauptModul.getNiKnoten().SendeStufe(objekt, intStufe, zeitStempel, false);
 	}
 	
 	/**
@@ -470,7 +471,7 @@ implements ClientSenderInterface {
 				k++;
 				zeitStempel += delta;
 			}
-		}
+		}		
 		hauptModul.disconnect();
 		hauptModul = null;
 	}

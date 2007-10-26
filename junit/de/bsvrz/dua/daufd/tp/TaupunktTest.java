@@ -320,9 +320,11 @@ public class TaupunktTest extends Taupunkt {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void sendeTaupunktTemperaturLuft(LokaleDaten lDaten) {
+	public void sendeTaupunktTemperaturLuft(LokaleDaten lDaten, long zeitStempel, boolean keineDaten)  {
 
-		super.sendeTaupunktTemperaturLuft(lDaten);
+		super.sendeTaupunktTemperaturLuft(lDaten, zeitStempel, keineDaten);
+		if(keineDaten) return;
+		
 		double diff;
 		double messwert = lDaten.taupunktLuft.getUnscaledValue("TaupunktTemperaturLuft").doubleValue();
 		if(messwert>=-1000)
@@ -330,7 +332,7 @@ public class TaupunktTest extends Taupunkt {
 		diff = taupunktLuft[testWertLuft] - messwert;
 
 		Assert.assertTrue("DIfferenz = " + diff + " taupunkt " + taupunktLuft[testWertLuft] + "DS " + lDaten.taupunktLuft, Math.abs(diff)<=0.05);
-		Assert.assertEquals(lDaten.tpLuftZeitStemepel, zeitStempel[testWertLuft]);
+		Assert.assertEquals(lDaten.tpLuftZeitStemepel, TaupunktTest.zeitStempel[testWertLuft]);
 		System.out.println(String.format("[ %4d ] Luft Taupunkt T OK: %15.7f == %15.7f  Differrez: %15.7f", testWertLuft, taupunktLuft[testWertLuft], messwert, diff));
 		testWertLuft++;
 		
@@ -344,16 +346,18 @@ public class TaupunktTest extends Taupunkt {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void sendeTaupunktTemperaturFbof(LokaleDaten lDaten) {		
-		super.sendeTaupunktTemperaturFbof(lDaten);		
+	public void sendeTaupunktTemperaturFbof(LokaleDaten lDaten, long zeitStempel, boolean keineDaten) {
+		super.sendeTaupunktTemperaturFbof(lDaten, zeitStempel, keineDaten);	
+		if(keineDaten) return;
+		
 		double diff;
 		double messwert = lDaten.taupunktFbof.getUnscaledValue("TaupunktTemperaturFahrBahn").doubleValue();
 		if(messwert>=-1000)
 			messwert = lDaten.taupunktFbof.getScaledValue("TaupunktTemperaturFahrBahn").doubleValue();
 		
 		diff = taupunktFbof[testWertFbof] - messwert;
-		Assert.assertTrue(testWertFbof + " DIfferenz = " + diff + " taupunkt " + taupunktFbof[testWertFbof] + "DS " + lDaten.taupunktFbof, Math.abs(diff)<=0.05);
-		Assert.assertEquals(lDaten.tpFbofZeitStemepel, zeitStempel[testWertFbof]);
+		Assert.assertTrue(testWertFbof + " Differenz = " + diff + " taupunkt " + taupunktFbof[testWertFbof] + "DS " + lDaten.taupunktFbof, Math.abs(diff)<=0.05);
+		Assert.assertEquals(lDaten.tpFbofZeitStemepel, TaupunktTest.zeitStempel[testWertFbof]);
 		System.out.println(String.format("[ %4d ] Fbof Taupunkt T OK: %15.7f == %15.7f  Differrez: %15.7f", testWertFbof, taupunktFbof[testWertFbof], messwert, diff));
 		testWertFbof++;
 		
