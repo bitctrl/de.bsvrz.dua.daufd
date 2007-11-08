@@ -100,6 +100,11 @@ public class VerwaltungAufbereitungUFDTest extends VerwaltungAufbereitungUFD {
 		anmeldeEmpfaenger(taupunkt.getRlfSensoren(), Taupunkt.ATG_UFDS_RLF, ASP_MESSWERTERSETZUNG);
 		
 		knoten2.setNaechstenBearbeitungsKnoten(null);
+		
+		naesseKnoten.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
+		WasserFilmDickeStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
+		NiederschlagIntensitaetStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
+		SichtWeiteStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
 	}
 	/**
 	 * Leifert den NiederschlagintensitaetsKnoten

@@ -187,7 +187,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 		/**
 		 *  Ob wir am letzten mal einen leeren DS bekommen haben
 		 */
-		public boolean keineDaten = false;
+		public boolean keineDaten = true;
 		/**
 		 * Bestimmt, ob die Naessestufe unbestimmbar ist (haengt von NiederschlagsArt und
 		 * FahrbahnoberflaecheZustand ab)
@@ -197,7 +197,8 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 		 * Akutlaisiert die NaesseStufe nach den Abtrocknungsphasen,
 		 * ermoeglicht verzoegerte Aktualsierung
 		 */
-		synchronized public void alarm() {
+		public void alarm() {
+			synchronized (this) {
 			if(nsStufe != zielNsStufe && unbestimmbar == false) {
 				long zeitIntervall;
 				int intStufe = getStufe(nsStufe);
@@ -221,6 +222,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 				else aktualisierungLaeuft = false;
 			}
 			aktualisierungLaeuft = false;
+			}
 		}
 	}
 	/**
@@ -490,7 +492,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	
 		// init
 		if(msDaten.nsStufeZeitStempel == 0) {
-			msDaten.nsStufeZeitStempel = zeitStempel-100;
+			msDaten.nsStufeZeitStempel = zeitStempel-10;
 		}
 		// Ob die NS Stufe unbestimmbar ist
 		if((msDaten.niederschlagsArt>69 && msDaten.niederschlagsArt<80) ||
@@ -505,7 +507,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 			loesche(msDaten);
 			
 			// Auch im vorherigen zyklus faehlt ein DS, nsStufe wurde nicht publiziert
-			if(msDaten.nsStufeZeitStempel< vorletzeZeitStemepel) {
+			if(msDaten.nsStufeZeitStempel < vorletzeZeitStemepel) {
 				msDaten.nsStufe = msDaten.zielNsStufe;
 				msDaten.nsStufeZeitStempel = vorletzeZeitStemepel;
 				if(msDaten.unbestimmbar) msDaten.nsStufe = NS_Stufe.NS_WERT_NE;
@@ -513,14 +515,11 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 			}
 			
 			if(msDaten.niStufeZeitStempel < msDaten.wfdStufeZeitStempel ) {
-				neueStufe = tabelleWFDNIzumNS.get(msDaten.wfdStufe).get(NI_Stufe.NI_WERT_NV);
-				msDaten.nsStufeZeitStempel = msDaten.wfdStufeZeitStempel;
+				msDaten.zielNsStufe = tabelleWFDNIzumNS.get(msDaten.wfdStufe).get(NI_Stufe.NI_WERT_NV);
 			}
-			else {
-				neueStufe = tabelleWFDNIzumNS.get(WFD_Stufe.WFD_WERT_NV).get(msDaten.niStufe);
-				msDaten.nsStufeZeitStempel = msDaten.niStufeZeitStempel;
+			else if(msDaten.niStufeZeitStempel > msDaten.wfdStufeZeitStempel ) {
+				msDaten.zielNsStufe = tabelleWFDNIzumNS.get(WFD_Stufe.WFD_WERT_NV).get(msDaten.niStufe);
 			}
-			msDaten.zielNsStufe = neueStufe;
 			return;
 		}
 		
@@ -540,8 +539,11 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 			erstelleAuktualisierungsAuftrag(msDaten);
 			return;
 		}
-		//  bei nachlassenden Niederschlag WFD nicht verfuegbar ist
+		//  bei nachlassenden Niederschlag wenn WFD nicht verfuegbar ist
 		if(msDaten.nsStufe != NS_Stufe.NS_WERT_NE && neueStufe.compareTo(msDaten.nsStufe)<0 && msDaten.wfdStufe == WFD_Stufe.WFD_WERT_NV) {
+			// die Aktualisierungsmethode addiert nur den Zeitintervall der Verzoegerung
+			// hier wird die Basiszeit gestellt.
+			msDaten.nsStufeZeitStempel = msDaten.wfdStufeZeitStempel;
 			erstelleAuktualisierungsAuftrag(msDaten);
 			return;
 		}
@@ -568,7 +570,6 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 			Data data = verwaltung.getVerbindung().createData(
 					verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_UFDMS_NS));
 			data.getItem("NässeStufe").asUnscaledValue().set(intStufe);
-			
 			resultat = new ResultData(msDaten.messObject, DD_NAESSE_STUFE, msDaten.nsStufeZeitStempel, data);
 		}
 		
@@ -628,6 +629,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 				verwaltung.getVerbindung().getDataModel().getAspect(ASP_PARAM_SOLL));
 		
 		if(verwaltung.getSystemObjekte() == null || verwaltung.getSystemObjekte().length == 0) return;
+	
 		
 		for(SystemObject so: verwaltung.getSystemObjekte()) 
 			try {
@@ -661,8 +663,11 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 				//LOGGER.error("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
 				throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
 			}
-		verwaltung.getVerbindung().subscribeReceiver(this, 
-				verwaltung.getSystemObjekte(), DD_ABTROCKNUNGSPHASEN, ReceiveOptions.normal(), ReceiverRole.receiver());
+				
+			verwaltung.getVerbindung().subscribeReceiver(this, 
+					verwaltung.getSystemObjekte(), DD_ABTROCKNUNGSPHASEN, ReceiveOptions.normal(), ReceiverRole.receiver());
+			
+			
 	}
 
 	/**
@@ -708,7 +713,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 			Data daten = resData.getData();
 			SystemObject objekt = resData.getObject();
 			MessStelleDaten messStelleDaten = this.naesseTabelle.get(objekt);
-		
+			
 			if(dataDescription.getAttributeGroup().getPid().equals(ATG_UFDMS_AP) &&
 					dataDescription.getAspect().getPid().equals(ASP_PARAM_SOLL)) {
 				

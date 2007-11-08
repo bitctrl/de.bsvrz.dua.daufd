@@ -163,19 +163,20 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		try {
 			DAV.subscribeSender(this, ufdsObjekte, DD_KLASIFIZIERUNG, SenderRole.sender());
 			// Der DAV ist zu langsam und antwortet mit "Sendeanmeldung nocht nicht bestaettigt"
-			Thread.sleep(400);
+			Thread.sleep(100);
 			DAV.subscribeSender(this, ufdsObjekte, DD_AGGREGATION, SenderRole.sender());
 			// Der DAV ist zu langsam und antwortet mit "Sendeanmeldung nocht nicht bestaettigt" 
-			Thread.sleep(400);
+			Thread.sleep(100);
 		} catch (Exception e) {
 			LOGGER.error("Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ " + TYP + ":" + e.getMessage());
 			e.printStackTrace();
 		}
 		
-		for(SystemObject so : ufdsObjekte ) {
-			dataRequest(so, DD_KLASIFIZIERUNG, START_SENDING);
-			dataRequest(so, DD_AGGREGATION, START_SENDING);
-		}
+//		Der dataRequest wird automatisch vom Datenverteiler getriggert
+//		for(SystemObject so : ufdsObjekte ) {
+//			dataRequest(so, DD_KLASIFIZIERUNG, START_SENDING);
+//			dataRequest(so, DD_AGGREGATION, START_SENDING);
+//		}
 		
 		DAV.unsubscribeSender(this, ufdsObjekte, DD_KLASIFIZIERUNG);
 		
@@ -202,7 +203,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 			
 			try {
 				DAV.sendData(resDatei);
-				System.out.println("Objekt " + object.getPid() + " parametriert " + ATG_KLASS);
+				System.out.println("Objekt " + object.getPid() + " Atg: " + ATG_KLASS + " parametriert " );
 			} catch (Exception e) {
 				LOGGER.error("Fehler bei Sendung von Daten für Klassifizierung des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
 				e.printStackTrace();
@@ -220,7 +221,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 			
 			try {
 				DAV.sendData(resDatei);
-				System.out.println("Objekt " + object.getPid() + " parametriert " + ATG_KLASS);
+				System.out.println("Objekt " + object.getPid() + " Atg: " + ATG_AGGREG + " parametriert " );
 			} catch (Exception e) {
 				LOGGER.error("Fehler bei Sendung von Daten für Aggregation des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
 				e.printStackTrace();

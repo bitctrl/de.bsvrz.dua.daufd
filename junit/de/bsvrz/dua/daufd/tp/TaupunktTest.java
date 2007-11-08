@@ -57,7 +57,7 @@ public class TaupunktTest extends Taupunkt {
 			"-authentifizierung=c:\\passwd", 
 			"-debugLevelStdErrText=WARNING", 
 			"-debugLevelFileText=WARNING",
-			"-KonfigurationsBereichsPid=kb.UFD_Konfig_B27" }; 
+			"-KonfigurationsBereichsPid=kb.daUfdTest" }; 
 
 	/**
 	 * Der Index des aktuelles TestWertes im Array
@@ -86,7 +86,7 @@ public class TaupunktTest extends Taupunkt {
 	/**
 	 * SystemObjekte zum TestZwecken - liefern die Testdaten
 	 */
-	private static SystemObject rleSensor, ltSensor, fbofSensor;
+	private static SystemObject rlfSensor, ltSensor, fbofSensor;
 	/**
 	 * Synchronizierung
 	 */
@@ -277,11 +277,14 @@ public class TaupunktTest extends Taupunkt {
 		dav = verwaltung.getVerbindung();
 		
 		// findet Objekte die Testdaten liefern koennen
+		
+
 		for(SystemObject so :getRlfSensoren())
 			if(so != null) {
-				rleSensor = so;
+				rlfSensor = so;
 				break;
 			}
+			
 		
 		for(SystemObject so :getLtSensoren())
 			if(so != null) {
@@ -299,7 +302,7 @@ public class TaupunktTest extends Taupunkt {
 			
 			DD_SENDE_RLF_DATEN = new DataDescription(dav.getDataModel().getAttributeGroup("atg.ufdsRelativeLuftFeuchte"),
 					dav.getDataModel().getAspect("asp.messWertErsetzung"));
-			resultate = new ResultData(rleSensor, DD_SENDE_RLF_DATEN, System.currentTimeMillis(), null);
+			resultate = new ResultData(rlfSensor, DD_SENDE_RLF_DATEN, System.currentTimeMillis(), null);
 			dav.subscribeSource(this, resultate);
 			
 			DD_SENDE_LT_DATEN = new DataDescription(dav.getDataModel().getAttributeGroup("atg.ufdsLuftTemperatur"),
@@ -336,9 +339,9 @@ public class TaupunktTest extends Taupunkt {
 		System.out.println(String.format("[ %4d ] Luft Taupunkt T OK: %15.7f == %15.7f  Differrez: %15.7f", testWertLuft, taupunktLuft[testWertLuft], messwert, diff));
 		testWertLuft++;
 		
-		if(testWertLuft == taupunktLuft.length-1) synchronized (this) {
+		if(testWertLuft == taupunktLuft.length-1) synchronized (verwaltung) {
 			mussWartenLuft = false;
-			notify();
+			verwaltung.notify();
 		}
 	}
 	
@@ -361,9 +364,9 @@ public class TaupunktTest extends Taupunkt {
 		System.out.println(String.format("[ %4d ] Fbof Taupunkt T OK: %15.7f == %15.7f  Differrez: %15.7f", testWertFbof, taupunktFbof[testWertFbof], messwert, diff));
 		testWertFbof++;
 		
-		if(testWertFbof == taupunktFbof.length-1) synchronized (this) {
+		if(testWertFbof >= taupunktFbof.length-1) synchronized (verwaltung) {
 			mussWartenFbof = false;
-			notify();
+			verwaltung.notify();
 		}
 	}
 	/**
@@ -371,8 +374,8 @@ public class TaupunktTest extends Taupunkt {
 	 */
 	@Test
 	public void TestTaupunkt() {
-		double T [] = new double [] { 0.1, -0.2, 0.0, 1.1, -1.0};
-		double feuchte [] = new double [] { 83, 99, 100, 70, 6 };
+		double T [] = new double [] { 0.1, -0.2, 0.1, 0.0, 10, 0.5, -10.1, -1.0};
+		double feuchte [] = new double [] { 83, 99, 100, 70, 6, 52, 89 };
 		taupunktLuft = new double[T.length * feuchte.length];
 		taupunktFbof = new double[T.length * feuchte.length];
 		zeitStempel = new long[taupunktLuft.length];
@@ -409,16 +412,16 @@ public class TaupunktTest extends Taupunkt {
 					taupunktLuft[i*feuchte.length + j] = -1001; 
 				}
 				sendeDaten(fbofSensor, DD_SENDE_FBOFT_DATEN, "FahrBahnOberFlächenTemperatur", T[i], zeitStempel[i*feuchte.length + j],0);
-				sendeDaten(rleSensor, DD_SENDE_RLF_DATEN, "RelativeLuftFeuchte", feuchte[j], zeitStempel[i*feuchte.length + j],0);
+				sendeDaten(rlfSensor, DD_SENDE_RLF_DATEN, "RelativeLuftFeuchte", feuchte[j], zeitStempel[i*feuchte.length + j],0);
 				
 				try {
 					Thread.sleep(10);
 				} catch (Exception e) { }
 			}
 		
-		synchronized (this) {
+		synchronized (verwaltung) {
 			try {
-				while(mussWartenLuft || mussWartenFbof) wait();
+				while(mussWartenLuft || mussWartenFbof) verwaltung.wait();
 			} catch (Exception e) { }
 		}
 		hauptModul.disconnect();

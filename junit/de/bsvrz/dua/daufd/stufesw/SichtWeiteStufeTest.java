@@ -67,28 +67,28 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 			"-authentifizierung=c:\\passwd", 
 			"-debugLevelStdErrText=WARNING", 
 			"-debugLevelFileText=WARNING",
-			"-KonfigurationsBereichsPid=kb.UFD_Konfig_B27" }; 
+			"-KonfigurationsBereichsPid=kb.daUfdTest" }; 
 
 	/**
 	 * SW-Stufe untere Grenzwerte [AFo]
 	 */
-	private final double stufeVon[] = new double[] {
+	private final static double stufeVon[] = new double[] {
 		0, 50, 80, 120, 250, 400 	
 	};
 	/**
 	 * SW-Stufe obere Grenzwerte [AFo]
 	 */
-	private final double stufeBis[] = new double[] {
+	private final static double stufeBis[] = new double[] {
 		60, 100, 150, 300, 500, 60000   // Max Wert vom DaK 	
 	};
 	/**
 	 * Koefizient fuer Glaettung
 	 */
-	private final double b0 = 0.08;
+	private final static double b0 = 0.08;
 	/**
 	 * Koefizient fuer Glaettung
 	 */
-	private final double fb = 0.25;
+	private final static double fb = 0.25;
 	
 	/**
 	 * Verbindung zum dav
@@ -140,11 +140,15 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	 */
 	private static SystemObject testSensor;
 	/**
+	 * Bestimmt ob man an die bearbeitung der Daten warten soll
+	 */
+	private static boolean warten = false;
+	/**
 	 * Sendet die Parametrierung aus dem Tabellen der AFo dem DAV
 	 * @param dav DAV
 	 * @param konfBereiche konfigurationsbereiche, aus dennen alle Objekte parametriert werden
 	 */
-	public void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
+	public static void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
 		try {
 			UfdsKlassifizierungParametrierung param = new UfdsKlassifizierungParametrierung(
 					TYP_UFDS_WFD, ATG_UFDS_KLASS_WFD, ATT_UFDS_KLASS_WFD, ATG_UFDS_AGGREG_WFD, stufeVon, stufeBis, b0, fb);
@@ -189,6 +193,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 		
 		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
 		index = 0;
+		warten = true;
 		for(int i=0; i<MesswertGlatt.length; i++) {
 			sendeMesswert(testSensor, Messwert[i], zeitStempel[i]);
 			if(i+1<MesswertGlatt.length)
@@ -197,7 +202,11 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 				Thread.sleep(10);
 			} catch (Exception e) { }
 		}
-
+		try {
+			synchronized (hauptModul) {
+				while(warten) hauptModul.wait();
+			}
+		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
 		
@@ -234,7 +243,9 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 		
+		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
 		index = 0;
+		warten = true;
 		for(int i=0; i<MesswertGlatt.length; i++) {
 			sendeMesswert(testSensor, Messwert[i], zeitStempel[i]);
 			if(i+1<MesswertGlatt.length)
@@ -243,7 +254,12 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 				Thread.sleep(10);
 			} catch (Exception e) { }
 		}
-	
+		try {
+			synchronized (hauptModul) {
+				while(warten) hauptModul.wait();
+			}
+		} catch (Exception e) { }
+		
 		hauptModul.disconnect();
 		hauptModul = null;
 	}
@@ -272,8 +288,13 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 		Assert.assertEquals(stufen[index], stufe);
 		Assert.assertEquals(SichtWeiteStufeTest.zeitStempel[index], zeitStempel);
 		System.out.println(String.format("[ %4d ] Stufe OK: %3d == %3d", index, stufen[index], stufe));
-		
 		index++;
+		if(index>=stufen.length) {
+			synchronized (verwaltung) {
+				warten = false;
+				verwaltung.notify();
+			}
+		}
 	}
 	
 	/**

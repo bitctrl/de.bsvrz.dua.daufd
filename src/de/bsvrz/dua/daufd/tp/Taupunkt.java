@@ -58,7 +58,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	/**
 	 * Verbindung zum  Hauptmodul
 	 */
-	private IVerwaltung verwaltung;
+	protected static IVerwaltung verwaltung;
 	/**
 	 * der Nachste Bearbeitungsknoten
 	 */
@@ -168,11 +168,11 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		/**
 		 *  Wenn keine Daten vorhanden sind - die Eingabe Quelle auf "keineDaten" gestellt ist
 		 */
-		boolean keineFbofDaten = false;
+		boolean keineFbofDaten = true;
 		/**
 		 *  Wenn keine Daten vorhanden sind - die Eingabe Quelle auf "keineDaten" gestellt ist
 		 */
-		boolean keineLuftDaten = false;
+		boolean keineLuftDaten = true;
 		/**
 		 * Bestimmt, ob der Fbof TP becrechnet wird (falls es z.B. keinen FbofTemp Sensor gbit, 
 		 * wird der Fbof TP nicht berechnet)
@@ -330,6 +330,13 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		double relFeucht = rlF;
 		double fobofTemp = 0.1 * fbofT;
 		double ergebnis = Berechnetaupunkt(relFeucht, fobofTemp);
+		// 
+		// Der "att.ufdsTaupunktTemperatur" ist auf dem Beriech<-100,100> begrentzt 
+		// aber das Erbegnis der Berechnungen kann teoretisch ausserhalb des Intervalls sein
+		// dann bekommt mann ein Exceptien bei der Sendung der Daten
+		//
+		if(ergebnis < -100) ergebnis = -100;
+		else if(ergebnis > 100) ergebnis = 100;
 		
 		lDaten.taupunktFbof.getItem("TaupunktTemperaturFahrBahn").asScaledValue().set(ergebnis);
 		sendeTaupunktTemperaturFbof(lDaten, zeitStemepel, false);
@@ -394,6 +401,13 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		double relFeucht = rlF;
 		double luftTemp = 0.1 *luftT;
 		double ergebnis = Berechnetaupunkt(relFeucht, luftTemp);
+		// 
+		// Der "att.ufdsTaupunktTemperatur" ist auf dem Beriech<-100,100> begrentzt 
+		// aber das Erbegnis der Berechnungen kann teoretisch ausserhalb des Intervalls sein
+		// dann bekommt mann ein Exceptien bei der Sendung der Daten
+		//
+		if(ergebnis < -100) ergebnis = -100;
+		else if(ergebnis > 100) ergebnis = 100;
 		
 		lDaten.taupunktLuft.getItem("TaupunktTemperaturLuft").asScaledValue().set(ergebnis);
 		sendeTaupunktTemperaturLuft(lDaten, zeitStemepel, false);

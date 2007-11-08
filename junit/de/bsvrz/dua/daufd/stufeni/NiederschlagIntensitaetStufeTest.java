@@ -64,28 +64,28 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 			"-authentifizierung=c:\\passwd", 
 			"-debugLevelStdErrText=WARNING", 
 			"-debugLevelFileText=WARNING",
-			"-KonfigurationsBereichsPid=kb.UFD_Konfig_B27" }; 
+			"-KonfigurationsBereichsPid=kb.daUfdTest" }; 
 
 	/**
 	 * NI-Stufe untere Grenzwerte [AFo]
 	 */
-	private final double stufeVon[] = new double[] {
+	private final static double stufeVon[] = new double[] {
 		0.0, 0.2, 1.0, 4.0, 10.0 	
 	};
 	/**
 	 * NI-Stufe obere Grenzwerte [AFo]
 	 */
-	private final double stufeBis[] = new double[] {
+	private final static double stufeBis[] = new double[] {
 		0.3, 1.2, 5.0, 12.0, 200.0 // Max Wert vom DaK 	
 	};
 	/**
 	 * Koefizient fuer Glaettung
 	 */
-	private final double b0 = 0.08;
+	private final static double b0 = 0.08;
 	/**
 	 * Koefizient fuer Glaettung
 	 */
-	private final double fb = 0.25;
+	private final static double fb = 0.25;
 	
 	/**
 	 * Verbindung zum dav
@@ -137,11 +137,15 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 	 */
 	private static SystemObject testSensor;
 	/**
+	 * Bestimmt ob man an die bearbeitung der Daten warten soll
+	 */
+	private static boolean warten = false;
+	/**
 	 * Sendet die Parametrierung aus dem Tabellen der AFo dem DAV
 	 * @param dav DAV
 	 * @param konfBereiche konfigurationsbereiche, aus dennen alle Objekte parametriert werden
 	 */
-	public void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
+	public static void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
 		try {
 			UfdsKlassifizierungParametrierung param = new UfdsKlassifizierungParametrierung(
 					TYP_UFDS_NI, ATG_UFDS_KLASS_NI, ATT_UFDS_KLASS_NI, ATG_UFDS_AGGREG_NI, stufeVon, stufeBis, b0, fb);
@@ -181,12 +185,10 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 		for(int i=0; i<CON_DATA.length; i++)
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
-	
-
-		
 		
 		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
 		index = 0;
+		warten = true;
 		for(int i=0; i<MesswertGlatt.length; i++) {
 			sendeMesswert(testSensor, Messwert[i], zeitStempel[i]);
 			if(i+1<MesswertGlatt.length)
@@ -195,7 +197,11 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 				Thread.sleep(10);
 			} catch (Exception e) { }
 		}
-		
+		try {
+			synchronized (hauptModul) {
+				while(warten) hauptModul.wait();
+			}
+		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
 		
@@ -232,7 +238,10 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 		
+
+		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
 		index = 0;
+		warten = true;
 		for(int i=0; i<MesswertGlatt.length; i++) {
 			sendeMesswert(testSensor, Messwert[i], zeitStempel[i]);
 			if(i+1<MesswertGlatt.length)
@@ -241,7 +250,11 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 				Thread.sleep(10);
 			} catch (Exception e) { }
 		}
-		//try { Thread.sleep(1000000); } catch (Exception e) {}
+		try {
+			synchronized (hauptModul) {
+				while(warten) hauptModul.wait();
+			}
+		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
 	}
@@ -270,8 +283,13 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 		Assert.assertEquals(NiederschlagIntensitaetStufeTest.stufen[index], stufe);
 		Assert.assertEquals(NiederschlagIntensitaetStufeTest.zeitStempel[index], zeitStempel);
 		System.out.println(String.format("[ %4d ] Stufe OK: %3d == %3d", index, stufen[index], stufe));
-		
 		index++;
+		if(index>=stufen.length) {
+			synchronized (verwaltung) {
+				warten = false;
+				verwaltung.notify();
+			}
+		}
 	}
 	
 	/**

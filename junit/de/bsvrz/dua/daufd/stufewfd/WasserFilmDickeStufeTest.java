@@ -67,7 +67,7 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 			"-authentifizierung=c:\\passwd", 
 			"-debugLevelStdErrText=WARNING", 
 			"-debugLevelFileText=WARNING",
-			"-KonfigurationsBereichsPid=kb.UFD_Konfig_B27" }; 
+			"-KonfigurationsBereichsPid=kb.daUfdTest" }; 
 	/*
 	 *  ################ WARNUNG #################
 	 *  
@@ -90,11 +90,11 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 	/**
 	 * Koefizient fuer Glaettung
 	 */
-	private final double b0 = 0.08;
+	private final static double b0 = 0.08;
 	/**
 	 * Koefizient fuer Glaettung
 	 */
-	private final double fb = 0.25;
+	private final static double fb = 0.25;
 
 	/**
 	 * Verbindung zum dav
@@ -146,11 +146,15 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 	 */
 	private static SystemObject testSensor;
 	/**
+	 * Bestimmt ob man an die bearbeitung der Daten warten soll
+	 */
+	private static boolean warten = false;
+	/**
 	 * Sendet die Parametrierung aus dem Tabellen der AFo dem DAV
 	 * @param dav DAV
 	 * @param konfBereiche konfigurationsbereiche, aus dennen alle Objekte parametriert werden
 	 */
-	public void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
+	public static void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
 		try {
 			UfdsKlassifizierungParametrierung param = new UfdsKlassifizierungParametrierung(
 					TYP_UFDS_WFD, ATG_UFDS_KLASS_WFD, ATT_UFDS_KLASS_WFD, ATG_UFDS_AGGREG_WFD, stufeVon, stufeBis, b0, fb);
@@ -171,6 +175,8 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 		 *  
 		 *  Werte im Afo sind mit genuaigkeit 0.01 mm 
 		 *  wobei die Skalierung ist 0.1 mm
+		 * 
+		 * deswegen das Abrunden
 		 * 
 		 */
 		for(int i=0; i<stufeBis.length; i++) {
@@ -202,10 +208,9 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 		StandardApplicationRunner.run(hauptModul, connArgs);
 	
 		
-		System.out.println(Messwert);
-		
 		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
 		index = 0;
+		warten = true;
 		for(int i=0; i<MesswertGlatt.length; i++) {
 			sendeMesswert(testSensor, Messwert[i], zeitStempel[i]);
 			if(i+1<MesswertGlatt.length)
@@ -214,6 +219,13 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 				Thread.sleep(10);
 			} catch (Exception e) { }
 		}
+		
+		try {
+			synchronized (hauptModul) {
+				while(warten) hauptModul.wait();
+			}
+		} catch (Exception e) { }
+		
 		hauptModul.disconnect();
 		hauptModul = null;
 		
@@ -229,6 +241,8 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 		 *  
 		 *  Werte im Afo sind mit genuaigkeit 0.01 mm 
 		 *  wobei die Skalierung ist 0.1 mm
+		 *  
+		 *  deswegen das Abrunden
 		 * 
 		 */
 		for(int i=0; i<stufeBis.length; i++) {
@@ -260,7 +274,9 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 		
+		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
 		index = 0;
+		warten = true;
 		for(int i=0; i<MesswertGlatt.length; i++) {
 			sendeMesswert(testSensor, Messwert[i], zeitStempel[i]);
 			if(i+1<MesswertGlatt.length)
@@ -269,7 +285,12 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 				Thread.sleep(10);
 			} catch (Exception e) { }
 		}
-	
+		try {
+			synchronized (hauptModul) {
+				while(warten) hauptModul.wait();
+			}
+		} catch (Exception e) { }
+		
 		hauptModul.disconnect();
 		hauptModul = null;
 	}
@@ -298,8 +319,13 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 		Assert.assertEquals(stufen[index], stufe);
 		Assert.assertEquals(WasserFilmDickeStufeTest.zeitStempel[index], zeitStempel);
 		System.out.println(String.format("[ %4d ] Stufe OK: %3d == %3d", index, stufen[index], stufe));
-		
 		index++;
+		if(index>=stufen.length) {
+			synchronized (verwaltung) {
+				warten = false;
+				verwaltung.notify();
+			}
+		}
 	}
 	
 	/**

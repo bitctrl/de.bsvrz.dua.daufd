@@ -38,6 +38,7 @@ import de.bsvrz.dav.daf.main.OneSubscriptionPerSendData;
 import de.bsvrz.dav.daf.main.ReceiveOptions;
 import de.bsvrz.dav.daf.main.ReceiverRole;
 import de.bsvrz.dav.daf.main.ResultData;
+import de.bsvrz.dav.daf.main.SenderRole;
 import de.bsvrz.dav.daf.main.Data.Array;
 import de.bsvrz.dav.daf.main.config.ConfigurationObject;
 import de.bsvrz.dav.daf.main.config.ObjectSet;
@@ -141,7 +142,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 		/**
 		 * Ob der Letzte eingekommene DS als "keine Daten" gekennzeichnet war
 		 */
-		boolean keineDaten = false;
+		boolean keineDaten = true;
 	};
 	/** 
 	 *  Menge der Sensoren die zu eine Messstelle gehoeren
@@ -187,8 +188,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			for( SystemObject sensor : sensorMenge.getElements()) {
 				if(getSensorTyp().equals(sensor.getType().getPid())) {
 					try {			
-						ResultData resultate = new ResultData(sensor, DD_QUELLE, System.currentTimeMillis(), null);
-						verwaltung.getVerbindung().subscribeSource(this, resultate);
+						verwaltung.getVerbindung().subscribeSender(this, sensor, DD_QUELLE, SenderRole.source());
 						sensorDaten.put(sensor, new SensorParameter());
 						sensoren.add(sensor);
 					} catch (OneSubscriptionPerSendData e) {
@@ -213,8 +213,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			
 			if(dataDescription.getAttributeGroup().getPid().equals(getKlassifizierungsAttributGruppe()) &&
 					dataDescription.getAspect().getPid().equals(ASP_SOLL_PARAM)) {
-				Array stufen = daten.getArray(getKlassifizierungsAttribut());
-			
+				
 				if(param == null) {
 					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
 					continue;
@@ -224,6 +223,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 					continue;
 				}
 				
+				Array stufen = daten.getArray(getKlassifizierungsAttribut());
 				int laenge  = stufen.getLength();
 				param.stufeBis = new double[laenge];
 				param.stufeVon = new double[laenge];
@@ -275,7 +275,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			SystemObject objekt = resData.getObject();
 			Data daten = resData.getData();
 			SensorParameter param = sensorDaten.get(objekt);
-			if(dataDescription.getAttributeGroup().getPid().equals(getMesswertAttributGruppe())) {
+			if	(dataDescription.getAttributeGroup().getPid().equals(getMesswertAttributGruppe())) {
 				if(daten == null) {
 					if(!param.keineDaten) {
 						param.keineDaten = true;
@@ -283,7 +283,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 					}
 					continue;
 				}
-				else if(param == null) {
+				if(param == null) {
 					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
 					continue;
 				}

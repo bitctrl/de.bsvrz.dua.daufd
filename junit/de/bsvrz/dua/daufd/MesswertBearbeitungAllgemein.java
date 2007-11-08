@@ -94,6 +94,9 @@ public class MesswertBearbeitungAllgemein {
 			Messwert[i] += Math.random()*intervall-intervall/2;			
 		}
 		for(int i=0; i<anzahlNullWerte; i++) {
+			if(Messwert[i]< 0) Messwert[i] = 0;
+		}
+		for(int i=0; i<anzahlNullWerte; i++) {
 			int j = (int)(Math.random()*Messwert.length);
 			Messwert[j] = 0;
 		}

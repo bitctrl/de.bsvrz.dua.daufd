@@ -27,6 +27,7 @@
 package de.bsvrz.dua.daufd.stufenaesse;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 
 import junit.framework.Assert;
@@ -44,7 +45,6 @@ import de.bsvrz.dav.daf.main.config.ObjectTimeSpecification;
 import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dav.daf.main.config.SystemObjectType;
 import de.bsvrz.dua.daufd.VerwaltungAufbereitungUFDTest;
-import de.bsvrz.dua.daufd.stufenaesse.NaesseStufe.MessStelleDaten;
 import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe;
 import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe.NI_Stufe;
 import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickeStufe;
@@ -72,7 +72,7 @@ implements ClientSenderInterface {
 			"-authentifizierung=c:\\passwd", 
 			"-debugLevelStdErrText=WARNING", 
 			"-debugLevelFileText=WARNING",
-			"-KonfigurationsBereichsPid=kb.UFD_Konfig_B27" }; 
+			"-KonfigurationsBereichsPid=kb.daUfdTest" }; 
 
 	/**
 	 * Abtrocknungphasen Verzoegerung [AFo]
@@ -101,11 +101,11 @@ implements ClientSenderInterface {
 	 */
 	private static VerwaltungAufbereitungUFDTest hauptModul;
 	/**
-	 * Erwertete Ausgabewerte
+	 * Errechnete Ausgabewerte
 	 */
 	private static NS_Stufe ausgabe [] = null;
 	/**
-	 * Erwertete zeitStempel der Ausgabewerten
+	 * Errechnete zeitStempel der Ausgabewerten
 	 */
 	private static long ausgabeZeitStempel [] = null;
 	/**
@@ -116,7 +116,7 @@ implements ClientSenderInterface {
 	 * Im testfaellen wird der Verzoegerungsintervall fuer
 	 * Abtrocknungsphasen verkuertzt
 	 */
-	private final long ABTR_INTERVALL = 10;
+	private final long ABTR_INTERVALL = 1;
 	/**
 	 * Sensore die die Testdaten liefern
 	 */
@@ -126,6 +126,10 @@ implements ClientSenderInterface {
 	 */
 	private static DataDescription DD_FBOF_ZUSTAND, DD_NIE_ART;
 	/**
+	 * Bestimmt ob man an die bearbeitung der Daten warten soll
+	 */
+	private static boolean warten = true;
+	/**
 	 * String-Konstanten
 	 */
 	private static final String TYP_UFDMS = "typ.umfeldDatenMessStelle";
@@ -134,6 +138,14 @@ implements ClientSenderInterface {
 		 "ZeitNass1Trocken", "ZeitNass4Nass3", "ZeitNass3Nass2", "ZeitNass2Nass1"
 	};
 
+	/**
+	 * Zustaende 
+	 */
+	private final int FBOF_TROCKEN = 0;
+	private final int FBOF_EIS = 66;
+	private final int NART_KEIN = 0;
+	private final int NART_SCHNEE = 73;
+	
 	/**
 	 * Parametriert die Verzoegerung bei der Abtrocknungphasen
 	 * 
@@ -165,11 +177,8 @@ implements ClientSenderInterface {
 				LOGGER.error("Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ " + TYP_UFDMS + ":" + e.getMessage());
 				e.printStackTrace();
 			}
-			Thread.sleep(200);
+			Thread.sleep(100);
 			
-			for(SystemObject so : ufdsObjekte ) {
-				dataRequest(so, DD_ABTROCKNUNG_PHASEN, START_SENDING);
-			}
 			dav.unsubscribeSender(this, ufdsObjekte, DD_ABTROCKNUNG_PHASEN);
 
 		} catch (Exception e) {
@@ -196,7 +205,7 @@ implements ClientSenderInterface {
 			
 			try {
 				dav.sendData(resDatei);
-				System.out.println("Objekt " + object.getPid() + " parametriert " + ATG_UFDMS_AP);
+				System.out.println("Objekt " + object.getPid() + " Atg: " + ATG_UFDMS_AP + " parametriert ");
 			} catch (Exception e) {
 				LOGGER.error("Fehler bei Sendung von Daten für Klassifizierung Niederschlaginetnsitaet des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
 				e.printStackTrace();
@@ -285,7 +294,8 @@ implements ClientSenderInterface {
 			
 			if(dataDescription.getAttributeGroup().getPid().equals(ATG_UFDMS_AP)) {
 				for(int i=0; i< ATT_STUFE.length; i++)
-					messStelleDaten.abtrocknungsPhasen[i] = ABTR_INTERVALL; // Im Testfaellen ist keine Verzoegerung (10 ms) 
+					messStelleDaten.abtrocknungsPhasen[i] = ABTR_INTERVALL; // Im Testfaellen ist keine Verzoegerung (10 ms)
+				messStelleDaten.initialisiert = true;
 			}
 		}
 	}
@@ -300,10 +310,11 @@ implements ClientSenderInterface {
 		// d.H. es laeuft gerade ein test von anderer Klasse die NiStufe daten benoetigt
 		if(ausgabe == null) return;
 		
-		Assert.assertEquals(ausgabe[ausgabeIndex].ordinal(), msDaten.nsStufe.ordinal());
+		Assert.assertEquals("Werte nicht gleich soll:" + ausgabe[ausgabeIndex].ordinal() + " ist:" + msDaten.nsStufe.ordinal() + " index " + ausgabeIndex, ausgabe[ausgabeIndex].ordinal(), msDaten.nsStufe.ordinal());
 		Assert.assertEquals(ausgabeZeitStempel[ausgabeIndex], msDaten.nsStufeZeitStempel);
 		System.out.println(String.format("[ %4d ] NS Stufe OK: %-10s == %-10s", ausgabeIndex, ausgabe[ausgabeIndex],  msDaten.nsStufe));
 		ausgabeIndex++;
+		warten = false;
 	}
 	
 	/**
@@ -335,30 +346,8 @@ implements ClientSenderInterface {
 	 * @param zeitStempel Der ZeitStempels 
 	 */
 	private void sendeFbofZustand(SystemObject objekt, int zustand, long zeitStempel) {
-		
-		Data data = dav.createData(dav.getDataModel().getAttributeGroup(ATG_UFDS_FBOFZS));
-		final String att = "FahrBahnOberFlächenZustand";
-		
-		data.getTimeValue("T").setMillis(0);
-		data.getItem(att).getUnscaledValue("Wert").set(zustand);
-	
-		data.getItem(att).getItem("Status").getItem("Erfassung").getUnscaledValue("NichtErfasst").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMax").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);	
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").set(0);
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
-		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
-		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
-		
-		ResultData result = new ResultData(objekt, DD_FBOF_ZUSTAND, zeitStempel, data);
-		try { 
-			dav.sendData(result);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		}
+		sendeZustand(objekt,  "FahrBahnOberFlächenZustand" , DD_FBOF_ZUSTAND, zustand, zeitStempel);
 	}
-
 
 	/**
 	 * Sendet einen DS mit Niederschlagsart
@@ -367,12 +356,23 @@ implements ClientSenderInterface {
 	 * @param zeitStempel Der ZeitStempels 
 	 */
 	private void sendeNiederschlagsArt(SystemObject objekt, int zustand, long zeitStempel) {
-		
-		Data data = dav.createData(dav.getDataModel().getAttributeGroup(ATG_UFDS_NA));
-		final String att = "NiederschlagsArt";
+		sendeZustand(objekt,  "NiederschlagsArt" , DD_NIE_ART, zustand, zeitStempel);
+	}
+	
+	/**
+	 *	Sendet einen allgemeinen DS mit  Zustand (int) Wert 
+	 * @param objekt SystemObjekt
+	 * @param attribut Attributname
+	 * @param datenBeschreibung Datenbeschreibung
+	 * @param wert Wert
+	 * @param zeitStempel Zeitstempel
+	 */
+	private void sendeZustand(SystemObject objekt, String attribut, DataDescription datenBeschreibung, int wert, long zeitStempel) {
+		Data data = dav.createData(datenBeschreibung.getAttributeGroup());
+		final String att = attribut;
 		
 		data.getTimeValue("T").setMillis(0);
-		data.getItem(att).getUnscaledValue("Wert").set(zustand);
+		data.getItem(att).getUnscaledValue("Wert").set(wert);
 	
 		data.getItem(att).getItem("Status").getItem("Erfassung").getUnscaledValue("NichtErfasst").set(0);
 		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMax").set(0);
@@ -382,7 +382,7 @@ implements ClientSenderInterface {
 		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
 		
-		ResultData result = new ResultData(objekt, DD_NIE_ART, zeitStempel, data);
+		ResultData result = new ResultData(objekt, datenBeschreibung, zeitStempel, data);
 		try { 
 			dav.sendData(result);
 		} catch (Exception e) {
@@ -394,25 +394,25 @@ implements ClientSenderInterface {
 	/**
 	 * Konstanten, die als Abkuerzungen benutzt werden
 	 */
-	final NI_Stufe NI0 = NI_Stufe.NI_STUFE0;
-	final NI_Stufe NI1 = NI_Stufe.NI_STUFE1;
-	final NI_Stufe NI2 = NI_Stufe.NI_STUFE2;
-	final NI_Stufe NI3 = NI_Stufe.NI_STUFE3;
-	final NI_Stufe NI4 = NI_Stufe.NI_STUFE4;
-	final NI_Stufe NINV = NI_Stufe.NI_WERT_NV;
+	private final NI_Stufe NI0 = NI_Stufe.NI_STUFE0;
+	private final NI_Stufe NI1 = NI_Stufe.NI_STUFE1;
+	private final NI_Stufe NI2 = NI_Stufe.NI_STUFE2;
+	private final NI_Stufe NI3 = NI_Stufe.NI_STUFE3;
+	private final NI_Stufe NI4 = NI_Stufe.NI_STUFE4;
+	private final NI_Stufe NINV = NI_Stufe.NI_WERT_NV;
 	
-	final WFD_Stufe WFD0 = WFD_Stufe.WFD_STUFE0;
-	final WFD_Stufe WFD1 = WFD_Stufe.WFD_STUFE1;
-	final WFD_Stufe WFD2 = WFD_Stufe.WFD_STUFE2;
-	final WFD_Stufe WFD3 = WFD_Stufe.WFD_STUFE3;
-	final WFD_Stufe WFDNV = WFD_Stufe.WFD_WERT_NV;
+	private final WFD_Stufe WFD0 = WFD_Stufe.WFD_STUFE0;
+	private final WFD_Stufe WFD1 = WFD_Stufe.WFD_STUFE1;
+	private final WFD_Stufe WFD2 = WFD_Stufe.WFD_STUFE2;
+	private final WFD_Stufe WFD3 = WFD_Stufe.WFD_STUFE3;
+	private final WFD_Stufe WFDNV = WFD_Stufe.WFD_WERT_NV;
 	
-	final NS_Stufe NS0 = NS_Stufe.NS_TROCKEN;
-	final NS_Stufe NS1 = NS_Stufe.NS_NASS1;
-	final NS_Stufe NS2 = NS_Stufe.NS_NASS2;
-	final NS_Stufe NS3 = NS_Stufe.NS_NASS3;
-	final NS_Stufe NS4 = NS_Stufe.NS_NASS4;
-	final NS_Stufe NSNV = NS_Stufe.NS_WERT_NE;
+	private final NS_Stufe NS0 = NS_Stufe.NS_TROCKEN;
+	private final NS_Stufe NS1 = NS_Stufe.NS_NASS1;
+	private final NS_Stufe NS2 = NS_Stufe.NS_NASS2;
+	private final NS_Stufe NS3 = NS_Stufe.NS_NASS3;
+	private final NS_Stufe NS4 = NS_Stufe.NS_NASS4;
+	private final NS_Stufe NSNV = NS_Stufe.NS_WERT_NE;
 	
 	/**
 	 * Testfall 1 - geht durch die ganze Tabelle
@@ -427,7 +427,7 @@ implements ClientSenderInterface {
 								   				 NS1, NS1, NS2, NS3, NS4, NS1,
 								   				 NS2, NS2, NS2, NS3, NS4, NS2,
 								   				 NS2, NS2, NS3, NS3, NS4, NS3,
-								   				 NS0, NS1, NS2, NS3, NS4, NS_Stufe.NS_WERT_NE };
+								   				 NS0, NS1, NS2, NS3, NS4, NSNV };
 		ausgabeZeitStempel = new long[N];
 
 		
@@ -463,15 +463,22 @@ implements ClientSenderInterface {
 						k++;
 					}
 				}
+				warten = true;
 				sendeNiStufe(niSensor, niStufe[j], zeitStempel);
 				sendeWfdStufe(wfdSensor, wfdStufe[i], zeitStempel);
+				sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel);
+				sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
+				
 				try {
 					Thread.sleep(100);
 				} catch (Exception e) { 	}
 				k++;
 				zeitStempel += delta;
 			}
-		}		
+		}	
+		try {
+			while(warten) Thread.sleep(300);
+		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
 	}
@@ -483,9 +490,6 @@ implements ClientSenderInterface {
 	public void testFbofZustand() {
 		
 		final int N = 50;
-
-		final int FBOF_TROCKEN = 0;
-		final int FBOF_EIS = 66;
 		
 		ausgabe = new NS_Stufe[50];
 		NS_Stufe tabelle [] = new NS_Stufe []  { NS0, NS0, NS1, NS2, NS2, NS0, 
@@ -515,18 +519,15 @@ implements ClientSenderInterface {
 		for(int i =0; i<5; i++) {
 
 			for(int j=0; j<6; j++) {
-				if((i+j)%3==2) {
-					sendeFbofZustand(fbofZustandSensor, FBOF_EIS, zeitStempel -  delta/2);
+				if((i+j)%5>0 && (i+j)%5<3) {
+					sendeFbofZustand(fbofZustandSensor, FBOF_EIS, zeitStempel);
 					unbestimmbar = true;
 				}
-				else if((i+j)%5==4) {
-					sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel -  delta/2);
+				else {
+					sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel);
 					unbestimmbar = false;
 				}
-				try {
-					Thread.sleep(100);
-				} catch (Exception e) { 	}
-				
+			
 				ausgabeZeitStempel[k] = zeitStempel;
 				ausgabe[k] = tabelle[m++];
 				
@@ -543,8 +544,11 @@ implements ClientSenderInterface {
 						k++;
 					}
 				}
+				warten = true;
 				sendeNiStufe(niSensor, niStufe[j], zeitStempel);
 				sendeWfdStufe(wfdSensor, wfdStufe[i], zeitStempel);
+				sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
+				
 				try {
 					Thread.sleep(100);
 				} catch (Exception e) { 	}
@@ -552,6 +556,9 @@ implements ClientSenderInterface {
 				zeitStempel += delta;
 			}
 		}
+		try {
+			while(warten) Thread.sleep(300);
+		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
 	}
@@ -562,8 +569,6 @@ implements ClientSenderInterface {
 	@Test
 	public void testVerzoegerung() {
 		
-		final int FBOF_TROCKEN = 0;
-
 		ausgabe = new NS_Stufe[] { NS4, NS3, NS3, NS2, NS2, NS4, NS3, NS2, NS1, NS0 } ;
 		ausgabeZeitStempel = new long[ausgabe.length];
 
@@ -577,15 +582,17 @@ implements ClientSenderInterface {
 		
 		long zeitStempel = System.currentTimeMillis()- 120 * 60 * 1000;
 		long delta = 5 * 60 * 1000;
-		
-		sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN , zeitStempel);
-
+	
 		ausgabeIndex = 0;
+		
 		for(int i =0; i<5; i++) {
 			ausgabeZeitStempel[i] = zeitStempel;
-				
+			warten = true;	
 			sendeNiStufe(niSensor, niStufe[i], zeitStempel);
 			sendeWfdStufe(wfdSensor, WFD3, zeitStempel);
+			sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel);
+			sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
+			
 			try {
 				Thread.sleep(100);
 			} catch (Exception e) { 	}
@@ -595,15 +602,23 @@ implements ClientSenderInterface {
 		for(int i =5; i<10; i++) {
 			ausgabeZeitStempel[i] = zeitStempel;
 			if(i>5) ausgabeZeitStempel[i] += ABTR_INTERVALL;
-				
+			warten = true;	
 			sendeNiStufe(niSensor, niStufe[i-5], zeitStempel);
 			sendeWfdStufe(wfdSensor, WFDNV, zeitStempel);
+			sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel);
+			sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
+			
 			try {
 				Thread.sleep(100);
 			} catch (Exception e) { 	}
 			zeitStempel += delta;
 			
 		}
+	
+		
+		try {
+			while(warten) Thread.sleep(300);
+		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
 	}
@@ -615,10 +630,6 @@ implements ClientSenderInterface {
 	public void testNieArt() {
 		
 		final int N = 50;
-
-
-		final int NART_KEIN = 0;
-		final int NART_SCHNEE = 73;
 		
 		ausgabe = new NS_Stufe[50];
 		NS_Stufe tabelle [] = new NS_Stufe []  { NS0, NS0, NS1, NS2, NS2, NS0, 
@@ -648,17 +659,14 @@ implements ClientSenderInterface {
 		for(int i =0; i<5; i++) {
 
 			for(int j=0; j<6; j++) {
-				if((i+j)%3==2) {
-					sendeNiederschlagsArt(naSensor, NART_SCHNEE, zeitStempel -  delta/2);
+				if((i+j)%5>0 && (i+j)%5<3) {
+					sendeNiederschlagsArt(naSensor, NART_SCHNEE, zeitStempel);
 					unbestimmbar = true;
 				}
-				else if((i+j)%5==4) {
-					sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel -  delta/2);
+				else  {
+					sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
 					unbestimmbar = false;
 				}
-				try {
-					Thread.sleep(100);
-				} catch (Exception e) { 	}
 				
 				ausgabeZeitStempel[k] = zeitStempel;
 				ausgabe[k] = tabelle[m++];
@@ -676,8 +684,11 @@ implements ClientSenderInterface {
 						k++;
 					}
 				}
+				warten = true;
 				sendeNiStufe(niSensor, niStufe[j], zeitStempel);
 				sendeWfdStufe(wfdSensor, wfdStufe[i], zeitStempel);
+				sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel);
+				
 				try {
 					Thread.sleep(100);
 				} catch (Exception e) { 	}
@@ -685,6 +696,9 @@ implements ClientSenderInterface {
 				zeitStempel += delta;
 			}
 		}
+		try {
+			while(warten) Thread.sleep(300);
+		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
 	}
