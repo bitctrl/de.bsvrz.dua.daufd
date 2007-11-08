@@ -58,6 +58,19 @@ public class VerwaltungAufbereitungUFDTest extends VerwaltungAufbereitungUFD {
 	@Override
 	protected void initialisiere()
 	throws DUAInitialisierungsException {
+		
+
+		/*
+		 * Die parametrierung des Testkonfigruationsbereichs
+		 */
+		NaesseStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
+		WasserFilmDickeStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
+		NiederschlagIntensitaetStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
+		SichtWeiteStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
+		try{
+			Thread.sleep(1000);
+		}catch (Exception e) { }
+		
 
 		Collection<SystemObject> objekte;
 		Collection<SystemObjectType> systemObjektTypen = new LinkedList<SystemObjectType>(); 
@@ -101,10 +114,6 @@ public class VerwaltungAufbereitungUFDTest extends VerwaltungAufbereitungUFD {
 		
 		knoten2.setNaechstenBearbeitungsKnoten(null);
 		
-		naesseKnoten.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
-		WasserFilmDickeStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
-		NiederschlagIntensitaetStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
-		SichtWeiteStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
 	}
 	/**
 	 * Leifert den NiederschlagintensitaetsKnoten

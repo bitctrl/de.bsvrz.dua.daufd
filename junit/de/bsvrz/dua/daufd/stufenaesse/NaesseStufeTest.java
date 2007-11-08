@@ -27,12 +27,10 @@
 package de.bsvrz.dua.daufd.stufenaesse;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.LinkedList;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import de.bsvrz.dav.daf.main.ClientDavInterface;
@@ -153,10 +151,11 @@ implements ClientSenderInterface {
 	 * @param dav Verbindung zum Datenverteiler
 	 * @param konfBereiche konfigurationsbereiche in denen alle Objekte parametriert werden sollen
 	 */
-	public void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
+	public static void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
 		try {
 			
 			NaesseStufeTest.dav = dav;
+			NaesseStufeTest param = new NaesseStufeTest();
 			
 			DD_ABTROCKNUNG_PHASEN = new DataDescription(
 					dav.getDataModel().getAttributeGroup(ATG_UFDMS_AP),
@@ -173,14 +172,14 @@ implements ClientSenderInterface {
 			}
 			
 			try {
-				dav.subscribeSender(this, ufdsObjekte, DD_ABTROCKNUNG_PHASEN, SenderRole.sender());
+				dav.subscribeSender(param, ufdsObjekte, DD_ABTROCKNUNG_PHASEN, SenderRole.sender());
 			} catch (Exception e) {
 				LOGGER.error("Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ " + TYP_UFDMS + ":" + e.getMessage());
 				e.printStackTrace();
 			}
 			Thread.sleep(100);
 			
-			dav.unsubscribeSender(this, ufdsObjekte, DD_ABTROCKNUNG_PHASEN);
+			dav.unsubscribeSender(param, ufdsObjekte, DD_ABTROCKNUNG_PHASEN);
 
 		} catch (Exception e) {
 			Debug.getLogger().error("Fehler bei Parametrierung der NaesseStufe Abtrocknungphasen: " + e.getMessage());
