@@ -327,7 +327,7 @@ public class TaupunktTest extends Taupunkt {
 
 		super.sendeTaupunktTemperaturLuft(lDaten, zeitStempel, keineDaten);
 		if(keineDaten) return;
-		
+		if(taupunktLuft==null) return;
 		double diff;
 		double messwert = lDaten.taupunktLuft.getUnscaledValue("TaupunktTemperaturLuft").doubleValue();
 		if(messwert>=-1000)
@@ -352,7 +352,7 @@ public class TaupunktTest extends Taupunkt {
 	public void sendeTaupunktTemperaturFbof(LokaleDaten lDaten, long zeitStempel, boolean keineDaten) {
 		super.sendeTaupunktTemperaturFbof(lDaten, zeitStempel, keineDaten);	
 		if(keineDaten) return;
-		
+		if(taupunktFbof==null) return; 
 		double diff;
 		double messwert = lDaten.taupunktFbof.getUnscaledValue("TaupunktTemperaturFahrBahn").doubleValue();
 		if(messwert>=-1000)
@@ -426,5 +426,8 @@ public class TaupunktTest extends Taupunkt {
 		}
 		hauptModul.disconnect();
 		hauptModul = null;
+		taupunktFbof = null;
+		taupunktLuft = null;
+	
 	}
 }

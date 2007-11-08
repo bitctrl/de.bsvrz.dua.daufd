@@ -32,6 +32,7 @@ import java.util.LinkedList;
 
 import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import de.bsvrz.dav.daf.main.ClientDavInterface;
@@ -230,7 +231,7 @@ implements ClientSenderInterface {
 	throws DUAInitialisierungsException {
 		super.initialisiere(verwaltung);
 		
-		ResultData resultate;
+		
 		dav = verwaltung.getVerbindung();
 		
 		for(SystemObject so : getNaSensoren())
@@ -255,9 +256,8 @@ implements ClientSenderInterface {
 				wfdSensor = so;
 				break;
 			}
-		
 		try {
-			
+			ResultData resultate;
 			DD_FBOF_ZUSTAND = new DataDescription(dav.getDataModel().getAttributeGroup(ATG_UFDS_FBOFZS),
 					dav.getDataModel().getAspect(ASP_MESSWERTERSETZUNG));
 			resultate = new ResultData(fbofZustandSensor, DD_FBOF_ZUSTAND, System.currentTimeMillis(), null);
@@ -345,7 +345,7 @@ implements ClientSenderInterface {
 	 * @param stufe Die Stufe
 	 * @param zeitStempel Der ZeitStempels 
 	 */
-	private void sendeFbofZustand(SystemObject objekt, int zustand, long zeitStempel) {
+	private  static void sendeFbofZustand(SystemObject objekt, int zustand, long zeitStempel) {
 		sendeZustand(objekt,  "FahrBahnOberFlächenZustand" , DD_FBOF_ZUSTAND, zustand, zeitStempel);
 	}
 
@@ -355,7 +355,7 @@ implements ClientSenderInterface {
 	 * @param stufe Die Stufe
 	 * @param zeitStempel Der ZeitStempels 
 	 */
-	private void sendeNiederschlagsArt(SystemObject objekt, int zustand, long zeitStempel) {
+	private static void sendeNiederschlagsArt(SystemObject objekt, int zustand, long zeitStempel) {
 		sendeZustand(objekt,  "NiederschlagsArt" , DD_NIE_ART, zustand, zeitStempel);
 	}
 	
@@ -367,7 +367,7 @@ implements ClientSenderInterface {
 	 * @param wert Wert
 	 * @param zeitStempel Zeitstempel
 	 */
-	private void sendeZustand(SystemObject objekt, String attribut, DataDescription datenBeschreibung, int wert, long zeitStempel) {
+	private static void sendeZustand(SystemObject objekt, String attribut, DataDescription datenBeschreibung, int wert, long zeitStempel) {
 		Data data = dav.createData(datenBeschreibung.getAttributeGroup());
 		final String att = attribut;
 		
@@ -481,6 +481,8 @@ implements ClientSenderInterface {
 		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
+		ausgabe = null;
+		
 	}
 
 	/**
@@ -561,6 +563,7 @@ implements ClientSenderInterface {
 		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
+		ausgabe = null;
 	}
 
 	/**
@@ -621,6 +624,7 @@ implements ClientSenderInterface {
 		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
+		ausgabe = null;
 	}
 	
 	/**
@@ -701,6 +705,7 @@ implements ClientSenderInterface {
 		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
+		ausgabe = null;
 	}
 	
 	@Override

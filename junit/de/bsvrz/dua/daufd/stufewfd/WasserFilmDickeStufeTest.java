@@ -228,7 +228,8 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 		
 		hauptModul.disconnect();
 		hauptModul = null;
-		
+		stufen = null;
+		MesswertGlatt = null;
 	}
 	/**
 	 * Generiert eine Reihe von Zahlen und vergleicht mit der getesteten Klasse
@@ -293,6 +294,8 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 		
 		hauptModul.disconnect();
 		hauptModul = null;
+		stufen = null;
+		MesswertGlatt = null;
 	}
 	/**
 	 * {@inheritDoc}

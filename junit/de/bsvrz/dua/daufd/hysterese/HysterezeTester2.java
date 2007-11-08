@@ -138,5 +138,9 @@ public class HysterezeTester2 {
 				alt = r2;
 			}
 		}
+		try {
+			Thread.sleep(1000);
+		} catch (Exception e) { }
 	}
+	
 }

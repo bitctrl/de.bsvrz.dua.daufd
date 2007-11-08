@@ -209,6 +209,8 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
+		stufen = null;
+		MesswertGlatt = null;
 		
 	}
 	/**
@@ -262,6 +264,8 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 		
 		hauptModul.disconnect();
 		hauptModul = null;
+		stufen = null;
+		MesswertGlatt = null;
 	}
 	/**
 	 * {@inheritDoc}

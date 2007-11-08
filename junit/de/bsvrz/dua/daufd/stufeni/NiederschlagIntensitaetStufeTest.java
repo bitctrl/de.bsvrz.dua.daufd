@@ -204,7 +204,8 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
-		
+		stufen = null;
+		MesswertGlatt = null;
 	}
 	/**
 	 * Generiert eine Reihe von Zahlen und vergleicht mit der getesteten Klasse
@@ -257,6 +258,8 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
+		stufen = null;
+		MesswertGlatt = null;
 	}
 	/**
 	 * {@inheritDoc}
