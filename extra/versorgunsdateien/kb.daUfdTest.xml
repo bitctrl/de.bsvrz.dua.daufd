@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE konfigurationsBereich PUBLIC "-//K2S//DTD Dokument//DE" "K2S.dtd">
+<konfigurationsBereich pid="kb.daUfdTest"
+	verantwortlich="kv.aoe.bitctrl.tester">
+	<konfigurationsAenderung stand="07.11.2007" version="1" autor="Viktor Bachraty, BitCtrl Systems GmbH" grund="Test Datenaufebreitung Umfeldaten">
+		Konfigurationsbereich neu erstellt
+	</konfigurationsAenderung>
+	<modell />
+
+	<objekte>
+	<konfigurationsObjekt pid="ufdMessStelle.test.1" name="ufdMessStelle.test.1" typ="typ.umfeldDatenMessStelle">
+		<info>
+		<kurzinfo>info</kurzinfo>
+		</info>
+		<objektMenge name="UmfeldDatenSensoren">
+			<element pid="ufdSensor.test.NI.1" />
+			<element pid="ufdSensor.test.WFD.1" />
+			<element pid="ufdSensor.test.SW.1" />
+			<element pid="ufdSensor.test.FBOFZS.1" />
+			<element pid="ufdSensor.test.NA.1" />
+			<element pid="ufdSensor.test.LT.1" />
+			<element pid="ufdSensor.test.FBOFT.1" />
+			<element pid="ufdSensor.test.RLF.1" />
+		</objektMenge>
+	</konfigurationsObjekt>
+
+	<konfigurationsObjekt pid="ufdSensor.test.NI.1" name="ufdSensor.test.NI.1" typ="typ.ufdsNiederschlagsIntensität">
+		<info>
+			<kurzinfo>info</kurzinfo>
+		</info>
+		<datensatz attributgruppe="atg.umfeldDatenSensor">
+			<datum name="Vorgänger" wert="null" />
+			<datum name="Nachfolger" wert="null" />
+			<datum name="ErsatzSensor" wert="null" />
+			<datum name="UmfeldDatenSensorQuelle" wert="null" />
+			<datum name="Typ" wert="HauptSensor" />
+		</datensatz>
+	</konfigurationsObjekt>
+
+	<konfigurationsObjekt pid="ufdSensor.test.WFD.1" name="ufdSensor.test.WFD.1" typ="typ.ufdsWasserFilmDicke">
+		<info>
+			<kurzinfo>info</kurzinfo>
+		</info>
+		<datensatz attributgruppe="atg.umfeldDatenSensor">
+			<datum name="Vorgänger" wert="null" />
+			<datum name="Nachfolger" wert="null" />
+			<datum name="ErsatzSensor" wert="null" />
+			<datum name="UmfeldDatenSensorQuelle" wert="null" />
+			<datum name="Typ" wert="HauptSensor" />
+		</datensatz>
+	</konfigurationsObjekt>
+
+	<konfigurationsObjekt pid="ufdSensor.test.NA.1" name="ufdSensor.test.NA.1" typ="typ.ufdsNiederschlagsArt">
+		<info>
+			<kurzinfo>info</kurzinfo>
+		</info>
+		<datensatz attributgruppe="atg.umfeldDatenSensor">
+			<datum name="Vorgänger" wert="null" />
+			<datum name="Nachfolger" wert="null" />
+			<datum name="ErsatzSensor" wert="null" />
+			<datum name="UmfeldDatenSensorQuelle" wert="null" />
+			<datum name="Typ" wert="HauptSensor" />
+		</datensatz>
+	</konfigurationsObjekt>
+
+	<konfigurationsObjekt pid="ufdSensor.test.FBOFZS.1" name="ufdSensor.test.FBOFZS.1" typ="typ.ufdsFahrBahnOberFlächenZustand">
+		<info>
+			<kurzinfo>info</kurzinfo>
+		</info>
+		<datensatz attributgruppe="atg.umfeldDatenSensor">
+			<datum name="Vorgänger" wert="null" />
+			<datum name="Nachfolger" wert="null" />
+			<datum name="ErsatzSensor" wert="null" />
+			<datum name="UmfeldDatenSensorQuelle" wert="null" />
+			<datum name="Typ" wert="HauptSensor" />
+		</datensatz>
+	</konfigurationsObjekt>
+
+
+	<konfigurationsObjekt pid="ufdSensor.test.SW.1" name="ufdSensor.test.SW.1" typ="typ.ufdsSichtWeite">
+		<info>
+			<kurzinfo>info</kurzinfo>
+		</info>
+		<datensatz attributgruppe="atg.umfeldDatenSensor">
+			<datum name="Vorgänger" wert="null" />
+			<datum name="Nachfolger" wert="null" />
+			<datum name="ErsatzSensor" wert="null" />
+			<datum name="UmfeldDatenSensorQuelle" wert="null" />
+			<datum name="Typ" wert="HauptSensor" />
+		</datensatz>
+	</konfigurationsObjekt>
+
+	<konfigurationsObjekt pid="ufdSensor.test.LT.1" name="ufdSensor.test.LT.1" typ="typ.ufdsLuftTemperatur">
+		<info>
+			<kurzinfo>info</kurzinfo>
+		</info>
+		<datensatz attributgruppe="atg.umfeldDatenSensor">
+			<datum name="Vorgänger" wert="null" />
+			<datum name="Nachfolger" wert="null" />
+			<datum name="ErsatzSensor" wert="null" />
+			<datum name="UmfeldDatenSensorQuelle" wert="null" />
+			<datum name="Typ" wert="HauptSensor" />
+		</datensatz>
+	</konfigurationsObjekt>
+
+	<konfigurationsObjekt pid="ufdSensor.test.FBOFT.1" name="ufdSensor.test.FBOFT.1" typ="typ.ufdsFahrBahnOberFlächenTemperatur">
+		<info>
+			<kurzinfo>info</kurzinfo>
+		</info>
+		<datensatz attributgruppe="atg.umfeldDatenSensor">
+			<datum name="Vorgänger" wert="null" />
+			<datum name="Nachfolger" wert="null" />
+			<datum name="ErsatzSensor" wert="null" />
+			<datum name="UmfeldDatenSensorQuelle" wert="null" />
+			<datum name="Typ" wert="HauptSensor" />
+		</datensatz>
+	</konfigurationsObjekt>
+
+	<konfigurationsObjekt pid="ufdSensor.test.RLF.1" name="ufdSensor.test.RLF.1" typ="typ.ufdsRelativeLuftFeuchte">
+		<info>
+			<kurzinfo>info</kurzinfo>
+		</info>
+		<datensatz attributgruppe="atg.umfeldDatenSensor">
+			<datum name="Vorgänger" wert="null" />
+			<datum name="Nachfolger" wert="null" />
+			<datum name="ErsatzSensor" wert="null" />
+			<datum name="UmfeldDatenSensorQuelle" wert="null" />
+			<datum name="Typ" wert="HauptSensor" />
+		</datensatz>
+	</konfigurationsObjekt>
+	</objekte>
+</konfigurationsBereich>
