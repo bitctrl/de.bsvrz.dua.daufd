@@ -379,6 +379,7 @@ public class TaupunktTest extends Taupunkt {
 		taupunktLuft = new double[T.length * feuchte.length];
 		taupunktFbof = new double[T.length * feuchte.length];
 		zeitStempel = new long[taupunktLuft.length];
+		final long SLEEP = 50;
 
 		
 		hauptModul = new VerwaltungAufbereitungUFDTest();
@@ -386,7 +387,9 @@ public class TaupunktTest extends Taupunkt {
 		for(int i=0; i<CON_DATA.length; i++)
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
-	
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
 		
 		long zeit = System.currentTimeMillis();
 		for(int i = 0; i< T.length; i++ )
@@ -415,7 +418,7 @@ public class TaupunktTest extends Taupunkt {
 				sendeDaten(rlfSensor, DD_SENDE_RLF_DATEN, "RelativeLuftFeuchte", feuchte[j], zeitStempel[i*feuchte.length + j],0);
 				
 				try {
-					Thread.sleep(10);
+					Thread.sleep(SLEEP);
 				} catch (Exception e) { }
 			}
 		

@@ -272,7 +272,6 @@ implements ClientSenderInterface {
 			e.printStackTrace();
 		}
 	}
-	
 
 	/**
 	 * {@inheritDoc}
@@ -418,7 +417,7 @@ implements ClientSenderInterface {
 	 */
 	@Test
 	public void testGanzeTablle() {
-		
+		final long SLEEP = 100;
 		final int N = 50;
 	
 		ausgabe = new NS_Stufe[50];
@@ -438,6 +437,9 @@ implements ClientSenderInterface {
 		for(int i=0; i<CON_DATA.length; i++)
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
 		
 		long zeitStempel = System.currentTimeMillis()- 120 * 60 * 1000;
 		long delta = 5 * 60 * 1000;
@@ -469,14 +471,14 @@ implements ClientSenderInterface {
 				sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
 				
 				try {
-					Thread.sleep(100);
+					Thread.sleep(SLEEP);
 				} catch (Exception e) { 	}
 				k++;
 				zeitStempel += delta;
 			}
 		}	
 		try {
-			while(warten) Thread.sleep(300);
+			while(warten) Thread.sleep(SLEEP);
 		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
@@ -489,7 +491,7 @@ implements ClientSenderInterface {
 	 */
 	@Test
 	public void testFbofZustand() {
-		
+		final long SLEEP = 100;
 		final int N = 50;
 		
 		ausgabe = new NS_Stufe[50];
@@ -509,9 +511,16 @@ implements ClientSenderInterface {
 		for(int i=0; i<CON_DATA.length; i++)
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
 		
 		long zeitStempel = System.currentTimeMillis()- 120 * 60 * 1000;
 		long delta = 5 * 60 * 1000;
+		
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
 		
 		int k=0, m=0;
 		int iNS1, iNS2;
@@ -551,14 +560,14 @@ implements ClientSenderInterface {
 				sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
 				
 				try {
-					Thread.sleep(100);
+					Thread.sleep(SLEEP);
 				} catch (Exception e) { 	}
 				k++;
 				zeitStempel += delta;
 			}
 		}
 		try {
-			while(warten) Thread.sleep(300);
+			while(warten) Thread.sleep(5*SLEEP);
 		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
@@ -570,7 +579,7 @@ implements ClientSenderInterface {
 	 */
 	@Test
 	public void testVerzoegerung() {
-		
+		final long SLEEP = 100;
 		ausgabe = new NS_Stufe[] { NS4, NS3, NS3, NS2, NS2, NS4, NS3, NS2, NS1, NS0 } ;
 		ausgabeZeitStempel = new long[ausgabe.length];
 
@@ -581,10 +590,17 @@ implements ClientSenderInterface {
 		for(int i=0; i<CON_DATA.length; i++)
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
 		
 		long zeitStempel = System.currentTimeMillis()- 120 * 60 * 1000;
 		long delta = 5 * 60 * 1000;
 	
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
+		
 		ausgabeIndex = 0;
 		
 		for(int i =0; i<5; i++) {
@@ -596,7 +612,7 @@ implements ClientSenderInterface {
 			sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
 			
 			try {
-				Thread.sleep(100);
+				Thread.sleep(SLEEP);
 			} catch (Exception e) { 	}
 			zeitStempel += delta;			
 		}
@@ -611,7 +627,7 @@ implements ClientSenderInterface {
 			sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
 			
 			try {
-				Thread.sleep(100);
+				Thread.sleep(SLEEP);
 			} catch (Exception e) { 	}
 			zeitStempel += delta;
 			
@@ -619,7 +635,7 @@ implements ClientSenderInterface {
 	
 		
 		try {
-			while(warten) Thread.sleep(300);
+			while(warten) Thread.sleep(5*SLEEP);
 		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;
@@ -631,7 +647,7 @@ implements ClientSenderInterface {
 	 */
 	@Test
 	public void testNieArt() {
-		
+		final long SLEEP = 100;
 		final int N = 50;
 		
 		ausgabe = new NS_Stufe[50];
@@ -651,10 +667,17 @@ implements ClientSenderInterface {
 		for(int i=0; i<CON_DATA.length; i++)
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
 		
 		long zeitStempel = System.currentTimeMillis()- 120 * 60 * 1000;
 		long delta = 5 * 60 * 1000;
 
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
+		
 		int k=0, m=0;
 		int iNS1, iNS2;
 		boolean unbestimmbar = false;
@@ -693,14 +716,14 @@ implements ClientSenderInterface {
 				sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel);
 				
 				try {
-					Thread.sleep(100);
+					Thread.sleep(SLEEP);
 				} catch (Exception e) { 	}
 				k++;
 				zeitStempel += delta;
 			}
 		}
 		try {
-			while(warten) Thread.sleep(300);
+			while(warten) Thread.sleep(5*SLEEP);
 		} catch (Exception e) { }
 		hauptModul.disconnect();
 		hauptModul = null;

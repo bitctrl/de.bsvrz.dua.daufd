@@ -169,7 +169,8 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 	 * Generiert eine Reihe von Zahlen und vergleicht mit der getesteten Klasse
 	 */
 	@Test
-	public void test1() {		
+	public void test1() {	
+		final long SLEEP = 50;
 		/*
 		 *  ################ WARNUNG #################
 		 *  
@@ -206,7 +207,9 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 		for(int i=0; i<CON_DATA.length; i++)
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
-	
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
 		
 		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
 		index = 0;
@@ -216,7 +219,7 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 			if(i+1<MesswertGlatt.length)
 				zeitStempel[i+1] = zeitStempel[i] + ZEIT_INTERVALL;
 			try {
-				Thread.sleep(10);
+				Thread.sleep(SLEEP);
 			} catch (Exception e) { }
 		}
 		
@@ -236,7 +239,8 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 	 * Wie test 1 nur die Werte werden zufaellig geraeuscht
 	 */
 	@Test
-	public void test2() {		
+	public void test2() {	
+		final long SLEEP = 50;
 		/*
 		 *  ################ WARNUNG #################
 		 *  
@@ -274,6 +278,9 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 		for(int i=0; i<CON_DATA.length; i++)
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
 		
 		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
 		index = 0;
@@ -283,7 +290,7 @@ public class WasserFilmDickeStufeTest  extends WasserFilmDickeStufe{
 			if(i+1<MesswertGlatt.length)
 				zeitStempel[i+1] = zeitStempel[i] + ZEIT_INTERVALL;
 			try {
-				Thread.sleep(10);
+				Thread.sleep(SLEEP);
 			} catch (Exception e) { }
 		}
 		try {

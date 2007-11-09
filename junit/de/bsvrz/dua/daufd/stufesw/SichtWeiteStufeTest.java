@@ -164,7 +164,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	 */
 	@Test
 	public void test1() {	
-		
+		final long SLEEP = 50;
 		int alt;
 		
 		HysterezeTester2 hystTest = new HysterezeTester2();
@@ -188,7 +188,9 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 		for(int i=0; i<CON_DATA.length; i++)
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
-	
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
 	
 		
 		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
@@ -199,7 +201,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 			if(i+1<MesswertGlatt.length)
 				zeitStempel[i+1] = zeitStempel[i] + ZEIT_INTERVALL;
 			try {
-				Thread.sleep(10);
+				Thread.sleep(SLEEP);
 			} catch (Exception e) { }
 		}
 		try {
@@ -219,7 +221,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	 */
 	@Test
 	public void test2() {		
-		
+		final long SLEEP = 50;
 		int alt;
 		
 		HysterezeTester2 hystTest = new HysterezeTester2();
@@ -244,6 +246,9 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 		for(int i=0; i<CON_DATA.length; i++)
 			connArgs[i] = CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
+		try {
+			Thread.sleep(5*SLEEP);
+		} catch (Exception e) { 	}
 		
 		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
 		index = 0;
@@ -253,7 +258,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 			if(i+1<MesswertGlatt.length)
 				zeitStempel[i+1] = zeitStempel[i] + ZEIT_INTERVALL;
 			try {
-				Thread.sleep(10);
+				Thread.sleep(SLEEP);
 			} catch (Exception e) { }
 		}
 		try {
