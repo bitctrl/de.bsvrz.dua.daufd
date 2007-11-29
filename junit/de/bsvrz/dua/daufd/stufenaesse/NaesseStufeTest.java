@@ -43,6 +43,7 @@ import de.bsvrz.dav.daf.main.config.ConfigurationArea;
 import de.bsvrz.dav.daf.main.config.ObjectTimeSpecification;
 import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dav.daf.main.config.SystemObjectType;
+import de.bsvrz.dua.daufd.DAVTest;
 import de.bsvrz.dua.daufd.VerwaltungAufbereitungUFDTest;
 import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe;
 import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe.NI_Stufe;
@@ -61,17 +62,6 @@ import de.bsvrz.sys.funclib.debug.Debug;
  */
 public class NaesseStufeTest extends NaesseStufe 
 implements ClientSenderInterface {
-	
-	/**
-	 * Verbindungsdaten
-	 */
-	private static final String[] CON_DATA = new  String[] {
-			"-datenverteiler=localhost:8083",  
-			"-benutzer=Tester", 
-			"-authentifizierung=c:\\passwd", 
-			"-debugLevelStdErrText=WARNING", 
-			"-debugLevelFileText=WARNING",
-			"-KonfigurationsBereichsPid=kb.daUfdTest" }; 
 
 	/**
 	 * Abtrocknungphasen Verzoegerung [AFo]
@@ -317,6 +307,7 @@ implements ClientSenderInterface {
 	
 	/**
 	 * Sendet einen DS mit Wasserfilmdickestufe
+
 	 * @param objekt Der Sensor
 	 * @param stufe Die Stufe
 	 * @param zeitStempel Der ZeitStempels 
@@ -343,8 +334,8 @@ implements ClientSenderInterface {
 	 * @param stufe Die Stufe
 	 * @param zeitStempel Der ZeitStempels 
 	 */
-	private  static void sendeFbofZustand(SystemObject objekt, int zustand, long zeitStempel) {
-		sendeZustand(objekt,  "FahrBahnOberFlächenZustand" , DD_FBOF_ZUSTAND, zustand, zeitStempel);
+	private  static void sendeFbofZustand(SystemObject objekt, int stufe, long zeitStempel) {
+		sendeZustand(objekt,  "FahrBahnOberFlächenZustand" , DD_FBOF_ZUSTAND, stufe, zeitStempel);
 	}
 
 	/**
@@ -353,8 +344,8 @@ implements ClientSenderInterface {
 	 * @param stufe Die Stufe
 	 * @param zeitStempel Der ZeitStempels 
 	 */
-	private static void sendeNiederschlagsArt(SystemObject objekt, int zustand, long zeitStempel) {
-		sendeZustand(objekt,  "NiederschlagsArt" , DD_NIE_ART, zustand, zeitStempel);
+	private static void sendeNiederschlagsArt(SystemObject objekt, int stufe, long zeitStempel) {
+		sendeZustand(objekt,  "NiederschlagsArt" , DD_NIE_ART, stufe, zeitStempel);
 	}
 	
 	/**
@@ -433,9 +424,9 @@ implements ClientSenderInterface {
 		final WFD_Stufe wfdStufe [] = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
 		
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [CON_DATA.length] ;
-		for(int i=0; i<CON_DATA.length; i++)
-			connArgs[i] = CON_DATA[i];
+		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 		try {
 			Thread.sleep(5*SLEEP);
@@ -507,9 +498,9 @@ implements ClientSenderInterface {
 		final WFD_Stufe wfdStufe [] = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
 		
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [CON_DATA.length] ;
-		for(int i=0; i<CON_DATA.length; i++)
-			connArgs[i] = CON_DATA[i];
+		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 		try {
 			Thread.sleep(5*SLEEP);
@@ -586,9 +577,9 @@ implements ClientSenderInterface {
 		final NI_Stufe niStufe [] = new NI_Stufe[] { NI4, NI3, NI2, NI1, NI0 };
 		
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [CON_DATA.length] ;
-		for(int i=0; i<CON_DATA.length; i++)
-			connArgs[i] = CON_DATA[i];
+		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 		try {
 			Thread.sleep(5*SLEEP);
@@ -663,9 +654,9 @@ implements ClientSenderInterface {
 		final WFD_Stufe wfdStufe [] = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
 		
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [CON_DATA.length] ;
-		for(int i=0; i<CON_DATA.length; i++)
-			connArgs[i] = CON_DATA[i];
+		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 		try {
 			Thread.sleep(5*SLEEP);

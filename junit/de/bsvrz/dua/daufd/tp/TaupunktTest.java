@@ -34,6 +34,7 @@ import de.bsvrz.dav.daf.main.Data;
 import de.bsvrz.dav.daf.main.DataDescription;
 import de.bsvrz.dav.daf.main.ResultData;
 import de.bsvrz.dav.daf.main.config.SystemObject;
+import de.bsvrz.dua.daufd.DAVTest;
 import de.bsvrz.dua.daufd.VerwaltungAufbereitungUFDTest;
 import de.bsvrz.sys.funclib.application.StandardApplicationRunner;
 import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
@@ -47,17 +48,6 @@ import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IVerwaltung;
  * 
  */
 public class TaupunktTest extends Taupunkt {
-
-	/**
-	 * Verbindungsdaten
-	 */
-	private static final String[] CON_DATA = new String[] {
-			"-datenverteiler=localhost:8083",  
-			"-benutzer=Tester", 
-			"-authentifizierung=c:\\passwd", 
-			"-debugLevelStdErrText=WARNING", 
-			"-debugLevelFileText=WARNING",
-			"-KonfigurationsBereichsPid=kb.daUfdTest" }; 
 
 	/**
 	 * Der Index des aktuelles TestWertes im Array
@@ -370,7 +360,7 @@ public class TaupunktTest extends Taupunkt {
 		}
 	}
 	/**
-	 * {@inheritDoc}
+	 * Testet die Berechnung des Taupunktes
 	 */
 	@Test
 	public void TestTaupunkt() {
@@ -383,9 +373,9 @@ public class TaupunktTest extends Taupunkt {
 
 		
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [CON_DATA.length] ;
-		for(int i=0; i<CON_DATA.length; i++)
-			connArgs[i] = CON_DATA[i];
+		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 		try {
 			Thread.sleep(5*SLEEP);

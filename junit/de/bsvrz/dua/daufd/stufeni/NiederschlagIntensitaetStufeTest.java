@@ -39,6 +39,7 @@ import de.bsvrz.dav.daf.main.ResultData;
 import de.bsvrz.dav.daf.main.SenderRole;
 import de.bsvrz.dav.daf.main.config.ConfigurationArea;
 import de.bsvrz.dav.daf.main.config.SystemObject;
+import de.bsvrz.dua.daufd.DAVTest;
 import de.bsvrz.dua.daufd.MesswertBearbeitungAllgemein;
 import de.bsvrz.dua.daufd.UfdsKlassifizierungParametrierung;
 import de.bsvrz.dua.daufd.VerwaltungAufbereitungUFDTest;
@@ -55,16 +56,6 @@ import de.bsvrz.sys.funclib.debug.Debug;
  * 
  */
 public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetStufe {
-	/**
-	 * Verbindungsdaten
-	 */
-	private static final String[] CON_DATA = new String[] {
-			"-datenverteiler=localhost:8083",  
-			"-benutzer=Tester", 
-			"-authentifizierung=c:\\passwd", 
-			"-debugLevelStdErrText=WARNING", 
-			"-debugLevelFileText=WARNING",
-			"-KonfigurationsBereichsPid=kb.daUfdTest" }; 
 
 	/**
 	 * NI-Stufe untere Grenzwerte [AFo]
@@ -181,9 +172,9 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 		}
 
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [CON_DATA.length] ;
-		for(int i=0; i<CON_DATA.length; i++)
-			connArgs[i] = CON_DATA[i];
+		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 		try {
 			Thread.sleep(5*SLEEP);
@@ -237,9 +228,9 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 		}
 	
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [CON_DATA.length] ;
-		for(int i=0; i<CON_DATA.length; i++)
-			connArgs[i] = CON_DATA[i];
+		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
 		try {
 			Thread.sleep(5*SLEEP);

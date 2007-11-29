@@ -262,8 +262,9 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	}
 	
 	/**
-	 * Nur fuer test Zwecken
-	 * @param zeitIntervall
+	 * Nur fuer Testzwecken
+	 * 
+	 * @param stufe Naessestufe
 	 */
 	void infoVerzoegerung(int stufe) { }
 	

@@ -46,12 +46,13 @@ public class DAVTest {
 	/**
 	 * Verbindungsdaten
 	 */
-	private static final String[] CON_DATA = new String[] {
-			"-datenverteiler=192.168.1.191:8083", //$NON-NLS-1$ 
-			"-benutzer=Tester", //$NON-NLS-1$
-			"-authentifizierung=c:\\passwd1", //$NON-NLS-1$
-			"-debugLevelStdErrText=INFO", //$NON-NLS-1$
-			"-debugLevelFileText=INFO" }; //$NON-NLS-1$
+	public static final String[] CON_DATA = new String[] {
+			"-datenverteiler=localhost:8083",  
+			"-benutzer=Tester", 
+			"-authentifizierung=c:\\passwd1", 
+			"-debugLevelStdErrText=CONFIG", 
+			"-debugLevelFileText=CONFIG",
+			"-KonfigurationsBereichsPid=kb.daUfdTest" };
 
 	/**
 	 * Verbindung zum Datenverteiler

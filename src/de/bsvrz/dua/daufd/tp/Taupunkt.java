@@ -110,6 +110,8 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	protected class LokaleDaten {
 		/**
 		 * Standardkonstruktor
+		 * 
+		 * @param messStelle die Messstelle
 		 */
 		public LokaleDaten(SystemObject messStelle) {
 			relativeLuftFeuchte = fbofTemperatur = luftTemperatur = null;
@@ -272,9 +274,9 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 
 	/**
 	 * Berechnet die Taupunkttempereatur der Fahrbahnoberflaeche fuer eine Messtelle
-	 * @param messStelle Messstelle
 	 * @param lDaten Letzte Daten (RLF und FBT)
 	 * @param zeitStemepel Zeutstempel des Itervalles, fuer dem die Daten erzeugt werden sollen
+	 * @param zeitIntervall das Intervall
 	 */
 	public void BerechneTaupunktTemperaturFbof(LokaleDaten lDaten, long zeitStemepel, long zeitIntervall) {
 		boolean nichtermittelbar = false;
@@ -341,11 +343,13 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		lDaten.taupunktFbof.getItem("TaupunktTemperaturFahrBahn").asScaledValue().set(ergebnis);
 		sendeTaupunktTemperaturFbof(lDaten, zeitStemepel, false);
 	}
+	
+	
 	/**
 	 * Berechnet die Taupunkttempereatur der Luft fuer eine Messtelle
-	 * @param messStelle Messstelle
 	 * @param lDaten Letzte Daten (RLF und LT)
 	 * @param zeitStemepel Zeutstempel des Itervalles, fuer dem die Daten erzeugt werden sollen
+	 * @param zeitIntervall das Intervall
 	 */
 	public void BerechneTaupunktTemperaturLuft(LokaleDaten lDaten, long zeitStemepel, long zeitIntervall) {
 		
@@ -415,7 +419,6 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	
 	/**
 	 * Sendet einen DS mit TP Temperatur der FBOF
-	 * @param messStelle Messstelle
 	 * @param lDaten Struktur mit erzeugten DS
 	 * @param zeitStempel ZeitStempel des DS
 	 * @param keineDaten Bestimmt, ob man einen leren Datensatz senden soll
@@ -436,17 +439,18 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					+ lDaten.messStelle.getPid() + " unerfolgreich:\n" + e.getMessage());
 		}
 	}
+	
+	
 	/**
 	 * Sendet einen DS mit TP Temperatur der Luft
-	 * @param messStelle Messstelle
 	 * @param lDaten Struktur mit erzeugten DS
 	 * @param zeitStempel ZeitStempel des DS
 	 * @param keineDaten Bestimmt, ob man einen leren Datensatz senden soll
 	 */
-	public void sendeTaupunktTemperaturLuft(LokaleDaten lDaten, long zeitStemepel, boolean keineDaten) {		
+	public void sendeTaupunktTemperaturLuft(LokaleDaten lDaten, long zeitStempel, boolean keineDaten) {		
 		ResultData resDatei;
 		lDaten.keineLuftDaten = keineDaten;
-		lDaten.tpLuftZeitStemepel = zeitStemepel;
+		lDaten.tpLuftZeitStemepel = zeitStempel;
 		
 		if(keineDaten)
 			resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_L, lDaten.tpLuftZeitStemepel, null);
@@ -460,11 +464,13 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					+ lDaten.messStelle.getPid() + " unerfolgreich:\n" + e.getMessage());
 		}
 	}
+	
+	
 	/**
 	 * Berechnet die Taupunkttemperatur aus er Feuchte und Temperatur
 	 * @param feuchte relative Feuchte
 	 * @param temperatur Temperatur
-	 * @return Taupunkttemperatur
+	 * @return die Taupunkttemperatur
 	 */
 	public double Berechnetaupunkt(double feuchte, double temperatur) {
 		double x = 241.2 * Math.log(feuchte/100.0) + 4222.03716*temperatur/(241.2 + temperatur);

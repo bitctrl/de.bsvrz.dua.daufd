@@ -300,7 +300,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 	 * Berechnet die Ausgabe aus dem eingekommenen DS
 	 * @param objekt Objekt
 	 * @param param Parameter des Sensors
-	 * @param zeitStmpel  zeitStempel des letzten DS
+	 * @param zeitStempel des letzten DS
 	 */
 	public void berechneAusgabe(SystemObject objekt, SensorParameter param, long zeitStempel) {
 		int stufe = -1;
