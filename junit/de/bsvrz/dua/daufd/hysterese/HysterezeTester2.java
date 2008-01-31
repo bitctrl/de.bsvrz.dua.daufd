@@ -96,7 +96,7 @@ public class HysterezeTester2 {
 	@Test
 	public void Test() {
 		
-		for(int i =0; i<100; i++) {
+		for(int i =0; i<50; i++) {
 			// Zufaelliger Anzahl der Intervalle, 2 - 20;
 			int intervalle  = 2 +  (int)(Math.random() * 18);  
 		
@@ -139,7 +139,7 @@ public class HysterezeTester2 {
 			}
 		}
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(100);
 		} catch (Exception e) { }
 	}
 	
