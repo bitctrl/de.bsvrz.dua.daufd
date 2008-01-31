@@ -36,6 +36,11 @@ public class HystereseException
 extends Exception{
 
 	/**
+	 * Auto-generiert
+	 */
+	private static final long serialVersionUID = -776648941014738233L;
+
+	/**
 	 * Standardkonstruktor
 	 * 
 	 * @param nachricht eine Nachricht
