@@ -14,7 +14,7 @@ SET benutzer=Tester
 SET passwortDatei=..\..\..\skripte-dosshell\passwd
 SET dav1Host=localhost
 SET dav1AppPort=8083
-
+SET kb=kb.daUfdTest
 
 
 REM Applikation starten
@@ -27,7 +27,7 @@ de.bsvrz.dua.daufd.vew.VerwaltungAufbereitungUFD ^
 -datenverteiler=%dav1Host%:%dav1AppPort% ^
 -benutzer=%benutzer% ^
 -authentifizierung=%passwortDatei% ^
--KonfigurationsBereichsPid=kb.daUfdTest
+-KonfigurationsBereichsPid=%kb%
 
 REM Nach dem Beenden warten, damit Meldungen gelesen werden können
 PAUSE
