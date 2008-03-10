@@ -33,10 +33,12 @@ import de.bsvrz.dav.daf.main.ClientReceiverInterface;
 import de.bsvrz.dav.daf.main.ClientSenderInterface;
 import de.bsvrz.dav.daf.main.Data;
 import de.bsvrz.dav.daf.main.DataDescription;
+import de.bsvrz.dav.daf.main.DataNotSubscribedException;
 import de.bsvrz.dav.daf.main.OneSubscriptionPerSendData;
 import de.bsvrz.dav.daf.main.ReceiveOptions;
 import de.bsvrz.dav.daf.main.ReceiverRole;
 import de.bsvrz.dav.daf.main.ResultData;
+import de.bsvrz.dav.daf.main.SendSubscriptionNotConfirmed;
 import de.bsvrz.dav.daf.main.config.ConfigurationObject;
 import de.bsvrz.dav.daf.main.config.ObjectSet;
 import de.bsvrz.dav.daf.main.config.SystemObject;
@@ -576,9 +578,11 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 		
 		try {
 			verwaltung.getVerbindung().sendData(resultat);
-		} catch (Exception e) {
+		} catch (DataNotSubscribedException  e) {
 			LOGGER.error("Fehler bei Sendung der Daten fuer " + msDaten.messObject.getPid() + " ATG " + ATG_UFDMS_NS + " :\n" + e.getMessage());
-		}
+		} catch (SendSubscriptionNotConfirmed e){
+			LOGGER.error("Fehler bei Sendung der Daten fuer " + msDaten.messObject.getPid() + " ATG " + ATG_UFDMS_NS + " :\n" + e.getMessage());
+		}		
 	}
 	
 	/**
@@ -642,24 +646,26 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 				ConfigurationObject confObjekt = (ConfigurationObject)so;
 				ObjectSet sensorMenge = confObjekt.getObjectSet(MNG_SENSOREN);
 				naesseTabelle.put(so, messStelleDaten);
-				for( SystemObject sensor : sensorMenge.getElements()) 
-					if(TYP_UFDS_NA.equals(sensor.getType().getPid())) {
-						naSensoren.add(sensor);
-						naesseTabelle.put(sensor, messStelleDaten);
+				for( SystemObject sensor : sensorMenge.getElements()) {
+					if(sensor.isValid()){
+						if(TYP_UFDS_NA.equals(sensor.getType().getPid())) {
+							naSensoren.add(sensor);
+							naesseTabelle.put(sensor, messStelleDaten);
+						}
+						else if(TYP_UFDS_FBOFZS.equals(sensor.getType().getPid())) {
+							fbofZustandSensoren.add(sensor);
+							naesseTabelle.put(sensor, messStelleDaten);
+						}
+						else if(TYP_UFDS_NI.equals(sensor.getType().getPid())) {
+							niSensoren.add(sensor);
+							naesseTabelle.put(sensor, messStelleDaten);
+						}
+						else if(TYP_UFDS_WFD.equals(sensor.getType().getPid())) {
+							wfdSensoren.add(sensor);
+							naesseTabelle.put(sensor, messStelleDaten);
+						}
 					}
-					else if(TYP_UFDS_FBOFZS.equals(sensor.getType().getPid())) {
-						fbofZustandSensoren.add(sensor);
-						naesseTabelle.put(sensor, messStelleDaten);
-					}
-					else if(TYP_UFDS_NI.equals(sensor.getType().getPid())) {
-						niSensoren.add(sensor);
-						naesseTabelle.put(sensor, messStelleDaten);
-					}
-					else if(TYP_UFDS_WFD.equals(sensor.getType().getPid())) {
-						wfdSensoren.add(sensor);
-						naesseTabelle.put(sensor, messStelleDaten);
-					}
-
+				}
 			} catch (OneSubscriptionPerSendData e) {
 				//LOGGER.error("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
 				throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());

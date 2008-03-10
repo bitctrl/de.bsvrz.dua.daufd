@@ -32,8 +32,10 @@ import java.util.LinkedList;
 import de.bsvrz.dav.daf.main.ClientSenderInterface;
 import de.bsvrz.dav.daf.main.Data;
 import de.bsvrz.dav.daf.main.DataDescription;
+import de.bsvrz.dav.daf.main.DataNotSubscribedException;
 import de.bsvrz.dav.daf.main.OneSubscriptionPerSendData;
 import de.bsvrz.dav.daf.main.ResultData;
+import de.bsvrz.dav.daf.main.SendSubscriptionNotConfirmed;
 import de.bsvrz.dav.daf.main.config.ConfigurationObject;
 import de.bsvrz.dav.daf.main.config.ObjectSet;
 import de.bsvrz.dav.daf.main.config.SystemObject;
@@ -434,7 +436,10 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 			resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_FB, lDaten.tpFbofZeitStemepel, lDaten.taupunktFbof);
 		try {
 			verwaltung.getVerbindung().sendData(resDatei);
-		} catch (Exception e) {
+		} catch (DataNotSubscribedException  e) {
+			LOGGER.error("Sendung von Datensatz " + DD_UFDMS_TT_FB.getAttributeGroup().getPid() + " fuer Objekt " 
+					+ lDaten.messStelle.getPid() + " unerfolgreich:\n" + e.getMessage());
+		} catch (SendSubscriptionNotConfirmed e){
 			LOGGER.error("Sendung von Datensatz " + DD_UFDMS_TT_FB.getAttributeGroup().getPid() + " fuer Objekt " 
 					+ lDaten.messStelle.getPid() + " unerfolgreich:\n" + e.getMessage());
 		}
@@ -459,7 +464,10 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		
 		try {
 			verwaltung.getVerbindung().sendData(resDatei);
-		} catch (Exception e) {
+		} catch (DataNotSubscribedException  e) {
+			LOGGER.error("Sendung von Datensatz " + DD_UFDMS_TT_L.getAttributeGroup().getPid() + " fuer Objekt " 
+					+ lDaten.messStelle.getPid() + " unerfolgreich:\n" + e.getMessage());
+		} catch (SendSubscriptionNotConfirmed e){
 			LOGGER.error("Sendung von Datensatz " + DD_UFDMS_TT_L.getAttributeGroup().getPid() + " fuer Objekt " 
 					+ lDaten.messStelle.getPid() + " unerfolgreich:\n" + e.getMessage());
 		}
@@ -513,20 +521,22 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 				boolean hatRLFSensor, hatLTSensor, hatFBOFSensor;
 				hatFBOFSensor = hatLTSensor = hatRLFSensor = false;
 				for( SystemObject sensor : sensorMenge.getElements()) {
-					if(TYP_UFDS_LT.equals(sensor.getType().getPid())) {
-						taupunktTabelle.put(sensor, lDaten);
-						ltSensoren.add(sensor);
-						hatLTSensor = true;
-					}
-					else if(TYP_UFDS_FBOFT.equals(sensor.getType().getPid())) {
-						taupunktTabelle.put(sensor, lDaten);
-						fbofSensoren.add(sensor);
-						hatFBOFSensor = true;
-					}
-					else if(TYP_UFDS_RLF.equals(sensor.getType().getPid())) {
-						taupunktTabelle.put(sensor, lDaten);
-						rlfSensoren.add(sensor);
-						hatRLFSensor = true;
+					if(sensor.isValid()){
+						if(TYP_UFDS_LT.equals(sensor.getType().getPid())) {
+							taupunktTabelle.put(sensor, lDaten);
+							ltSensoren.add(sensor);
+							hatLTSensor = true;
+						}
+						else if(TYP_UFDS_FBOFT.equals(sensor.getType().getPid())) {
+							taupunktTabelle.put(sensor, lDaten);
+							fbofSensoren.add(sensor);
+							hatFBOFSensor = true;
+						}
+						else if(TYP_UFDS_RLF.equals(sensor.getType().getPid())) {
+							taupunktTabelle.put(sensor, lDaten);
+							rlfSensoren.add(sensor);
+							hatRLFSensor = true;
+						}
 					}
 				}
 				if(hatFBOFSensor && hatRLFSensor) {

@@ -34,16 +34,19 @@ import de.bsvrz.dav.daf.main.ClientReceiverInterface;
 import de.bsvrz.dav.daf.main.ClientSenderInterface;
 import de.bsvrz.dav.daf.main.Data;
 import de.bsvrz.dav.daf.main.DataDescription;
+import de.bsvrz.dav.daf.main.DataNotSubscribedException;
 import de.bsvrz.dav.daf.main.OneSubscriptionPerSendData;
 import de.bsvrz.dav.daf.main.ReceiveOptions;
 import de.bsvrz.dav.daf.main.ReceiverRole;
 import de.bsvrz.dav.daf.main.ResultData;
+import de.bsvrz.dav.daf.main.SendSubscriptionNotConfirmed;
 import de.bsvrz.dav.daf.main.SenderRole;
 import de.bsvrz.dav.daf.main.Data.Array;
 import de.bsvrz.dav.daf.main.config.ConfigurationObject;
 import de.bsvrz.dav.daf.main.config.ObjectSet;
 import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dua.daufd.hysterese.Hysterese;
+import de.bsvrz.dua.daufd.hysterese.HystereseException;
 import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.typen.ModulTyp;
 import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IBearbeitungsKnoten;
@@ -186,13 +189,15 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 			ConfigurationObject confObjekt = (ConfigurationObject)so;
 			ObjectSet sensorMenge = confObjekt.getObjectSet(MNG_SENSOREN);
 			for( SystemObject sensor : sensorMenge.getElements()) {
-				if(getSensorTyp().equals(sensor.getType().getPid())) {
-					try {			
-						verwaltung.getVerbindung().subscribeSender(this, sensor, DD_QUELLE, SenderRole.source());
-						sensorDaten.put(sensor, new SensorParameter());
-						sensoren.add(sensor);
-					} catch (OneSubscriptionPerSendData e) {
-						throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
+				if(sensor.isValid()){
+					if(getSensorTyp().equals(sensor.getType().getPid())) {
+						try {			
+							verwaltung.getVerbindung().subscribeSender(this, sensor, DD_QUELLE, SenderRole.source());
+							sensorDaten.put(sensor, new SensorParameter());
+							sensoren.add(sensor);
+						} catch (OneSubscriptionPerSendData e) {
+							throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
+						}
 					}
 				}
 			}
@@ -235,7 +240,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 				param.hysterese = new Hysterese();
 				try {
 					param.hysterese.initialisiere(param.stufeVon,param.stufeBis);
-				} catch (Exception e) {
+				} catch (HystereseException e) {
 					LOGGER.error("Fehler bei Initialisierung der Hystereze Klasse:" + e.getMessage());
 					continue;
 				}
@@ -332,14 +337,16 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 		else {
 			Data data = verwaltung.getVerbindung().createData(
 					verwaltung.getVerbindung().getDataModel().getAttributeGroup(getStufeAttributGruppe()));
-			data.getItem("Stufe").asUnscaledValue().set(stufe);
+			data.getItem("Stufe").asUnscaledValue().set(stufe); //$NON-NLS-1$
 			resultate[0] = new ResultData(objekt, DD_QUELLE, zeitStempel, data);
 		}
 
 		try {
 			verwaltung.getVerbindung().sendData(resultate);
-		} catch (Exception e) {
-			LOGGER.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage());
+		} catch (DataNotSubscribedException  e) {
+			LOGGER.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		} catch (SendSubscriptionNotConfirmed e){
+			LOGGER.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		if(naechsterBearbeitungsKnoten !=  null)
 			naechsterBearbeitungsKnoten.aktualisiereDaten(resultate);
