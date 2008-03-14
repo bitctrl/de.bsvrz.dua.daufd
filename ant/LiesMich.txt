@@ -24,6 +24,10 @@ Versionsgeschichte
 1.0.0
 
   - Erste Auslieferung
+  
+1.0.1
+
+  - Startskripte hinzu
 
 
 Bemerkungen
