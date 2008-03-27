@@ -49,7 +49,7 @@ public class DAVTest {
 	public static final String[] CON_DATA = new String[] {
 			"-datenverteiler=localhost:8083",  
 			"-benutzer=Tester", 
-			"-authentifizierung=..\\..\\..\\skripte-dosshell\\passwd", 
+			"-authentifizierung=passwd", 
 			"-debugLevelStdErrText=CONFIG", 
 			"-debugLevelFileText=CONFIG",
 			"-KonfigurationsBereichsPid=kb.daUfdTest" };
