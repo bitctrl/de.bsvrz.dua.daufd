@@ -31,7 +31,6 @@ import java.util.Random;
 import de.bsvrz.dav.daf.main.ClientDavInterface;
 import de.bsvrz.sys.funclib.application.StandardApplication;
 import de.bsvrz.sys.funclib.application.StandardApplicationRunner;
-import de.bsvrz.sys.funclib.bitctrl.app.Pause;
 import de.bsvrz.sys.funclib.commandLineArgs.ArgumentList;
 
 /**
@@ -103,7 +102,7 @@ public class DAVTest {
 	 */
 	public static final void warteBis(final long zeitStempel){
 		while(System.currentTimeMillis() <= zeitStempel){
-			Pause.warte(5L);
+			try{ Thread.sleep(5L); }catch(InterruptedException e){}
 		}
 	}
 
