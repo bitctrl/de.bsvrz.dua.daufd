@@ -53,10 +53,7 @@ import de.bsvrz.sys.funclib.debug.Debug;
  * @author BitCtrl Systems GmbH, Bachraty
  */
 public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
-	/**
-	 * Debug-Logger
-	 */
-	protected static final Debug LOGGER = Debug.getLogger();
+
 	/**
 	 * Verbindung zum  Hauptmodul
 	 */
@@ -209,7 +206,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					ASP_MESSWERT_ERSETZUNG.equals(resData.getDataDescription().getAspect().getPid()))
 			{
 				if(lDaten == null) {
-					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
+					Debug.getLogger().warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
 				else if(data == null) {
@@ -228,7 +225,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					ASP_MESSWERT_ERSETZUNG.equals(resData.getDataDescription().getAspect().getPid()))
 			{
 				if(lDaten == null) {
-					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
+					Debug.getLogger().warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				} else if(data == null) {
 					if(lDaten.keineFbofDaten == false && lDaten.berechnetFbofTaupunkt)
@@ -248,7 +245,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 			{
 
 				if(lDaten == null) {
-					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
+					Debug.getLogger().warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				} else if(data == null) {
 					if(lDaten.keineLuftDaten == false && lDaten.berechnetLuftTaupunkt)
@@ -437,10 +434,10 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		try {
 			verwaltung.getVerbindung().sendData(resDatei);
 		} catch (DataNotSubscribedException  e) {
-			LOGGER.error("Sendung von Datensatz " + DD_UFDMS_TT_FB.getAttributeGroup().getPid() + " fuer Objekt " 
+			Debug.getLogger().error("Sendung von Datensatz " + DD_UFDMS_TT_FB.getAttributeGroup().getPid() + " fuer Objekt " 
 					+ lDaten.messStelle.getPid() + " unerfolgreich:\n" + e.getMessage());
 		} catch (SendSubscriptionNotConfirmed e){
-			LOGGER.error("Sendung von Datensatz " + DD_UFDMS_TT_FB.getAttributeGroup().getPid() + " fuer Objekt " 
+			Debug.getLogger().error("Sendung von Datensatz " + DD_UFDMS_TT_FB.getAttributeGroup().getPid() + " fuer Objekt " 
 					+ lDaten.messStelle.getPid() + " unerfolgreich:\n" + e.getMessage());
 		}
 	}
@@ -465,10 +462,10 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		try {
 			verwaltung.getVerbindung().sendData(resDatei);
 		} catch (DataNotSubscribedException  e) {
-			LOGGER.error("Sendung von Datensatz " + DD_UFDMS_TT_L.getAttributeGroup().getPid() + " fuer Objekt " 
+			Debug.getLogger().error("Sendung von Datensatz " + DD_UFDMS_TT_L.getAttributeGroup().getPid() + " fuer Objekt " 
 					+ lDaten.messStelle.getPid() + " unerfolgreich:\n" + e.getMessage());
 		} catch (SendSubscriptionNotConfirmed e){
-			LOGGER.error("Sendung von Datensatz " + DD_UFDMS_TT_L.getAttributeGroup().getPid() + " fuer Objekt " 
+			Debug.getLogger().error("Sendung von Datensatz " + DD_UFDMS_TT_L.getAttributeGroup().getPid() + " fuer Objekt " 
 					+ lDaten.messStelle.getPid() + " unerfolgreich:\n" + e.getMessage());
 		}
 	}

@@ -62,10 +62,7 @@ import de.bsvrz.sys.funclib.debug.Debug;
  */
 public  abstract class AbstraktStufe 
 implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
-	/**
-	 * Debug-Logger
-	 */
-	protected static final Debug LOGGER = Debug.getLogger();
+
 	/**
 	 * Verbindung zum  Hauptmodul
 	 */
@@ -220,7 +217,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 					dataDescription.getAspect().getPid().equals(ASP_SOLL_PARAM)) {
 				
 				if(param == null) {
-					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
+					Debug.getLogger().warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
 				else if(daten == null) {
@@ -241,7 +238,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 				try {
 					param.hysterese.initialisiere(param.stufeVon,param.stufeBis);
 				} catch (HystereseException e) {
-					LOGGER.error("Fehler bei Initialisierung der Hystereze Klasse:" + e.getMessage());
+					Debug.getLogger().error("Fehler bei Initialisierung der Hystereze Klasse:" + e.getMessage());
 					continue;
 				}
 				if(!Double.isNaN(param.b0) && !Double.isNaN(param.fb))
@@ -253,7 +250,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 					dataDescription.getAspect().getPid().equals(ASP_SOLL_PARAM)) {
 				
 				if(param == null) {
-					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
+					Debug.getLogger().warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
 				else if(daten == null) {
@@ -289,7 +286,7 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 					continue;
 				}
 				if(param == null) {
-					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
+					Debug.getLogger().warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
 				param.letzteDaten = daten;
@@ -344,9 +341,9 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 		try {
 			verwaltung.getVerbindung().sendData(resultate);
 		} catch (DataNotSubscribedException  e) {
-			LOGGER.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Debug.getLogger().error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		} catch (SendSubscriptionNotConfirmed e){
-			LOGGER.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Debug.getLogger().error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		if(naechsterBearbeitungsKnoten !=  null)
 			naechsterBearbeitungsKnoten.aktualisiereDaten(resultate);

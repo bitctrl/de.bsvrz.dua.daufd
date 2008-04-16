@@ -66,10 +66,6 @@ import de.bsvrz.sys.funclib.debug.Debug;
 public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, ClientReceiverInterface {
 
 	/**
-	 * Debug-Logger
-	 */
-	protected static final Debug LOGGER = Debug.getLogger();
-	/**
 	 * Verbindung zum  Hauptmodul
 	 */
 	private IVerwaltung verwaltung;
@@ -376,7 +372,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					ASP_KLASSIFIZIERUNG.equals(resData.getDataDescription().getAspect().getPid()))
 			{
 				if(msDaten == null) {
-					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
+					Debug.getLogger().warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
 				else if( !msDaten.initialisiert) continue;
@@ -402,7 +398,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					ASP_KLASSIFIZIERUNG.equals(resData.getDataDescription().getAspect().getPid()))
 			{
 				if(msDaten == null) {
-					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
+					Debug.getLogger().warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
 				else if( !msDaten.initialisiert) continue;
@@ -428,7 +424,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					ASP_MESSWERTERSETZUNG.equals(resData.getDataDescription().getAspect().getPid())) {
 		
 				if(msDaten == null) {
-					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
+					Debug.getLogger().warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
 				else if( !msDaten.initialisiert) continue;
@@ -456,7 +452,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					ASP_MESSWERTERSETZUNG.equals(resData.getDataDescription().getAspect().getPid())) {
 
 				if(msDaten == null) {
-					LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
+					Debug.getLogger().warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
 				else if( !msDaten.initialisiert) continue;
@@ -579,9 +575,9 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 		try {
 			verwaltung.getVerbindung().sendData(resultat);
 		} catch (DataNotSubscribedException  e) {
-			LOGGER.error("Fehler bei Sendung der Daten fuer " + msDaten.messObject.getPid() + " ATG " + ATG_UFDMS_NS + " :\n" + e.getMessage());
+			Debug.getLogger().error("Fehler bei Sendung der Daten fuer " + msDaten.messObject.getPid() + " ATG " + ATG_UFDMS_NS + " :\n" + e.getMessage());
 		} catch (SendSubscriptionNotConfirmed e){
-			LOGGER.error("Fehler bei Sendung der Daten fuer " + msDaten.messObject.getPid() + " ATG " + ATG_UFDMS_NS + " :\n" + e.getMessage());
+			Debug.getLogger().error("Fehler bei Sendung der Daten fuer " + msDaten.messObject.getPid() + " ATG " + ATG_UFDMS_NS + " :\n" + e.getMessage());
 		}		
 	}
 	
@@ -667,7 +663,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					}
 				}
 			} catch (OneSubscriptionPerSendData e) {
-				//LOGGER.error("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
+				//Debug.getLogger().error("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
 				throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt" + so.getPid() + " unerfolgreich:" + e.getMessage());
 			}
 				
@@ -725,7 +721,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					dataDescription.getAspect().getPid().equals(ASP_PARAM_SOLL)) {
 				
 				if(messStelleDaten == null) {
-					LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
+					Debug.getLogger().warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
 				if(daten == null) {
