@@ -118,8 +118,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		public LokaleDaten(SystemObject messStelle) {
 			relativeLuftFeuchte = fbofTemperatur = luftTemperatur = null;
 			rlfZeitStemepel = fboftZeitStemepel = ltZeitStemepel = 0;
-			tpFbofZeitStemepel = 0;
-			tpLuftZeitStemepel = 0;
+			tpFbofZeitStemepel = tpLuftZeitStemepel = 0;
 			taupunktFbof = verwaltung.getVerbindung().createData(
 					verwaltung.getVerbindung().getDataModel()
 							.getAttributeGroup(ATG_UFDMS_TTFB));
@@ -219,14 +218,14 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					.getAttributeGroup().getPid())
 					&& ASP_MESSWERT_ERSETZUNG.equals(resData
 							.getDataDescription().getAspect().getPid())) {
-
 				if (lDaten == null) {
 					Debug.getLogger().warning(
 							"Objekt " + so
 									+ " in der Hashtabelle nicht gefunden");
 					continue;
 				} else if (data == null) {
-					if (!lDaten.keineLuftDaten && lDaten.berechnetLuftTaupunkt)
+					if (lDaten.keineLuftDaten == false
+							&& lDaten.berechnetLuftTaupunkt)
 						// sende keine Daten
 						sendeTaupunktTemperaturLuft(lDaten, resData
 								.getDataTime(), true);
@@ -242,7 +241,6 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					.getAttributeGroup().getPid())
 					&& ASP_MESSWERT_ERSETZUNG.equals(resData
 							.getDataDescription().getAspect().getPid())) {
-
 				if (lDaten == null) {
 					Debug.getLogger().warning(
 							"Objekt " + so
@@ -267,6 +265,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					.getAttributeGroup().getPid())
 					&& ASP_MESSWERT_ERSETZUNG.equals(resData
 							.getDataDescription().getAspect().getPid())) {
+
 				if (lDaten == null) {
 					Debug.getLogger().warning(
 							"Objekt " + so
@@ -441,10 +440,11 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 			return;
 		}
 
+		// Initializierung wegen dummen Compiler
 		long luftT = 0, rlF = 0;
 		// Nur wenn ermittelbar ist, lesen wir die Parameter aus
 		if (!nichtermittelbar) {
-			if (lDaten.luftTemperatur == null) {
+			if(lDaten.luftTemperatur == null){
 				nichtermittelbar = true;
 			} else {
 				luftT = lDaten.luftTemperatur.getItem("LuftTemperatur")
@@ -453,7 +453,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 						|| lDaten.luftTemperatur.getItem("LuftTemperatur")
 								.getItem("Status").getItem("MessWertErsetzung")
 								.getUnscaledValue("Implausibel").byteValue() == 1) {
-
+					nichtermittelbar = true;
 				}
 			}
 		}
@@ -461,13 +461,13 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		// Nur wenn ermittelbar ist, lesen wir die Parameter aus
 		if (!nichtermittelbar) {
 			if(lDaten.relativeLuftFeuchte == null){
-				nichtermittelbar = true;
-			}else{
+				nichtermittelbar = true;			
+			} else {
 				rlF = lDaten.relativeLuftFeuchte.getItem("RelativeLuftFeuchte")
 						.getUnscaledValue("Wert").longValue();
 				if (rlF < 0
-						|| lDaten.relativeLuftFeuchte
-								.getItem("RelativeLuftFeuchte").getItem("Status")
+						|| lDaten.relativeLuftFeuchte.getItem(
+								"RelativeLuftFeuchte").getItem("Status")
 								.getItem("MessWertErsetzung").getUnscaledValue(
 										"Implausibel").byteValue() == 1) {
 					nichtermittelbar = true;
@@ -608,23 +608,23 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void initialisiere(IVerwaltung verwaltung)
+	public void initialisiere(IVerwaltung verwaltung1)
 			throws DUAInitialisierungsException {
-		this.verwaltung = verwaltung;
+		verwaltung = verwaltung1;
 
-		DD_UFDMS_TT_FB = new DataDescription(verwaltung.getVerbindung()
-				.getDataModel().getAttributeGroup(ATG_UFDMS_TTFB), verwaltung
+		DD_UFDMS_TT_FB = new DataDescription(verwaltung1.getVerbindung()
+				.getDataModel().getAttributeGroup(ATG_UFDMS_TTFB), verwaltung1
 				.getVerbindung().getDataModel().getAspect(ASP_ANALYSE));
 
-		DD_UFDMS_TT_L = new DataDescription(verwaltung.getVerbindung()
-				.getDataModel().getAttributeGroup(ATG_UFDMS_TTL), verwaltung
+		DD_UFDMS_TT_L = new DataDescription(verwaltung1.getVerbindung()
+				.getDataModel().getAttributeGroup(ATG_UFDMS_TTL), verwaltung1
 				.getVerbindung().getDataModel().getAspect(ASP_ANALYSE));
 
-		if (verwaltung.getSystemObjekte() == null
-				|| verwaltung.getSystemObjekte().length == 0)
+		if (verwaltung1.getSystemObjekte() == null
+				|| verwaltung1.getSystemObjekte().length == 0)
 			return;
 
-		for (SystemObject so : verwaltung.getSystemObjekte())
+		for (SystemObject so : verwaltung1.getSystemObjekte())
 			try {
 				if (!(so instanceof ConfigurationObject))
 					continue;
@@ -657,14 +657,14 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 				if (hatFBOFSensor && hatRLFSensor) {
 					ResultData resultate = new ResultData(so, DD_UFDMS_TT_FB,
 							System.currentTimeMillis(), null);
-					verwaltung.getVerbindung().subscribeSource(this, resultate);
+					verwaltung1.getVerbindung().subscribeSource(this, resultate);
 				} else
 					lDaten.berechnetFbofTaupunkt = false;
 
 				if (hatLTSensor && hatRLFSensor) {
 					ResultData resultate = new ResultData(so, DD_UFDMS_TT_L,
 							System.currentTimeMillis(), null);
-					verwaltung.getVerbindung().subscribeSource(this, resultate);
+					verwaltung1.getVerbindung().subscribeSource(this, resultate);
 				} else
 					lDaten.berechnetLuftTaupunkt = false;
 

@@ -77,10 +77,7 @@ implements ClientSenderInterface {
 	 * Datenbeschreibung fuer die  Klasifizierung Daten
 	 */
 	private static DataDescription DD_ABTROCKNUNG_PHASEN = null;
-	/**
-	 * Der Logger
-	 */
-	private static Debug LOGGER = Debug.getLogger(); 
+
 	/**
 	 * Verbindung zum dav
 	 */
@@ -157,14 +154,14 @@ implements ClientSenderInterface {
 			Collection<SystemObject> ufdsObjekte = dav.getDataModel().getObjects(konfBereiche, sotMenge, ObjectTimeSpecification.valid());
 			
 			if(ufdsObjekte == null) {
-				LOGGER.error("Kein Objekt vom " + TYP_UFDMS + " in den KonfigurationsBeriechen :" + konfBereiche);
+				Debug.getLogger().error("Kein Objekt vom " + TYP_UFDMS + " in den KonfigurationsBeriechen :" + konfBereiche);
 				System.exit(-1);
 			}
 			
 			try {
 				dav.subscribeSender(param, ufdsObjekte, DD_ABTROCKNUNG_PHASEN, SenderRole.sender());
 			} catch (Exception e) {
-				LOGGER.error("Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ " + TYP_UFDMS + ":" + e.getMessage());
+				Debug.getLogger().error("Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ " + TYP_UFDMS + ":" + e.getMessage());
 				e.printStackTrace();
 			}
 			Thread.sleep(100);
@@ -197,7 +194,7 @@ implements ClientSenderInterface {
 				dav.sendData(resDatei);
 				System.out.println("Objekt " + object.getPid() + " Atg: " + ATG_UFDMS_AP + " parametriert ");
 			} catch (Exception e) {
-				LOGGER.error("Fehler bei Sendung von Daten für Klassifizierung Niederschlaginetnsitaet des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
+				Debug.getLogger().error("Fehler bei Sendung von Daten für Klassifizierung Niederschlaginetnsitaet des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -276,7 +273,7 @@ implements ClientSenderInterface {
 			MessStelleDaten messStelleDaten = this.naesseTabelle.get(objekt);
 			
 			if(messStelleDaten == null) {
-				LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
+				Debug.getLogger().warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
 				return;
 			}
 			

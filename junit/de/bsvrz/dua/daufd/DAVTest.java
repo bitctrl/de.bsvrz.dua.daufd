@@ -49,10 +49,23 @@ public class DAVTest {
 			"-datenverteiler=localhost:8083",  
 			"-benutzer=Tester", 
 			"-authentifizierung=passwd", 
-			"-debugLevelStdErrText=CONFIG", 
-			"-debugLevelFileText=CONFIG",
+			"-debugLevelStdErrText=OFF", 
+			"-debugLevelFileText=OFF",
 			"-KonfigurationsBereichsPid=kb.daUfdTest" };
 
+//	/**
+//	 * Verbindungsdaten
+//	 */
+//	public static final String[] CON_DATA = new String[] {
+//			"-datenverteiler=10.44.44.10:8083",  
+//			"-benutzer=Tester", 
+//			"-authentifizierung=c:\\passwd", 
+//			"-debugLevelStdErrText=OFF",
+//			"-debugLevelFileText=OFF",
+//			"-KonfigurationsBereichsPid=kb.daUfdTest" };
+	
+
+	
 	/**
 	 * Verbindung zum Datenverteiler
 	 */

@@ -60,10 +60,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 	 * Datenbeschreibung fuer die  Aggregation Daten
 	 */
 	private DataDescription DD_AGGREGATION = null;
-	/**
-	 * Der Logger
-	 */
-	private Debug LOGGER = Debug.getLogger(); 
+
 	/**
 	 * Verbindung zum DAV
 	 */
@@ -156,7 +153,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		Collection<SystemObject> ufdsObjekte = DAV.getDataModel().getObjects(konfBereiche, sotMenge, ObjectTimeSpecification.valid());
 		
 		if(ufdsObjekte == null) {
-			LOGGER.error("Kein Objekt vom " + TYP + " in den KonfigurationsBeriechen :" + konfBereiche);
+			Debug.getLogger().error("Kein Objekt vom " + TYP + " in den KonfigurationsBeriechen :" + konfBereiche);
 			System.exit(-1);
 		}
 		
@@ -168,7 +165,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 			// Der DAV ist zu langsam und antwortet mit "Sendeanmeldung nocht nicht bestaettigt" 
 			Thread.sleep(100);
 		} catch (Exception e) {
-			LOGGER.error("Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ " + TYP + ":" + e.getMessage());
+			Debug.getLogger().error("Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ " + TYP + ":" + e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -205,7 +202,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 				DAV.sendData(resDatei);
 				System.out.println("Objekt " + object.getPid() + " Atg: " + ATG_KLASS + " parametriert " );
 			} catch (Exception e) {
-				LOGGER.error("Fehler bei Sendung von Daten für Klassifizierung des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
+				Debug.getLogger().error("Fehler bei Sendung von Daten für Klassifizierung des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -223,7 +220,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 				DAV.sendData(resDatei);
 				System.out.println("Objekt " + object.getPid() + " Atg: " + ATG_AGGREG + " parametriert " );
 			} catch (Exception e) {
-				LOGGER.error("Fehler bei Sendung von Daten für Aggregation des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
+				Debug.getLogger().error("Fehler bei Sendung von Daten für Aggregation des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
 				e.printStackTrace();
 			}
 		}
