@@ -145,7 +145,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		
 		DD_AGGREGATION = new DataDescription(
 				DAV.getDataModel().getAttributeGroup(ATG_AGGREG),
-				DAV.getDataModel().getAspect(ASP_PARAM_VORGABE), (short)0);
+				DAV.getDataModel().getAspect(ASP_PARAM_VORGABE));
 
 		Collection<SystemObjectType> sotMenge = new LinkedList<SystemObjectType>();
 		sotMenge.add(DAV.getDataModel().getType(TYP));
