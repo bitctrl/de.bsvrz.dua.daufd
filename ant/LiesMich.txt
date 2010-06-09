@@ -20,7 +20,10 @@ die Daten ggf. in den Datenverteiler publiziert.
 
 Versionsgeschichte
 ==================
+1.0.3
 
+  - FIX: Sämtliche Konstruktoren DataDescription(atg, asp, sim) ersetzt durch
+         DataDescription(atg, asp)
 1.0.0
 
   - Erste Auslieferung

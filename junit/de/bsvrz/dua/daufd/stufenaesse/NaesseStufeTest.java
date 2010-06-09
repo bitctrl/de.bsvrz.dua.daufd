@@ -146,7 +146,7 @@ implements ClientSenderInterface {
 			
 			DD_ABTROCKNUNG_PHASEN = new DataDescription(
 					dav.getDataModel().getAttributeGroup(ATG_UFDMS_AP),
-					dav.getDataModel().getAspect(ASP_PARAM_VORGABE), (short)0);
+					dav.getDataModel().getAspect(ASP_PARAM_VORGABE));
 
 			Collection<SystemObjectType> sotMenge = new LinkedList<SystemObjectType>();
 			sotMenge.add(dav.getDataModel().getType(TYP_UFDMS));

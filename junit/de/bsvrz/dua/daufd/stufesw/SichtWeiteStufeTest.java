@@ -341,7 +341,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	
 		DD_MESSWERTE = new DataDescription(
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getMesswertAttributGruppe()),
-				verwaltung.getVerbindung().getDataModel().getAspect("asp.messWertErsetzung"), (short)0);
+				verwaltung.getVerbindung().getDataModel().getAspect("asp.messWertErsetzung"));
 		
 		dav = verwaltung.getVerbindung();
 		try {

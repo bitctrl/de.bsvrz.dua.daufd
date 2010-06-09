@@ -169,15 +169,15 @@ implements IBearbeitungsKnoten, ClientReceiverInterface, ClientSenderInterface {
 		this.verwaltung = verwaltung;		
 		DD_KLASSIFIZIERUNG = new DataDescription(
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getKlassifizierungsAttributGruppe()),
-				verwaltung.getVerbindung().getDataModel().getAspect(ASP_SOLL_PARAM), (short)0);
+				verwaltung.getVerbindung().getDataModel().getAspect(ASP_SOLL_PARAM));
 		
 		DD_AGGREGATION = new DataDescription(
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getAggregationsAtrributGruppe()),
-				verwaltung.getVerbindung().getDataModel().getAspect(ASP_SOLL_PARAM), (short)0);
+				verwaltung.getVerbindung().getDataModel().getAspect(ASP_SOLL_PARAM));
 		
 		DD_QUELLE = new DataDescription(
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getStufeAttributGruppe()),
-				verwaltung.getVerbindung().getDataModel().getAspect(ASP_KLASSIFIZIERUNG), (short)0);
+				verwaltung.getVerbindung().getDataModel().getAspect(ASP_KLASSIFIZIERUNG));
 		
 		if(verwaltung.getSystemObjekte() == null || verwaltung.getSystemObjekte().length == 0) return;
 		
