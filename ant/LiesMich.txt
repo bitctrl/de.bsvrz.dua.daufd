@@ -20,6 +20,10 @@ die Daten ggf. in den Datenverteiler publiziert.
 
 Versionsgeschichte
 ==================
+1.0.4
+
+  - FIX: Die Hysterese kann jetzt auch mit abfallenden Intervallen bestueckt werden
+         
 1.0.3
 
   - FIX: Sämtliche Konstruktoren DataDescription(atg, asp, sim) ersetzt durch

@@ -78,28 +78,28 @@ public class Hysterese {
 		this.vonMenge = new double[vonMenge1.length];
 		this.bisMenge = new double[bisMenge1.length];
 		for(int i = 0; i < vonMenge1.length; i++){
-			if(vonMenge1[i] >= bisMenge1[i]){
-				throw new HystereseException("Intervall Nr." + i + " hat negative Größe: [" //$NON-NLS-1$ //$NON-NLS-2$
-						+ vonMenge1[i] + ", " + bisMenge1[i] + "["); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if(i < vonMenge1.length - 1){
-				if(vonMenge1[i + 1] <= vonMenge1[i]){
-					throw new HystereseException("Zwischen zwei aufeinander folgenden" + //$NON-NLS-1$
-							" Intervall-Anfängen muss ein positiver Abstand liegen:\n" + //$NON-NLS-1$
-							"Intervall Nr." + i + ": [" + + vonMenge1[i] + ", " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							+ bisMenge1[i] + "[\n" +  //$NON-NLS-1$
-							"Intervall Nr." + (i + 1) + ": [" + + vonMenge1[i + 1] +//$NON-NLS-1$ //$NON-NLS-2$
-							", " + bisMenge1[i + 1] + "[\n");//$NON-NLS-1$ //$NON-NLS-2$
-				}
-				if(vonMenge1[i + 1] > bisMenge1[i]){
-					throw new HystereseException("Zwischen zwei aufeinander folgenden" + //$NON-NLS-1$
-							" Intervallen darf kein Abstand liegen:\n" + //$NON-NLS-1$
-							"Intervall Nr." + i + ": [" + + vonMenge1[i] + ", " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							+ bisMenge1[i] + "[\n" +  //$NON-NLS-1$
-							"Intervall Nr." + (i + 1) + ": [" + + vonMenge1[i + 1] +//$NON-NLS-1$ //$NON-NLS-2$
-							", " + bisMenge1[i + 1] + "[\n");//$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
+//			if(vonMenge1[i] >= bisMenge1[i]){
+//				throw new HystereseException("Intervall Nr." + i + " hat negative Größe: [" //$NON-NLS-1$ //$NON-NLS-2$
+//						+ vonMenge1[i] + ", " + bisMenge1[i] + "["); //$NON-NLS-1$ //$NON-NLS-2$
+//			}
+//			if(i < vonMenge1.length - 1){
+//				if(vonMenge1[i + 1] <= vonMenge1[i]){
+//					throw new HystereseException("Zwischen zwei aufeinander folgenden" + //$NON-NLS-1$
+//							" Intervall-Anfängen muss ein positiver Abstand liegen:\n" + //$NON-NLS-1$
+//							"Intervall Nr." + i + ": [" + + vonMenge1[i] + ", " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//							+ bisMenge1[i] + "[\n" +  //$NON-NLS-1$
+//							"Intervall Nr." + (i + 1) + ": [" + + vonMenge1[i + 1] +//$NON-NLS-1$ //$NON-NLS-2$
+//							", " + bisMenge1[i + 1] + "[\n");//$NON-NLS-1$ //$NON-NLS-2$
+//				}
+//				if(vonMenge1[i + 1] > bisMenge1[i]){
+//					throw new HystereseException("Zwischen zwei aufeinander folgenden" + //$NON-NLS-1$
+//							" Intervallen darf kein Abstand liegen:\n" + //$NON-NLS-1$
+//							"Intervall Nr." + i + ": [" + + vonMenge1[i] + ", " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//							+ bisMenge1[i] + "[\n" +  //$NON-NLS-1$
+//							"Intervall Nr." + (i + 1) + ": [" + + vonMenge1[i + 1] +//$NON-NLS-1$ //$NON-NLS-2$
+//							", " + bisMenge1[i + 1] + "[\n");//$NON-NLS-1$ //$NON-NLS-2$
+//				}
+//			}
 			this.vonMenge[i] = vonMenge1[i];
 			this.bisMenge[i] = bisMenge1[i];		
 		}
