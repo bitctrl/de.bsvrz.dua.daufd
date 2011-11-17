@@ -30,14 +30,13 @@ import de.bsvrz.dua.daufd.vew.AbstraktStufe;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.schnittstellen.IDatenFlussSteuerung;
 
 /**
- * Berechnet die Sichtweitestufe aus den Messwerten
- * Die eigentliche berechnung ins fuer mehrere Module gemeinsam
- * in der Klasse AbstraktStufe 
+ * Berechnet die Sichtweitestufe aus den Messwerten Die eigentliche berechnung
+ * ins fuer mehrere Module gemeinsam in der Klasse AbstraktStufe
  * 
  * @author BitCtrl Systems GmbH, Bachraty
  * 
  */
-public class SichtWeiteStufe  extends AbstraktStufe {
+public class SichtWeiteStufe extends AbstraktStufe {
 
 	@Override
 	public String getAggregationsAtrributGruppe() {
@@ -79,45 +78,85 @@ public class SichtWeiteStufe  extends AbstraktStufe {
 	 */
 	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/**
-	 *  Sichtweite Stufen, die unterscheidet werden
-	 *  
+	 * Sichtweite Stufen, die unterscheidet werden
+	 * 
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 */
-	public enum  SW_Stufe {
-		SW_STUFE0,
-		SW_STUFE1,
-		SW_STUFE2,
-		SW_STUFE3,
-		SW_STUFE4,
-		SW_STUFE5,
-		SW_WERT_NV // Wert nicht verfuegbar
+	public enum SW_Stufe {
+		SW_STUFE0, SW_STUFE1, SW_STUFE2, SW_STUFE3, SW_STUFE4, SW_STUFE5, SW_WERT_NV // Wert
+																						// nicht
+																						// verfuegbar
 	};
-	
 
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	protected final static SW_Stufe mapIntStufe [] = new SW_Stufe [] 
-    { SW_Stufe.SW_STUFE0, SW_Stufe.SW_STUFE1, SW_Stufe.SW_STUFE2, SW_Stufe.SW_STUFE3, SW_Stufe.SW_STUFE4, SW_Stufe.SW_STUFE5 };
+	protected final static SW_Stufe mapIntStufe[] = new SW_Stufe[] {
+			SW_Stufe.SW_STUFE0, SW_Stufe.SW_STUFE1, SW_Stufe.SW_STUFE2,
+			SW_Stufe.SW_STUFE3, SW_Stufe.SW_STUFE4, SW_Stufe.SW_STUFE5 };
 
 	/**
 	 * Ergibt die SW Stufe fuer ein bestimmtes sensor
-	 * @param sensor Sensoer
+	 * 
+	 * @param sensor
+	 *            Sensoer
 	 * @return SW Stufe
 	 */
 	public SW_Stufe getStufe(SystemObject sensor) {
-		
+
 		SW_Stufe stufe;
 		SensorParameter sensorDaten = this.sensorDaten.get(sensor);
-		if( sensorDaten.stufe < 0 || sensorDaten.stufe > mapIntStufe.length)
+		if (sensorDaten.stufe < 0 || sensorDaten.stufe > mapIntStufe.length)
 			stufe = SW_Stufe.SW_WERT_NV;
-		else stufe = mapIntStufe[sensorDaten.stufe];
+		else
+			stufe = mapIntStufe[sensorDaten.stufe];
 		return stufe;
 	}
 
+	/**
+	 * Berechnet die Glaettung nach der Formel in [AFo]
+	 * 
+	 * @param param
+	 *            Sensorparameter (enthaelt Konstanten}
+	 * @param messwert
+	 *            Messwert
+	 * @return Geglaetettes Messwert
+	 */
+	public double berechneMesswertGlaettung(SensorParameter param,
+			double messwert) {
+		double messwertGlatt;
+		double b_i;
+
+		// erstes Wert
+		if (Double.isNaN(param.MesswertGlatti_1)) {
+			param.MesswertGlatti_1 = messwert;
+			return messwert;
+		}
+		// alter geglaetteter Messwert gleich 0
+		if (Math.abs(param.MesswertGlatti_1) < 0.000001) {
+			param.MesswertGlatti_1 = messwert;
+		}
+		if(Math.abs(messwert) < 0.000001) {
+			param.MesswertGlatti_1 = 0.0;
+			return 0.0;
+		}
+
+		b_i = param.b0 + (1.0 - param.fb * messwert / param.MesswertGlatti_1);
+		if (b_i < param.b0) {
+			b_i = param.b0;
+		}
+		if (b_i > 1.0) {
+			b_i = 1.0;
+		}
+
+		messwertGlatt = b_i * messwert + (1.0 - b_i) * param.MesswertGlatti_1;
+
+		param.MesswertGlatti_1 = messwertGlatt;
+		return messwertGlatt;
+	}
 
 }

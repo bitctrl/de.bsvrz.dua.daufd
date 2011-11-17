@@ -20,6 +20,18 @@ die Daten ggf. in den Datenverteiler publiziert.
 
 Versionsgeschichte
 ==================
+
+1.0.5
+
+  - Berechnung der geglätteten Sichtweite abgepasst:
+    Vor der Bestimmung der Nässestufe, Wasserfilmdickestufe und der Sichtweitenstufe wird jeweils ein
+    geglätteter Messwert berechnet. Innerhalb dieser Berechnung wird der Glättungsfaktor b(i) bestimmt.
+    Die Berechnung von b(i) unterscheidet sich aber bei der Sichtweite von der für Nässe und Wasserfilmdicke
+    in der Hinsicht, dass bei der SW (Messwert) / (alten geglätteten Wert) gerechnet wird und bei den beiden
+    anderen umgekehrt (alter geglätteter Wert) / (Messwert). 
+	Das Problem bestand darin, dass im Programm b(i) für alle Zielwerte gleich gerechnet wird, d.h. die 
+	geglättete SW wird dadurch falsch berechnet.
+
 1.0.4
 
   - FIX: Die Hysterese kann jetzt auch mit abfallenden Intervallen bestueckt werden
