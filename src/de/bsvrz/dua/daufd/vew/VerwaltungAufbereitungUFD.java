@@ -1,7 +1,7 @@
 /**
  * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
- * Copyright (C) 2007 BitCtrl Systems GmbH 
- * 
+ * Copyright (C) 2007 BitCtrl Systems GmbH
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
@@ -35,6 +35,8 @@ import de.bsvrz.dav.daf.main.ResultData;
 import de.bsvrz.dav.daf.main.config.ObjectTimeSpecification;
 import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dav.daf.main.config.SystemObjectType;
+import de.bsvrz.dua.daufd.stufen.StufeHelligkeit;
+import de.bsvrz.dua.daufd.stufen.StufeWindrichtung;
 import de.bsvrz.dua.daufd.stufenaesse.NaesseStufe;
 import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe;
 import de.bsvrz.dua.daufd.stufesw.SichtWeiteStufe;
@@ -51,7 +53,7 @@ import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IBearbeitungsKnoten;
  * Bildet eine Kette von Modulen, die sie weiter steuert,
  * alle empfagene Daten gibt weiter dem ersten Modul in
  * der Kette
- *   
+ *
  * @author BitCtrl Systems GmbH, Bachraty
  *
  */
@@ -70,7 +72,7 @@ extends AbstraktVerwaltungsAdapter {
 	 * Der erste Knoten in der Kette
 	 */
 	protected IBearbeitungsKnoten ersterKnoten = null;
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -79,50 +81,60 @@ extends AbstraktVerwaltungsAdapter {
 	throws DUAInitialisierungsException {
 
 		Collection<SystemObject> objekte;
-		Collection<SystemObjectType> systemObjektTypen = new LinkedList<SystemObjectType>(); 
+		Collection<SystemObjectType> systemObjektTypen = new LinkedList<SystemObjectType>();
 		systemObjektTypen.add(verbindung.getDataModel().getType(TYP_UFDMS));
 		objekte = verbindung.getDataModel().getObjects(this.getKonfigurationsBereiche(), systemObjektTypen, ObjectTimeSpecification.valid());
 		this.objekte = objekte.toArray(new SystemObject [0]);
-		
-		if(this.objekte == null || this.objekte.length == 0) 
+
+		if(this.objekte == null || this.objekte.length == 0)
 			throw new DUAInitialisierungsException("Es wurden keine UmfeldDatenMessStellen im KB "  + this.getKonfigurationsBereiche() + " gefunden");
-		
+
 		IBearbeitungsKnoten knoten1, knoten2;
 		AbstraktStufe stufeKnoten;
 		NaesseStufe naesseKnoten;
 		Taupunkt taupunkt;
-		
+
 		ersterKnoten = knoten2 = stufeKnoten = new NiederschlagIntensitaetStufe();
 		knoten2.initialisiere(this);
 		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
-		
+
 		knoten1 = stufeKnoten = new WasserFilmDickeStufe();
 		knoten1.initialisiere(this);
 		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
-		
+
 		knoten2 = naesseKnoten = new NaesseStufe();
 		knoten2.initialisiere(this);
 		anmeldeEmpfaenger(naesseKnoten.getNaSensoren(), NaesseStufe.ATG_UFDS_NA, ASP_MESSWERTERSETZUNG);
 		anmeldeEmpfaenger(naesseKnoten.getFbofZustandSensoren(), NaesseStufe.ATG_UFDS_FBOFZS, ASP_MESSWERTERSETZUNG);
 		knoten1.setNaechstenBearbeitungsKnoten(knoten2);
-		
+
 		knoten1 = stufeKnoten = new SichtWeiteStufe();
 		knoten1.initialisiere(this);
 		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
-		
+
 		knoten2 = taupunkt = new Taupunkt();
 		knoten2.initialisiere(this);
 		knoten1.setNaechstenBearbeitungsKnoten(knoten2);
-		
+
 		anmeldeEmpfaenger(taupunkt.getFbofSensoren(), Taupunkt.ATG_UFDS_FBOFT, ASP_MESSWERTERSETZUNG);
 		anmeldeEmpfaenger(taupunkt.getLtSensoren(), Taupunkt.ATG_UFDS_LT, ASP_MESSWERTERSETZUNG);
 		anmeldeEmpfaenger(taupunkt.getRlfSensoren(), Taupunkt.ATG_UFDS_RLF, ASP_MESSWERTERSETZUNG);
-				
-		knoten2.setNaechstenBearbeitungsKnoten(null);
+
+		knoten1 = stufeKnoten = new StufeHelligkeit();
+		knoten1.initialisiere(this);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
+		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
+
+		knoten1 = stufeKnoten = new StufeWindrichtung();
+		knoten1.initialisiere(this);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
+		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
+
+		knoten1.setNaechstenBearbeitungsKnoten(null);
 	}
-	
+
 	/**
 	 * Meldet sich ein Als empfaenger fuer Daten
 	 * @param sensoren SystemObjekte die die Daten liefern
@@ -130,11 +142,11 @@ extends AbstraktVerwaltungsAdapter {
 	 * @param aspekt Aspek der Daten
 	 */
 	protected void anmeldeEmpfaenger(Collection<SystemObject> sensoren, String attributGruppe, String aspekt) throws DUAInitialisierungsException{
-		
-		DataDescription datenBeschreibung =  new DataDescription(verbindung.getDataModel().getAttributeGroup(attributGruppe), 
+
+		DataDescription datenBeschreibung =  new DataDescription(verbindung.getDataModel().getAttributeGroup(attributGruppe),
 																verbindung.getDataModel().getAspect(aspekt));
 		verbindung.subscribeReceiver(this, sensoren, datenBeschreibung, ReceiveOptions.normal(), ReceiverRole.receiver());
-		
+
 	}
 
 	/**
