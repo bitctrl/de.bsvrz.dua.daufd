@@ -24,7 +24,6 @@
  * mailto: info@bitctrl.de
  */
 
-
 /**
  * Klassen für Modul Wasserfilmdicke der  SWE 4.8 Datenaufbereitung UFD
  */

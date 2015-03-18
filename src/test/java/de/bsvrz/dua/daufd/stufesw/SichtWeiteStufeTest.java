@@ -29,7 +29,6 @@ package de.bsvrz.dua.daufd.stufesw;
 import java.util.Collection;
 
 import org.junit.Assert;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -50,27 +49,26 @@ import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
 import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IVerwaltung;
 import de.bsvrz.sys.funclib.debug.Debug;
 
-
 /**
  * Parametriert den Modul SichtWeite
- * 
+ *
  * @author BitCtrl Systems GmbH, Bachraty
- * 
+ *
  */
-@Ignore ("Testdatenverteiler prüfen")
-public class SichtWeiteStufeTest extends  SichtWeiteStufe {
+@Ignore("Testdatenverteiler prüfen")
+public class SichtWeiteStufeTest extends SichtWeiteStufe {
 
+	private static final Debug LOGGER = Debug.getLogger();
 	/**
 	 * SW-Stufe untere Grenzwerte [AFo]
 	 */
-	private final static double[] stufeVon = new double[] {
-		0, 50, 80, 120, 250, 400 	
-	};
+	private final static double[] stufeVon = new double[] { 0, 50, 80, 120,
+			250, 400 };
 	/**
 	 * SW-Stufe obere Grenzwerte [AFo]
 	 */
-	private final static double[] stufeBis = new double[] {
-		60, 100, 150, 300, 500, 60000   // Max Wert vom DaK 	
+	private final static double[] stufeBis = new double[] { 60, 100, 150, 300,
+			500, 60000 // Max Wert vom DaK
 	};
 	/**
 	 * Koefizient fuer Glaettung
@@ -80,16 +78,16 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	 * Koefizient fuer Glaettung
 	 */
 	private final static double fb = 0.25;
-	
+
 	/**
 	 * Verbindung zum dav
 	 */
-	private static ClientDavInterface  dav;
+	private static ClientDavInterface dav;
 	/**
 	 * Der Verwaltungsmodul
 	 */
 	private static VerwaltungAufbereitungUFDTest hauptModul;
-	
+
 	/**
 	 * String-Konstanten
 	 */
@@ -101,17 +99,17 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	/**
 	 * Einkommende Messwerte
 	 */
-	private static double [] Messwert = null;
+	private static double[] Messwert = null;
 	/**
 	 * Erwarete Ausgabedaten - geglaettete Messawerte
 	 */
-	private static double [] MesswertGlatt = null;
+	private static double[] MesswertGlatt = null;
 	/**
 	 * Erwarete Ausgabedaten - Stufen
 	 */
 	private static int[] stufen = null;
 	/**
-	 * Aktueller Index in Ausgabe-Testdaten 
+	 * Aktueller Index in Ausgabe-Testdaten
 	 */
 	private static int index = 0;
 	/**
@@ -134,18 +132,31 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	 * Bestimmt ob man an die bearbeitung der Daten warten soll
 	 */
 	private static boolean warten = false;
+
 	/**
 	 * Sendet die Parametrierung aus dem Tabellen der AFo dem DAV
-	 * @param dav DAV
-	 * @param konfBereiche konfigurationsbereiche, aus dennen alle Objekte parametriert werden
+	 * 
+	 * @param dav
+	 *            DAV
+	 * @param konfBereiche
+	 *            konfigurationsbereiche, aus dennen alle Objekte parametriert
+	 *            werden
 	 */
-	public static void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
+	public static void ParametriereUfds(final ClientDavInterface dav,
+			final Collection<ConfigurationArea> konfBereiche) {
 		try {
-			UfdsKlassifizierungParametrierung param = new UfdsKlassifizierungParametrierung(
-					TYP_UFDS_WFD, ATG_UFDS_KLASS_WFD, ATT_UFDS_KLASS_WFD, ATG_UFDS_AGGREG_WFD, stufeVon, stufeBis, b0, fb);
+			final UfdsKlassifizierungParametrierung param = new UfdsKlassifizierungParametrierung(
+					SichtWeiteStufeTest.TYP_UFDS_WFD,
+					SichtWeiteStufeTest.ATG_UFDS_KLASS_WFD,
+					SichtWeiteStufeTest.ATT_UFDS_KLASS_WFD,
+					SichtWeiteStufeTest.ATG_UFDS_AGGREG_WFD,
+					SichtWeiteStufeTest.stufeVon, SichtWeiteStufeTest.stufeBis,
+					SichtWeiteStufeTest.b0, SichtWeiteStufeTest.fb);
 			param.ParametriereUfds(dav, konfBereiche);
-		} catch (Exception e) {
-			Debug.getLogger().error("Fehler bei Parametrierung der SichtWeite:" + e.getMessage());
+		} catch (final Exception e) {
+			LOGGER.error(
+					"Fehler bei Parametrierung der SichtWeite:"
+							+ e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -154,201 +165,283 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	 * Generiert eine Reihe von Zahlen und vergleicht mit der getesteten Klasse
 	 */
 	@Test
-	public void test1() {	
+	public void test1() {
 		final long SLEEP = 50;
 		int alt;
-		
-		HysterezeTester2 hystTest = new HysterezeTester2();
-		Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length-1]*1.2);
-		MesswertGlatt = new double[Messwert.length];
-		double [] b = new double [Messwert.length];
-		stufen = new int [Messwert.length];
-		zeitStempel = new long[Messwert.length];
-		hystTest.init(stufeVon, stufeBis);
-	
-		MesswertBearbeitungAllgemein.rundeMesswerteGanzeZahl(Messwert);
-		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, fb, b0);
+
+		final HysterezeTester2 hystTest = new HysterezeTester2();
+		SichtWeiteStufeTest.Messwert = MesswertBearbeitungAllgemein
+				.generiereMesswerte(
+						SichtWeiteStufeTest.stufeVon[0],
+						SichtWeiteStufeTest.stufeVon[SichtWeiteStufeTest.stufeVon.length - 1] * 1.2);
+		SichtWeiteStufeTest.MesswertGlatt = new double[SichtWeiteStufeTest.Messwert.length];
+		final double[] b = new double[SichtWeiteStufeTest.Messwert.length];
+		SichtWeiteStufeTest.stufen = new int[SichtWeiteStufeTest.Messwert.length];
+		SichtWeiteStufeTest.zeitStempel = new long[SichtWeiteStufeTest.Messwert.length];
+		hystTest.init(SichtWeiteStufeTest.stufeVon,
+				SichtWeiteStufeTest.stufeBis);
+
+		MesswertBearbeitungAllgemein
+				.rundeMesswerteGanzeZahl(SichtWeiteStufeTest.Messwert);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(
+				SichtWeiteStufeTest.Messwert, b,
+				SichtWeiteStufeTest.MesswertGlatt, SichtWeiteStufeTest.fb,
+				SichtWeiteStufeTest.b0);
 		alt = -1;
-		for(int i=0; i< MesswertGlatt.length; i++) {
-			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);
-			alt = stufen[i];
+		for (int i = 0; i < SichtWeiteStufeTest.MesswertGlatt.length; i++) {
+			SichtWeiteStufeTest.stufen[i] = hystTest.hystereze(
+					SichtWeiteStufeTest.MesswertGlatt[i], alt);
+			alt = SichtWeiteStufeTest.stufen[i];
 		}
 
-		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
-		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+		SichtWeiteStufeTest.hauptModul = new VerwaltungAufbereitungUFDTest();
+		final String[] connArgs = new String[DAVTest.CON_DATA.length];
+		for (int i = 0; i < DAVTest.CON_DATA.length; i++) {
 			connArgs[i] = DAVTest.CON_DATA[i];
-		StandardApplicationRunner.run(hauptModul, connArgs);
+		}
+		StandardApplicationRunner.run(SichtWeiteStufeTest.hauptModul, connArgs);
 		try {
-			Thread.sleep(5*SLEEP);
-		} catch (Exception e) { 	}
-	
-		
-		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
-		index = 0;
-		warten = true;
-		for(int i=0; i<MesswertGlatt.length; i++) {
-			sendeMesswert(testSensor, Messwert[i], zeitStempel[i]);
-			if(i+1<MesswertGlatt.length)
-				zeitStempel[i+1] = zeitStempel[i] + ZEIT_INTERVALL;
+			Thread.sleep(5 * SLEEP);
+		} catch (final Exception e) {
+		}
+
+		SichtWeiteStufeTest.zeitStempel[0] = System.currentTimeMillis()
+				- (120 * 60 * 1000);
+		SichtWeiteStufeTest.index = 0;
+		SichtWeiteStufeTest.warten = true;
+		for (int i = 0; i < SichtWeiteStufeTest.MesswertGlatt.length; i++) {
+			sendeMesswert(SichtWeiteStufeTest.testSensor,
+					SichtWeiteStufeTest.Messwert[i],
+					SichtWeiteStufeTest.zeitStempel[i]);
+			if ((i + 1) < SichtWeiteStufeTest.MesswertGlatt.length) {
+				SichtWeiteStufeTest.zeitStempel[i + 1] = SichtWeiteStufeTest.zeitStempel[i]
+						+ SichtWeiteStufeTest.ZEIT_INTERVALL;
+			}
 			try {
 				Thread.sleep(SLEEP);
-			} catch (Exception e) { }
+			} catch (final Exception e) {
+			}
 		}
 		try {
-			synchronized (hauptModul) {
-				while(warten) hauptModul.wait();
+			synchronized (SichtWeiteStufeTest.hauptModul) {
+				while (SichtWeiteStufeTest.warten) {
+					SichtWeiteStufeTest.hauptModul.wait();
+				}
 			}
-		} catch (Exception e) { }
-		hauptModul.disconnect();
-		hauptModul = null;
-		stufen = null;
-		MesswertGlatt = null;
-		
+		} catch (final Exception e) {
+		}
+		SichtWeiteStufeTest.hauptModul.disconnect();
+		SichtWeiteStufeTest.hauptModul = null;
+		SichtWeiteStufeTest.stufen = null;
+		SichtWeiteStufeTest.MesswertGlatt = null;
+
 	}
+
 	/**
 	 * Generiert eine Reihe von Zahlen und vergleicht mit der getesteten Klasse
 	 * Wie test 1 nur die Werte werden zufaellig geraeuscht
 	 */
 	@Test
-	public void test2() {		
+	public void test2() {
 		final long SLEEP = 50;
 		int alt;
-		
-		HysterezeTester2 hystTest = new HysterezeTester2();
-		Messwert = MesswertBearbeitungAllgemein.generiereMesswerte(stufeVon[0], stufeVon[stufeVon.length-1]*1.2);
-		MesswertGlatt = new double[Messwert.length];
-		double [] b = new double [Messwert.length];
-		stufen = new int [Messwert.length];
-		zeitStempel = new long[Messwert.length];
-		hystTest.init(stufeVon, stufeBis);
-	
-		MesswertBearbeitungAllgemein.gerauescheMesswerte(Messwert, 0.15, 20);
-		MesswertBearbeitungAllgemein.rundeMesswerteGanzeZahl(Messwert);
-		MesswertBearbeitungAllgemein.glaetteMesswerte(Messwert, b, MesswertGlatt, fb, b0);
+
+		final HysterezeTester2 hystTest = new HysterezeTester2();
+		SichtWeiteStufeTest.Messwert = MesswertBearbeitungAllgemein
+				.generiereMesswerte(
+						SichtWeiteStufeTest.stufeVon[0],
+						SichtWeiteStufeTest.stufeVon[SichtWeiteStufeTest.stufeVon.length - 1] * 1.2);
+		SichtWeiteStufeTest.MesswertGlatt = new double[SichtWeiteStufeTest.Messwert.length];
+		final double[] b = new double[SichtWeiteStufeTest.Messwert.length];
+		SichtWeiteStufeTest.stufen = new int[SichtWeiteStufeTest.Messwert.length];
+		SichtWeiteStufeTest.zeitStempel = new long[SichtWeiteStufeTest.Messwert.length];
+		hystTest.init(SichtWeiteStufeTest.stufeVon,
+				SichtWeiteStufeTest.stufeBis);
+
+		MesswertBearbeitungAllgemein.gerauescheMesswerte(
+				SichtWeiteStufeTest.Messwert, 0.15, 20);
+		MesswertBearbeitungAllgemein
+				.rundeMesswerteGanzeZahl(SichtWeiteStufeTest.Messwert);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(
+				SichtWeiteStufeTest.Messwert, b,
+				SichtWeiteStufeTest.MesswertGlatt, SichtWeiteStufeTest.fb,
+				SichtWeiteStufeTest.b0);
 		alt = -1;
-		for(int i=0; i< MesswertGlatt.length; i++) {
-			stufen[i] = hystTest.hystereze(MesswertGlatt[i], alt);
-			alt = stufen[i];
+		for (int i = 0; i < SichtWeiteStufeTest.MesswertGlatt.length; i++) {
+			SichtWeiteStufeTest.stufen[i] = hystTest.hystereze(
+					SichtWeiteStufeTest.MesswertGlatt[i], alt);
+			alt = SichtWeiteStufeTest.stufen[i];
 		}
-	
-		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
-		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+
+		SichtWeiteStufeTest.hauptModul = new VerwaltungAufbereitungUFDTest();
+		final String[] connArgs = new String[DAVTest.CON_DATA.length];
+		for (int i = 0; i < DAVTest.CON_DATA.length; i++) {
 			connArgs[i] = DAVTest.CON_DATA[i];
-		StandardApplicationRunner.run(hauptModul, connArgs);
+		}
+		StandardApplicationRunner.run(SichtWeiteStufeTest.hauptModul, connArgs);
 		try {
-			Thread.sleep(5*SLEEP);
-		} catch (Exception e) { 	}
-		
-		zeitStempel[0] = System.currentTimeMillis() - 120 * 60 * 1000;
-		index = 0;
-		warten = true;
-		for(int i=0; i<MesswertGlatt.length; i++) {
-			sendeMesswert(testSensor, Messwert[i], zeitStempel[i]);
-			if(i+1<MesswertGlatt.length)
-				zeitStempel[i+1] = zeitStempel[i] + ZEIT_INTERVALL;
+			Thread.sleep(5 * SLEEP);
+		} catch (final Exception e) {
+		}
+
+		SichtWeiteStufeTest.zeitStempel[0] = System.currentTimeMillis()
+				- (120 * 60 * 1000);
+		SichtWeiteStufeTest.index = 0;
+		SichtWeiteStufeTest.warten = true;
+		for (int i = 0; i < SichtWeiteStufeTest.MesswertGlatt.length; i++) {
+			sendeMesswert(SichtWeiteStufeTest.testSensor,
+					SichtWeiteStufeTest.Messwert[i],
+					SichtWeiteStufeTest.zeitStempel[i]);
+			if ((i + 1) < SichtWeiteStufeTest.MesswertGlatt.length) {
+				SichtWeiteStufeTest.zeitStempel[i + 1] = SichtWeiteStufeTest.zeitStempel[i]
+						+ SichtWeiteStufeTest.ZEIT_INTERVALL;
+			}
 			try {
 				Thread.sleep(SLEEP);
-			} catch (Exception e) { }
+			} catch (final Exception e) {
+			}
 		}
 		try {
-			synchronized (hauptModul) {
-				while(warten) hauptModul.wait();
+			synchronized (SichtWeiteStufeTest.hauptModul) {
+				while (SichtWeiteStufeTest.warten) {
+					SichtWeiteStufeTest.hauptModul.wait();
+				}
 			}
-		} catch (Exception e) { }
-		
-		hauptModul.disconnect();
-		hauptModul = null;
-		stufen = null;
-		MesswertGlatt = null;
+		} catch (final Exception e) {
+		}
+
+		SichtWeiteStufeTest.hauptModul.disconnect();
+		SichtWeiteStufeTest.hauptModul = null;
+		SichtWeiteStufeTest.stufen = null;
+		SichtWeiteStufeTest.MesswertGlatt = null;
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public double berechneMesswertGlaettung(SensorParameter param, double messwert) {
-		double r = super.berechneMesswertGlaettung(param, messwert);
-		if(MesswertGlatt == null) return r;
-		double diff = MesswertGlatt[index]-r;
-		Assert.assertTrue( index + " Wert : " + r + " Soll : " + MesswertGlatt[index] + " Differenz : " + diff, diff<0.05);
-		System.out.println(String.format("[ %4d ] Geglaetette Wert OK: %10.8f == %10.8f  Differrez: %10.8f", index, MesswertGlatt[index], r, diff));
+	public double berechneMesswertGlaettung(final SensorParameter param,
+			final double messwert) {
+		final double r = super.berechneMesswertGlaettung(param, messwert);
+		if (SichtWeiteStufeTest.MesswertGlatt == null) {
+			return r;
+		}
+		final double diff = SichtWeiteStufeTest.MesswertGlatt[SichtWeiteStufeTest.index]
+				- r;
+		Assert.assertTrue(SichtWeiteStufeTest.index + " Wert : " + r
+				+ " Soll : "
+				+ SichtWeiteStufeTest.MesswertGlatt[SichtWeiteStufeTest.index]
+				+ " Differenz : " + diff, diff < 0.05);
+		System.out
+				.println(String
+						.format("[ %4d ] Geglaetette Wert OK: %10.8f == %10.8f  Differrez: %10.8f",
+								SichtWeiteStufeTest.index,
+								SichtWeiteStufeTest.MesswertGlatt[SichtWeiteStufeTest.index],
+								r, diff));
 		return r;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel, boolean keineDaten) {
+	public void SendeStufe(final SystemObject objekt, final int stufe,
+			final long zeitStempel, final boolean keineDaten) {
 		super.SendeStufe(objekt, stufe, zeitStempel, keineDaten);
-		if(keineDaten) return;
-		// d.H. es laeuft gerade ein test von anderer Klasse die NiStufe daten benoetigt
-		if(stufen == null) return;		
-		Assert.assertEquals(stufen[index], stufe);
-		Assert.assertEquals(SichtWeiteStufeTest.zeitStempel[index], zeitStempel);
-		System.out.println(String.format("[ %4d ] Stufe OK: %3d == %3d", index, stufen[index], stufe));
-		index++;
-		if(index>=stufen.length) {
+		if (keineDaten) {
+			return;
+		}
+		// d.H. es laeuft gerade ein test von anderer Klasse die NiStufe daten
+		// benoetigt
+		if (SichtWeiteStufeTest.stufen == null) {
+			return;
+		}
+		Assert.assertEquals(
+				SichtWeiteStufeTest.stufen[SichtWeiteStufeTest.index], stufe);
+		Assert.assertEquals(
+				SichtWeiteStufeTest.zeitStempel[SichtWeiteStufeTest.index],
+				zeitStempel);
+		System.out.println(String.format("[ %4d ] Stufe OK: %3d == %3d",
+				SichtWeiteStufeTest.index,
+				SichtWeiteStufeTest.stufen[SichtWeiteStufeTest.index], stufe));
+		SichtWeiteStufeTest.index++;
+		if (SichtWeiteStufeTest.index >= SichtWeiteStufeTest.stufen.length) {
 			synchronized (verwaltung) {
-				warten = false;
+				SichtWeiteStufeTest.warten = false;
 				verwaltung.notify();
 			}
 		}
 	}
-	
+
 	/**
 	 * Sendet einen Messwert an den DAV
-	 * @param sensor Sensor, die Quelle des Messwertes
-	 * @param messwert der MessWert
-	 * @param zeitStemepel ZeitStempel
+	 * 
+	 * @param sensor
+	 *            Sensor, die Quelle des Messwertes
+	 * @param messwert
+	 *            der MessWert
+	 * @param zeitStemepel
+	 *            ZeitStempel
 	 */
-	private void sendeMesswert(SystemObject sensor, double messwert, long zeitStemepel) {
-		Data data = dav.createData(dav.getDataModel().getAttributeGroup(getMesswertAttributGruppe()));
+	private void sendeMesswert(final SystemObject sensor,
+			final double messwert, final long zeitStemepel) {
+		final Data data = SichtWeiteStufeTest.dav
+				.createData(SichtWeiteStufeTest.dav.getDataModel()
+						.getAttributeGroup(getMesswertAttributGruppe()));
 
-		String att = getMesswertAttribut();
-		data.getTimeValue("T").setMillis(ZEIT_INTERVALL);
+		final String att = getMesswertAttribut();
+		data.getTimeValue("T").setMillis(SichtWeiteStufeTest.ZEIT_INTERVALL);
 		data.getItem(att).getScaledValue("Wert").set(messwert);
-	
-		data.getItem(att).getItem("Status").getItem("Erfassung").getUnscaledValue("NichtErfasst").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMax").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);	
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").set(0);
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
+
+		data.getItem(att).getItem("Status").getItem("Erfassung")
+				.getUnscaledValue("NichtErfasst").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal")
+				.getUnscaledValue("WertMax").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal")
+				.getUnscaledValue("WertMin").set(0);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung")
+				.getUnscaledValue("Implausibel").set(0);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung")
+				.getUnscaledValue("Interpoliert").set(0);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
-		
-		ResultData result = new ResultData(sensor, DD_MESSWERTE, zeitStemepel, data);
-		try { 
-			dav.sendData(result);
-		} catch (Exception e) {
+
+		final ResultData result = new ResultData(sensor,
+				SichtWeiteStufeTest.DD_MESSWERTE, zeitStemepel, data);
+		try {
+			SichtWeiteStufeTest.dav.sendData(result);
+		} catch (final Exception e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void initialisiere(IVerwaltung verwaltung)
-		throws DUAInitialisierungsException {
+	public void initialisiere(final IVerwaltung verwaltung)
+			throws DUAInitialisierungsException {
 		super.initialisiere(verwaltung);
-		
-		for(SystemObject so : getSensoren())
-			if(so != null) {
-				testSensor = so;
+
+		for (final SystemObject so : getSensoren()) {
+			if (so != null) {
+				SichtWeiteStufeTest.testSensor = so;
 				break;
 			}
-	
-		DD_MESSWERTE = new DataDescription(
-				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getMesswertAttributGruppe()),
-				verwaltung.getVerbindung().getDataModel().getAspect("asp.messWertErsetzung"));
-		
-		dav = verwaltung.getVerbindung();
+		}
+
+		SichtWeiteStufeTest.DD_MESSWERTE = new DataDescription(verwaltung
+				.getVerbindung().getDataModel()
+				.getAttributeGroup(getMesswertAttributGruppe()), verwaltung
+				.getVerbindung().getDataModel()
+				.getAspect("asp.messWertErsetzung"));
+
+		SichtWeiteStufeTest.dav = verwaltung.getVerbindung();
 		try {
-			dav.subscribeSender(this, getSensoren(), DD_MESSWERTE, SenderRole.source());
-		} catch (Exception e) {
+			SichtWeiteStufeTest.dav.subscribeSender(this, getSensoren(),
+					SichtWeiteStufeTest.DD_MESSWERTE, SenderRole.source());
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}

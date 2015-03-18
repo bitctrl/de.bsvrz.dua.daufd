@@ -34,103 +34,128 @@ import org.junit.Assert;
 import de.bsvrz.dav.daf.main.config.ObjectTimeSpecification;
 import de.bsvrz.dav.daf.main.config.SystemObject;
 import de.bsvrz.dav.daf.main.config.SystemObjectType;
-import de.bsvrz.dua.daufd.stufenaesse.*;
-import de.bsvrz.dua.daufd.stufesw.*;
-import de.bsvrz.dua.daufd.stufewfd.*;
-import de.bsvrz.dua.daufd.tp.*;
-import de.bsvrz.dua.daufd.vew.*;
+import de.bsvrz.dua.daufd.stufenaesse.NaesseStufe;
+import de.bsvrz.dua.daufd.stufenaesse.NaesseStufeTest;
+import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufeTest;
+import de.bsvrz.dua.daufd.stufesw.SichtWeiteStufeTest;
+import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickeStufeTest;
+import de.bsvrz.dua.daufd.tp.Taupunkt;
+import de.bsvrz.dua.daufd.tp.TaupunktTest;
+import de.bsvrz.dua.daufd.vew.AbstraktStufe;
+import de.bsvrz.dua.daufd.vew.VerwaltungAufbereitungUFD;
 import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
 import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IBearbeitungsKnoten;
-import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufeTest;
 
 /**
- * Beim Testfaellen steuert die Verwaltung statt normalen
- * Klassen die vererbten versionen deren Namen mit -Test 
- * enden
- *  
+ * Beim Testfaellen steuert die Verwaltung statt normalen Klassen die vererbten
+ * versionen deren Namen mit -Test enden
+ * 
  * @author BitCtrl Systems GmbH, Bachraty
  *
  */
 public class VerwaltungAufbereitungUFDTest extends VerwaltungAufbereitungUFD {
-	
-	private NiederschlagIntensitaetStufeTest niKnoten= null;
+
+	private NiederschlagIntensitaetStufeTest niKnoten = null;
 	private WasserFilmDickeStufeTest wfdKnoten = null;
+
 	@Override
-	protected void initialisiere()
-	throws DUAInitialisierungsException {
-		
+	protected void initialisiere() throws DUAInitialisierungsException {
 
 		/*
 		 * Die parametrierung des Testkonfigruationsbereichs
 		 */
-		NaesseStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
-		WasserFilmDickeStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
-		NiederschlagIntensitaetStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
-		SichtWeiteStufeTest.ParametriereUfds(verbindung, this.getKonfigurationsBereiche());
-		try{
+		NaesseStufeTest.ParametriereUfds(verbindung,
+				this.getKonfigurationsBereiche());
+		WasserFilmDickeStufeTest.ParametriereUfds(verbindung,
+				this.getKonfigurationsBereiche());
+		NiederschlagIntensitaetStufeTest.ParametriereUfds(verbindung,
+				this.getKonfigurationsBereiche());
+		SichtWeiteStufeTest.ParametriereUfds(verbindung,
+				this.getKonfigurationsBereiche());
+		try {
 			Thread.sleep(1000);
-		}catch (Exception e) { }
-		
+		} catch (final Exception e) {
+		}
 
 		Collection<SystemObject> objekte;
-		Collection<SystemObjectType> systemObjektTypen = new LinkedList<SystemObjectType>(); 
-		systemObjektTypen.add(verbindung.getDataModel().getType(TYP_UFDMS));
-		objekte = verbindung.getDataModel().getObjects(this.getKonfigurationsBereiche(), systemObjektTypen, ObjectTimeSpecification.valid());
-		this.objekte = objekte.toArray(new SystemObject [0]);
-		
+		final Collection<SystemObjectType> systemObjektTypen = new LinkedList<SystemObjectType>();
+		systemObjektTypen.add(verbindung.getDataModel().getType(
+				VerwaltungAufbereitungUFD.TYP_UFDMS));
+		objekte = verbindung.getDataModel().getObjects(
+				this.getKonfigurationsBereiche(), systemObjektTypen,
+				ObjectTimeSpecification.valid());
+		this.objekte = objekte.toArray(new SystemObject[0]);
+
 		Assert.assertNotNull(this.objekte);
-		
+
 		IBearbeitungsKnoten knoten1, knoten2;
 		AbstraktStufe stufeKnoten;
 		NaesseStufeTest naesseKnoten;
 		Taupunkt taupunkt;
-		
+
 		ersterKnoten = knoten2 = stufeKnoten = niKnoten = new NiederschlagIntensitaetStufeTest();
 		knoten2.initialisiere(this);
-		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
-		
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(),
+				stufeKnoten.getMesswertAttributGruppe(),
+				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+
 		knoten1 = stufeKnoten = wfdKnoten = new WasserFilmDickeStufeTest();
 		knoten1.initialisiere(this);
-		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(),
+				stufeKnoten.getMesswertAttributGruppe(),
+				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
 		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
-		
-		knoten2 = naesseKnoten =  new NaesseStufeTest();
+
+		knoten2 = naesseKnoten = new NaesseStufeTest();
 		knoten2.initialisiere(this);
-		anmeldeEmpfaenger(naesseKnoten.getNaSensoren(), NaesseStufe.ATG_UFDS_NA, ASP_MESSWERTERSETZUNG);
-		anmeldeEmpfaenger(naesseKnoten.getFbofZustandSensoren(), NaesseStufe.ATG_UFDS_FBOFZS, ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(naesseKnoten.getNaSensoren(),
+				NaesseStufe.ATG_UFDS_NA,
+				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(naesseKnoten.getFbofZustandSensoren(),
+				NaesseStufe.ATG_UFDS_FBOFZS,
+				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
 		knoten1.setNaechstenBearbeitungsKnoten(knoten2);
-		
+
 		knoten1 = stufeKnoten = new SichtWeiteStufeTest();
 		knoten1.initialisiere(this);
-		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(),
+				stufeKnoten.getMesswertAttributGruppe(),
+				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
 		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
-		
+
 		knoten2 = taupunkt = new TaupunktTest();
 		knoten2.initialisiere(this);
 		knoten1.setNaechstenBearbeitungsKnoten(knoten2);
-		anmeldeEmpfaenger(taupunkt.getFbofSensoren(), Taupunkt.ATG_UFDS_FBOFT, ASP_MESSWERTERSETZUNG);
-		anmeldeEmpfaenger(taupunkt.getLtSensoren(), Taupunkt.ATG_UFDS_LT, ASP_MESSWERTERSETZUNG);
-		anmeldeEmpfaenger(taupunkt.getRlfSensoren(), Taupunkt.ATG_UFDS_RLF, ASP_MESSWERTERSETZUNG);
-		
+		anmeldeEmpfaenger(taupunkt.getFbofSensoren(), Taupunkt.ATG_UFDS_FBOFT,
+				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(taupunkt.getLtSensoren(), Taupunkt.ATG_UFDS_LT,
+				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(taupunkt.getRlfSensoren(), Taupunkt.ATG_UFDS_RLF,
+				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+
 		knoten2.setNaechstenBearbeitungsKnoten(null);
-		
+
 	}
+
 	/**
-	 * Leifert den NiederschlagintensitaetsKnoten
-	 * (wird in NaesseStufeTest benutzt)
+	 * Leifert den NiederschlagintensitaetsKnoten (wird in NaesseStufeTest
+	 * benutzt)
+	 * 
 	 * @return NI-Knoten
 	 */
 	public NiederschlagIntensitaetStufeTest getNiKnoten() {
 		return niKnoten;
 	}
+
 	/**
-	 * Leifert den WasserflmdickeKnoten
-	 * (wird in NaesseStufeTest benutzt)
+	 * Leifert den WasserflmdickeKnoten (wird in NaesseStufeTest benutzt)
+	 * 
 	 * @return NI-Knoten
 	 */
 	public WasserFilmDickeStufeTest getWfdKnotne() {
 		return wfdKnoten;
 	}
+
 	/**
 	 * Trennt die Verbindung
 	 */

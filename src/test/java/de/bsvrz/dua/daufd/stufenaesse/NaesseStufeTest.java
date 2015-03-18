@@ -30,7 +30,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.junit.Assert;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -57,33 +56,33 @@ import de.bsvrz.sys.funclib.debug.Debug;
 
 /**
  * Testet und Parametriert den Modul NaesseStufe
- * 
+ *
  * @author BitCtrl Systems GmbH, Bachraty
- * 
+ *
  */
-@Ignore ("Testdatenverteiler prüfen")
-public class NaesseStufeTest extends NaesseStufe 
-implements ClientSenderInterface {
+@Ignore("Testdatenverteiler prüfen")
+public class NaesseStufeTest extends NaesseStufe implements
+		ClientSenderInterface {
 
+	private static final Debug LOGGER = Debug.getLogger();
 	/**
 	 * Abtrocknungphasen Verzoegerung [AFo]
 	 */
-	private static final long[] abtrocknungPhasen = new long[] {
-		180, 60, 60, 60 
-	};
+	private static final long[] abtrocknungPhasen = new long[] { 180, 60, 60,
+			60 };
 	/**
 	 * Aspekt fuer Parametrierung
 	 */
 	private static final String ASP_PARAM_VORGABE = "asp.parameterVorgabe";
 	/**
-	 * Datenbeschreibung fuer die  Klasifizierung Daten
+	 * Datenbeschreibung fuer die Klasifizierung Daten
 	 */
 	private static DataDescription DD_ABTROCKNUNG_PHASEN = null;
 
 	/**
 	 * Verbindung zum dav
 	 */
-	private static ClientDavInterface  dav;
+	private static ClientDavInterface dav;
 	/**
 	 * Der Verwaltungsmodul
 	 */
@@ -101,14 +100,15 @@ implements ClientSenderInterface {
 	 */
 	private static int ausgabeIndex = 0;
 	/**
-	 * Im testfaellen wird der Verzoegerungsintervall fuer
-	 * Abtrocknungsphasen verkuertzt
+	 * Im testfaellen wird der Verzoegerungsintervall fuer Abtrocknungsphasen
+	 * verkuertzt
 	 */
 	private final long ABTR_INTERVALL = 1;
 	/**
 	 * Sensore die die Testdaten liefern
 	 */
-	private static SystemObject fbofZustandSensor, naSensor, wfdSensor, niSensor;
+	private static SystemObject fbofZustandSensor, naSensor, wfdSensor,
+			niSensor;
 	/**
 	 * Datenbeschreibung der Daten die von Testsensoren geschickt werden
 	 */
@@ -122,56 +122,74 @@ implements ClientSenderInterface {
 	 */
 	private static final String TYP_UFDMS = "typ.umfeldDatenMessStelle";
 	private static final String ATG_UFDMS_AP = "atg.ufdmsAbtrockungsPhasen";
-	private static final String[] ATT_STUFE = new String [] { 
-		 "ZeitNass1Trocken", "ZeitNass4Nass3", "ZeitNass3Nass2", "ZeitNass2Nass1"
-	};
+	private static final String[] ATT_STUFE = new String[] {
+			"ZeitNass1Trocken", "ZeitNass4Nass3", "ZeitNass3Nass2",
+			"ZeitNass2Nass1" };
 
 	/**
-	 * Zustaende 
+	 * Zustaende
 	 */
 	private final int FBOF_TROCKEN = 0;
 	private final int FBOF_EIS = 66;
 	private final int NART_KEIN = 0;
 	private final int NART_SCHNEE = 73;
-	
+
 	/**
 	 * Parametriert die Verzoegerung bei der Abtrocknungphasen
-	 * 
-	 * @param dav Verbindung zum Datenverteiler
-	 * @param konfBereiche konfigurationsbereiche in denen alle Objekte parametriert werden sollen
+	 *
+	 * @param dav
+	 *            Verbindung zum Datenverteiler
+	 * @param konfBereiche
+	 *            konfigurationsbereiche in denen alle Objekte parametriert
+	 *            werden sollen
 	 */
-	public static void ParametriereUfds(ClientDavInterface dav, Collection<ConfigurationArea> konfBereiche) {
+	public static void ParametriereUfds(final ClientDavInterface dav,
+			final Collection<ConfigurationArea> konfBereiche) {
 		try {
-			
-			NaesseStufeTest.dav = dav;
-			NaesseStufeTest param = new NaesseStufeTest();
-			
-			DD_ABTROCKNUNG_PHASEN = new DataDescription(
-					dav.getDataModel().getAttributeGroup(ATG_UFDMS_AP),
-					dav.getDataModel().getAspect(ASP_PARAM_VORGABE));
 
-			Collection<SystemObjectType> sotMenge = new LinkedList<SystemObjectType>();
-			sotMenge.add(dav.getDataModel().getType(TYP_UFDMS));
-			
-			Collection<SystemObject> ufdsObjekte = dav.getDataModel().getObjects(konfBereiche, sotMenge, ObjectTimeSpecification.valid());
-			
-			if(ufdsObjekte == null) {
-				Debug.getLogger().error("Kein Objekt vom " + TYP_UFDMS + " in den KonfigurationsBeriechen :" + konfBereiche);
+			NaesseStufeTest.dav = dav;
+			final NaesseStufeTest param = new NaesseStufeTest();
+
+			NaesseStufeTest.DD_ABTROCKNUNG_PHASEN = new DataDescription(dav
+					.getDataModel().getAttributeGroup(
+							NaesseStufeTest.ATG_UFDMS_AP), dav.getDataModel()
+					.getAspect(NaesseStufeTest.ASP_PARAM_VORGABE));
+
+			final Collection<SystemObjectType> sotMenge = new LinkedList<SystemObjectType>();
+			sotMenge.add(dav.getDataModel().getType(NaesseStufeTest.TYP_UFDMS));
+
+			final Collection<SystemObject> ufdsObjekte = dav.getDataModel()
+					.getObjects(konfBereiche, sotMenge,
+							ObjectTimeSpecification.valid());
+
+			if (ufdsObjekte == null) {
+				LOGGER.error(
+						"Kein Objekt vom " + NaesseStufeTest.TYP_UFDMS
+								+ " in den KonfigurationsBeriechen :"
+								+ konfBereiche);
 				System.exit(-1);
 			}
-			
+
 			try {
-				dav.subscribeSender(param, ufdsObjekte, DD_ABTROCKNUNG_PHASEN, SenderRole.sender());
-			} catch (Exception e) {
-				Debug.getLogger().error("Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ " + TYP_UFDMS + ":" + e.getMessage());
+				dav.subscribeSender(param, ufdsObjekte,
+						NaesseStufeTest.DD_ABTROCKNUNG_PHASEN,
+						SenderRole.sender());
+			} catch (final Exception e) {
+				LOGGER.error(
+						"Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ "
+								+ NaesseStufeTest.TYP_UFDMS + ":"
+								+ e.getMessage());
 				e.printStackTrace();
 			}
 			Thread.sleep(100);
-			
-			dav.unsubscribeSender(param, ufdsObjekte, DD_ABTROCKNUNG_PHASEN);
 
-		} catch (Exception e) {
-			Debug.getLogger().error("Fehler bei Parametrierung der NaesseStufe Abtrocknungphasen: " + e.getMessage());
+			dav.unsubscribeSender(param, ufdsObjekte,
+					NaesseStufeTest.DD_ABTROCKNUNG_PHASEN);
+
+		} catch (final Exception e) {
+			LOGGER.error(
+					"Fehler bei Parametrierung der NaesseStufe Abtrocknungphasen: "
+							+ e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -179,206 +197,302 @@ implements ClientSenderInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void dataRequest(SystemObject object,
-			DataDescription dataDescription, byte state) {
-		if(dataDescription.getAttributeGroup().getPid().equals(ATG_UFDMS_AP) 
-				&& state == START_SENDING ) {
-			
-			Data datei = dav.createData(dav.getDataModel().getAttributeGroup(ATG_UFDMS_AP));
-			
-			for(int i =0; i< ATT_STUFE.length; i++) {
-				datei.getTimeValue(ATT_STUFE[i]).setSeconds(abtrocknungPhasen[i]);
+	@Override
+	public void dataRequest(final SystemObject object,
+			final DataDescription dataDescription, final byte state) {
+		if (dataDescription.getAttributeGroup().getPid()
+				.equals(NaesseStufeTest.ATG_UFDMS_AP)
+				&& (state == ClientSenderInterface.START_SENDING)) {
+
+			final Data datei = NaesseStufeTest.dav
+					.createData(NaesseStufeTest.dav.getDataModel()
+							.getAttributeGroup(NaesseStufeTest.ATG_UFDMS_AP));
+
+			for (int i = 0; i < NaesseStufeTest.ATT_STUFE.length; i++) {
+				datei.getTimeValue(NaesseStufeTest.ATT_STUFE[i]).setSeconds(
+						NaesseStufeTest.abtrocknungPhasen[i]);
 			}
-			
-			ResultData resDatei = new ResultData(object, DD_ABTROCKNUNG_PHASEN, System.currentTimeMillis(), datei);
-			
+
+			final ResultData resDatei = new ResultData(object,
+					NaesseStufeTest.DD_ABTROCKNUNG_PHASEN,
+					System.currentTimeMillis(), datei);
+
 			try {
-				dav.sendData(resDatei);
-				System.out.println("Objekt " + object.getPid() + " Atg: " + ATG_UFDMS_AP + " parametriert ");
-			} catch (Exception e) {
-				Debug.getLogger().error("Fehler bei Sendung von Daten für Klassifizierung Niederschlaginetnsitaet des Objektes :" + object.getPid() + "\n Fehler:"+ e.getMessage());
+				NaesseStufeTest.dav.sendData(resDatei);
+				System.out.println("Objekt " + object.getPid() + " Atg: "
+						+ NaesseStufeTest.ATG_UFDMS_AP + " parametriert ");
+			} catch (final Exception e) {
+				LOGGER
+						.error("Fehler bei Sendung von Daten für Klassifizierung Niederschlaginetnsitaet des Objektes :"
+								+ object.getPid()
+								+ "\n Fehler:"
+								+ e.getMessage());
 				e.printStackTrace();
 			}
 		}
-		
+
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean isRequestSupported(SystemObject object,
-			DataDescription dataDescription) {
+	@Override
+	public boolean isRequestSupported(final SystemObject object,
+			final DataDescription dataDescription) {
 		return false;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override 
-	public void initialisiere(IVerwaltung verwaltung)
-	throws DUAInitialisierungsException {
+	@Override
+	public void initialisiere(final IVerwaltung verwaltung)
+			throws DUAInitialisierungsException {
 		super.initialisiere(verwaltung);
-		
-		
-		dav = verwaltung.getVerbindung();
-		
-		for(SystemObject so : getNaSensoren())
-			if(so != null) {
-				naSensor = so;
+
+		NaesseStufeTest.dav = verwaltung.getVerbindung();
+
+		for (final SystemObject so : getNaSensoren()) {
+			if (so != null) {
+				NaesseStufeTest.naSensor = so;
 				break;
 			}
-		
-		for(SystemObject so :getFbofZustandSensoren())
-			if(so != null) {
-				fbofZustandSensor = so;
+		}
+
+		for (final SystemObject so : getFbofZustandSensoren()) {
+			if (so != null) {
+				NaesseStufeTest.fbofZustandSensor = so;
 				break;
 			}
-		
-		for(SystemObject so : niSensoren)
-			if(so != null) {
-				niSensor = so;
+		}
+
+		for (final SystemObject so : niSensoren) {
+			if (so != null) {
+				NaesseStufeTest.niSensor = so;
 				break;
 			}
-		for(SystemObject so : wfdSensoren)
-			if(so != null) {
-				wfdSensor = so;
+		}
+		for (final SystemObject so : wfdSensoren) {
+			if (so != null) {
+				NaesseStufeTest.wfdSensor = so;
 				break;
 			}
+		}
 		try {
 			ResultData resultate;
-			DD_FBOF_ZUSTAND = new DataDescription(dav.getDataModel().getAttributeGroup(ATG_UFDS_FBOFZS),
-					dav.getDataModel().getAspect(ASP_MESSWERTERSETZUNG));
-			resultate = new ResultData(fbofZustandSensor, DD_FBOF_ZUSTAND, System.currentTimeMillis(), null);
-			dav.subscribeSource(this, resultate);
-			
-			DD_NIE_ART = new DataDescription(dav.getDataModel().getAttributeGroup(ATG_UFDS_NA),
-					dav.getDataModel().getAspect(ASP_MESSWERTERSETZUNG));
-			resultate = new ResultData(naSensor, DD_NIE_ART, System.currentTimeMillis(), null);
-			dav.subscribeSource(this, resultate);
-				
-		} catch (Exception e) {
+			NaesseStufeTest.DD_FBOF_ZUSTAND = new DataDescription(
+					NaesseStufeTest.dav.getDataModel().getAttributeGroup(
+							NaesseStufe.ATG_UFDS_FBOFZS), NaesseStufeTest.dav
+							.getDataModel().getAspect(
+									NaesseStufe.ASP_MESSWERTERSETZUNG));
+			resultate = new ResultData(NaesseStufeTest.fbofZustandSensor,
+					NaesseStufeTest.DD_FBOF_ZUSTAND,
+					System.currentTimeMillis(), null);
+			NaesseStufeTest.dav.subscribeSource(this, resultate);
+
+			NaesseStufeTest.DD_NIE_ART = new DataDescription(
+					NaesseStufeTest.dav.getDataModel().getAttributeGroup(
+							NaesseStufe.ATG_UFDS_NA), NaesseStufeTest.dav
+							.getDataModel().getAspect(
+									NaesseStufe.ASP_MESSWERTERSETZUNG));
+			resultate = new ResultData(NaesseStufeTest.naSensor,
+					NaesseStufeTest.DD_NIE_ART, System.currentTimeMillis(),
+					null);
+			NaesseStufeTest.dav.subscribeSource(this, resultate);
+
+		} catch (final Exception e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override 
-	public void update(ResultData[] results) {
-		for(ResultData resData : results) {
-			DataDescription dataDescription = resData.getDataDescription();
-			Data daten = resData.getData();
-			if(daten == null) continue;
-			SystemObject objekt = resData.getObject();
-			MessStelleDaten messStelleDaten = this.naesseTabelle.get(objekt);
-			
-			if(messStelleDaten == null) {
-				Debug.getLogger().warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
-				return;
-			}
-			
-			if(dataDescription.getAttributeGroup().getPid().equals(ATG_UFDMS_AP)) {
-				for(int i=0; i< ATT_STUFE.length; i++)
-					messStelleDaten.abtrocknungsPhasen[i] = ABTR_INTERVALL; // Im Testfaellen ist keine Verzoegerung (10 ms)
-				messStelleDaten.initialisiert = true;
-			}
-		}
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void publiziereNsStufe(MessStelleDaten msDaten, boolean keineDaten) {
-		super.publiziereNsStufe(msDaten,keineDaten);
-		if(keineDaten) return;
-		// d.H. es laeuft gerade ein test von anderer Klasse die NiStufe daten benoetigt
-		if(ausgabe == null) return;
-		
-		Assert.assertEquals("Werte nicht gleich soll:" + ausgabe[ausgabeIndex].ordinal() + " ist:" + msDaten.nsStufe.ordinal() + " index " + ausgabeIndex, ausgabe[ausgabeIndex].ordinal(), msDaten.nsStufe.ordinal());
-		Assert.assertEquals(ausgabeZeitStempel[ausgabeIndex], msDaten.nsStufeZeitStempel);
-		System.out.println(String.format("[ %4d ] NS Stufe OK: %-10s == %-10s", ausgabeIndex, ausgabe[ausgabeIndex],  msDaten.nsStufe));
-		ausgabeIndex++;
-		warten = false;
+	public void update(final ResultData[] results) {
+		for (final ResultData resData : results) {
+			final DataDescription dataDescription = resData
+					.getDataDescription();
+			final Data daten = resData.getData();
+			if (daten == null) {
+				continue;
+			}
+			final SystemObject objekt = resData.getObject();
+			final MessStelleDaten messStelleDaten = this.naesseTabelle
+					.get(objekt);
+
+			if (messStelleDaten == null) {
+				LOGGER.warning(
+						"Objekt " + objekt
+								+ " in der Hashtabelle nicht gefunden");
+				return;
+			}
+
+			if (dataDescription.getAttributeGroup().getPid()
+					.equals(NaesseStufeTest.ATG_UFDMS_AP)) {
+				for (int i = 0; i < NaesseStufeTest.ATT_STUFE.length; i++) {
+					messStelleDaten.abtrocknungsPhasen[i] = ABTR_INTERVALL; // Im
+																			// Testfaellen
+																			// ist
+																			// keine
+																			// Verzoegerung
+																			// (10
+																			// ms)
+				}
+				messStelleDaten.initialisiert = true;
+			}
+		}
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void publiziereNsStufe(final MessStelleDaten msDaten,
+			final boolean keineDaten) {
+		super.publiziereNsStufe(msDaten, keineDaten);
+		if (keineDaten) {
+			return;
+		}
+		// d.H. es laeuft gerade ein test von anderer Klasse die NiStufe daten
+		// benoetigt
+		if (NaesseStufeTest.ausgabe == null) {
+			return;
+		}
+
+		Assert.assertEquals(
+				"Werte nicht gleich soll:"
+						+ NaesseStufeTest.ausgabe[NaesseStufeTest.ausgabeIndex]
+								.ordinal() + " ist:"
+						+ msDaten.nsStufe.ordinal() + " index "
+						+ NaesseStufeTest.ausgabeIndex,
+				NaesseStufeTest.ausgabe[NaesseStufeTest.ausgabeIndex].ordinal(),
+				msDaten.nsStufe.ordinal());
+		Assert.assertEquals(
+				NaesseStufeTest.ausgabeZeitStempel[NaesseStufeTest.ausgabeIndex],
+				msDaten.nsStufeZeitStempel);
+		System.out.println(String.format("[ %4d ] NS Stufe OK: %-10s == %-10s",
+				NaesseStufeTest.ausgabeIndex,
+				NaesseStufeTest.ausgabe[NaesseStufeTest.ausgabeIndex],
+				msDaten.nsStufe));
+		NaesseStufeTest.ausgabeIndex++;
+		NaesseStufeTest.warten = false;
+	}
+
 	/**
 	 * Sendet einen DS mit Wasserfilmdickestufe
-
-	 * @param objekt Der Sensor
-	 * @param stufe Die Stufe
-	 * @param zeitStempel Der ZeitStempels 
+	 * 
+	 * @param objekt
+	 *            Der Sensor
+	 * @param stufe
+	 *            Die Stufe
+	 * @param zeitStempel
+	 *            Der ZeitStempels
 	 */
-	private void sendeWfdStufe(SystemObject objekt, WFD_Stufe stufe, long zeitStempel) {		
-		int intStufe = WasserFilmDickeStufe.getStufe(stufe);
-		hauptModul.getWfdKnotne().SendeStufe(objekt, intStufe, zeitStempel, false);
+	private void sendeWfdStufe(final SystemObject objekt,
+			final WFD_Stufe stufe, final long zeitStempel) {
+		final int intStufe = WasserFilmDickeStufe.getStufe(stufe);
+		NaesseStufeTest.hauptModul.getWfdKnotne().SendeStufe(objekt, intStufe,
+				zeitStempel, false);
 	}
 
 	/**
 	 * Sendet einen DS mit Niederschlagintensitaetstufe
-	 * @param objekt Der Sensor
-	 * @param stufe Die Stufe
-	 * @param zeitStempel Der ZeitStempels 
+	 * 
+	 * @param objekt
+	 *            Der Sensor
+	 * @param stufe
+	 *            Die Stufe
+	 * @param zeitStempel
+	 *            Der ZeitStempels
 	 */
-	private void sendeNiStufe(SystemObject objekt, NI_Stufe stufe, long zeitStempel) {
-		int intStufe = NiederschlagIntensitaetStufe.getStufe(stufe);
-		hauptModul.getNiKnoten().SendeStufe(objekt, intStufe, zeitStempel, false);
+	private void sendeNiStufe(final SystemObject objekt, final NI_Stufe stufe,
+			final long zeitStempel) {
+		final int intStufe = NiederschlagIntensitaetStufe.getStufe(stufe);
+		NaesseStufeTest.hauptModul.getNiKnoten().SendeStufe(objekt, intStufe,
+				zeitStempel, false);
 	}
-	
+
 	/**
 	 * Sendet einen DS mit Fahrbahnoberflaechezustand
-	 * @param objekt Der Sensor
-	 * @param stufe Die Stufe
-	 * @param zeitStempel Der ZeitStempels 
+	 * 
+	 * @param objekt
+	 *            Der Sensor
+	 * @param stufe
+	 *            Die Stufe
+	 * @param zeitStempel
+	 *            Der ZeitStempels
 	 */
-	private  static void sendeFbofZustand(SystemObject objekt, int stufe, long zeitStempel) {
-		sendeZustand(objekt,  "FahrBahnOberFlächenZustand" , DD_FBOF_ZUSTAND, stufe, zeitStempel);
+	private static void sendeFbofZustand(final SystemObject objekt,
+			final int stufe, final long zeitStempel) {
+		NaesseStufeTest.sendeZustand(objekt, "FahrBahnOberFlächenZustand",
+				NaesseStufeTest.DD_FBOF_ZUSTAND, stufe, zeitStempel);
 	}
 
 	/**
 	 * Sendet einen DS mit Niederschlagsart
-	 * @param objekt Der Sensor
-	 * @param stufe Die Stufe
-	 * @param zeitStempel Der ZeitStempels 
+	 * 
+	 * @param objekt
+	 *            Der Sensor
+	 * @param stufe
+	 *            Die Stufe
+	 * @param zeitStempel
+	 *            Der ZeitStempels
 	 */
-	private static void sendeNiederschlagsArt(SystemObject objekt, int stufe, long zeitStempel) {
-		sendeZustand(objekt,  "NiederschlagsArt" , DD_NIE_ART, stufe, zeitStempel);
+	private static void sendeNiederschlagsArt(final SystemObject objekt,
+			final int stufe, final long zeitStempel) {
+		NaesseStufeTest.sendeZustand(objekt, "NiederschlagsArt",
+				NaesseStufeTest.DD_NIE_ART, stufe, zeitStempel);
 	}
-	
+
 	/**
-	 *	Sendet einen allgemeinen DS mit  Zustand (int) Wert 
-	 * @param objekt SystemObjekt
-	 * @param attribut Attributname
-	 * @param datenBeschreibung Datenbeschreibung
-	 * @param wert Wert
-	 * @param zeitStempel Zeitstempel
+	 * Sendet einen allgemeinen DS mit Zustand (int) Wert
+	 * 
+	 * @param objekt
+	 *            SystemObjekt
+	 * @param attribut
+	 *            Attributname
+	 * @param datenBeschreibung
+	 *            Datenbeschreibung
+	 * @param wert
+	 *            Wert
+	 * @param zeitStempel
+	 *            Zeitstempel
 	 */
-	private static void sendeZustand(SystemObject objekt, String attribut, DataDescription datenBeschreibung, int wert, long zeitStempel) {
-		Data data = dav.createData(datenBeschreibung.getAttributeGroup());
+	private static void sendeZustand(final SystemObject objekt,
+			final String attribut, final DataDescription datenBeschreibung,
+			final int wert, final long zeitStempel) {
+		final Data data = NaesseStufeTest.dav.createData(datenBeschreibung
+				.getAttributeGroup());
 		final String att = attribut;
-		
+
 		data.getTimeValue("T").setMillis(0);
 		data.getItem(att).getUnscaledValue("Wert").set(wert);
-	
-		data.getItem(att).getItem("Status").getItem("Erfassung").getUnscaledValue("NichtErfasst").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMax").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);	
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").set(0);
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
+
+		data.getItem(att).getItem("Status").getItem("Erfassung")
+				.getUnscaledValue("NichtErfasst").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal")
+				.getUnscaledValue("WertMax").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal")
+				.getUnscaledValue("WertMin").set(0);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung")
+				.getUnscaledValue("Implausibel").set(0);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung")
+				.getUnscaledValue("Interpoliert").set(0);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
-		
-		ResultData result = new ResultData(objekt, datenBeschreibung, zeitStempel, data);
-		try { 
-			dav.sendData(result);
-		} catch (Exception e) {
+
+		final ResultData result = new ResultData(objekt, datenBeschreibung,
+				zeitStempel, data);
+		try {
+			NaesseStufeTest.dav.sendData(result);
+		} catch (final Exception e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Konstanten, die als Abkuerzungen benutzt werden
 	 */
@@ -388,20 +502,20 @@ implements ClientSenderInterface {
 	private final NI_Stufe NI3 = NI_Stufe.NI_STUFE3;
 	private final NI_Stufe NI4 = NI_Stufe.NI_STUFE4;
 	private final NI_Stufe NINV = NI_Stufe.NI_WERT_NV;
-	
+
 	private final WFD_Stufe WFD0 = WFD_Stufe.WFD_STUFE0;
 	private final WFD_Stufe WFD1 = WFD_Stufe.WFD_STUFE1;
 	private final WFD_Stufe WFD2 = WFD_Stufe.WFD_STUFE2;
 	private final WFD_Stufe WFD3 = WFD_Stufe.WFD_STUFE3;
 	private final WFD_Stufe WFDNV = WFD_Stufe.WFD_WERT_NV;
-	
+
 	private final NS_Stufe NS0 = NS_Stufe.NS_TROCKEN;
 	private final NS_Stufe NS1 = NS_Stufe.NS_NASS1;
 	private final NS_Stufe NS2 = NS_Stufe.NS_NASS2;
 	private final NS_Stufe NS3 = NS_Stufe.NS_NASS3;
 	private final NS_Stufe NS4 = NS_Stufe.NS_NASS4;
 	private final NS_Stufe NSNV = NS_Stufe.NS_WERT_NE;
-	
+
 	/**
 	 * Testfall 1 - geht durch die ganze Tabelle
 	 */
@@ -409,71 +523,85 @@ implements ClientSenderInterface {
 	public void testGanzeTablle() {
 		final long SLEEP = 100;
 		final int N = 50;
-	
-		ausgabe = new NS_Stufe[50];
-		NS_Stufe[] tabelle = new NS_Stufe []  { NS0, NS0, NS1, NS2, NS2, NS0, 
-								   				 NS1, NS1, NS2, NS3, NS4, NS1,
-								   				 NS2, NS2, NS2, NS3, NS4, NS2,
-								   				 NS2, NS2, NS3, NS3, NS4, NS3,
-								   				 NS0, NS1, NS2, NS3, NS4, NSNV };
-		ausgabeZeitStempel = new long[N];
 
-		
-		final NI_Stufe[] niStufe = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4, NINV };
-		final WFD_Stufe[] wfdStufe = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
-		
-		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
-		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+		NaesseStufeTest.ausgabe = new NS_Stufe[50];
+		final NS_Stufe[] tabelle = new NS_Stufe[] { NS0, NS0, NS1, NS2, NS2,
+				NS0, NS1, NS1, NS2, NS3, NS4, NS1, NS2, NS2, NS2, NS3, NS4,
+				NS2, NS2, NS2, NS3, NS3, NS4, NS3, NS0, NS1, NS2, NS3, NS4,
+				NSNV };
+		NaesseStufeTest.ausgabeZeitStempel = new long[N];
+
+		final NI_Stufe[] niStufe = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4,
+				NINV };
+		final WFD_Stufe[] wfdStufe = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3,
+				WFDNV };
+
+		NaesseStufeTest.hauptModul = new VerwaltungAufbereitungUFDTest();
+		final String[] connArgs = new String[DAVTest.CON_DATA.length];
+		for (int i = 0; i < DAVTest.CON_DATA.length; i++) {
 			connArgs[i] = DAVTest.CON_DATA[i];
-		StandardApplicationRunner.run(hauptModul, connArgs);
+		}
+		StandardApplicationRunner.run(NaesseStufeTest.hauptModul, connArgs);
 		try {
-			Thread.sleep(5*SLEEP);
-		} catch (Exception e) { 	}
-		
-		long zeitStempel = System.currentTimeMillis()- 120 * 60 * 1000;
-		long delta = 5 * 60 * 1000;
-		
-		int k=0, m=0;
-		int iNS1, iNS2;
-		ausgabeIndex = 0;
-		for(int i =0; i<5; i++) {
+			Thread.sleep(5 * SLEEP);
+		} catch (final Exception e) {
+		}
 
-			for(int j=0; j<6; j++) {
-				ausgabeZeitStempel[k] = zeitStempel;
-				ausgabe[k] = tabelle[m++];
-				if(k>0) {
-					iNS1 = getStufe(ausgabe[k]);
-					iNS2 = getStufe(ausgabe[k-1]);
-					if(wfdStufe[i] == WFDNV
-							&& ((iNS2 - iNS1)>1 && iNS1!=-1)) ausgabeZeitStempel[k] += ABTR_INTERVALL;
-					while((iNS2 - iNS1)>1 && iNS1!=-1) {
-						ausgabe[k+1] = ausgabe[k];
-						ausgabe[k] = getStufe(--iNS2);
-						ausgabeZeitStempel[k+1] = ausgabeZeitStempel[k] + ABTR_INTERVALL;
+		long zeitStempel = System.currentTimeMillis() - (120 * 60 * 1000);
+		final long delta = 5 * 60 * 1000;
+
+		int k = 0, m = 0;
+		int iNS1, iNS2;
+		NaesseStufeTest.ausgabeIndex = 0;
+		for (int i = 0; i < 5; i++) {
+
+			for (int j = 0; j < 6; j++) {
+				NaesseStufeTest.ausgabeZeitStempel[k] = zeitStempel;
+				NaesseStufeTest.ausgabe[k] = tabelle[m++];
+				if (k > 0) {
+					iNS1 = NaesseStufe.getStufe(NaesseStufeTest.ausgabe[k]);
+					iNS2 = NaesseStufe.getStufe(NaesseStufeTest.ausgabe[k - 1]);
+					if ((wfdStufe[i] == WFDNV)
+							&& (((iNS2 - iNS1) > 1) && (iNS1 != -1))) {
+						NaesseStufeTest.ausgabeZeitStempel[k] += ABTR_INTERVALL;
+					}
+					while (((iNS2 - iNS1) > 1) && (iNS1 != -1)) {
+						NaesseStufeTest.ausgabe[k + 1] = NaesseStufeTest.ausgabe[k];
+						NaesseStufeTest.ausgabe[k] = NaesseStufe
+								.getStufe(--iNS2);
+						NaesseStufeTest.ausgabeZeitStempel[k + 1] = NaesseStufeTest.ausgabeZeitStempel[k]
+								+ ABTR_INTERVALL;
 						k++;
 					}
 				}
-				warten = true;
-				sendeNiStufe(niSensor, niStufe[j], zeitStempel);
-				sendeWfdStufe(wfdSensor, wfdStufe[i], zeitStempel);
-				sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel);
-				sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
-				
+				NaesseStufeTest.warten = true;
+				sendeNiStufe(NaesseStufeTest.niSensor, niStufe[j], zeitStempel);
+				sendeWfdStufe(NaesseStufeTest.wfdSensor, wfdStufe[i],
+						zeitStempel);
+				NaesseStufeTest.sendeFbofZustand(
+						NaesseStufeTest.fbofZustandSensor, FBOF_TROCKEN,
+						zeitStempel);
+				NaesseStufeTest.sendeNiederschlagsArt(NaesseStufeTest.naSensor,
+						NART_KEIN, zeitStempel);
+
 				try {
 					Thread.sleep(SLEEP);
-				} catch (Exception e) { 	}
+				} catch (final Exception e) {
+				}
 				k++;
 				zeitStempel += delta;
 			}
-		}	
+		}
 		try {
-			while(warten) Thread.sleep(SLEEP);
-		} catch (Exception e) { }
-		hauptModul.disconnect();
-		hauptModul = null;
-		ausgabe = null;
-		
+			while (NaesseStufeTest.warten) {
+				Thread.sleep(SLEEP);
+			}
+		} catch (final Exception e) {
+		}
+		NaesseStufeTest.hauptModul.disconnect();
+		NaesseStufeTest.hauptModul = null;
+		NaesseStufeTest.ausgabe = null;
+
 	}
 
 	/**
@@ -483,85 +611,103 @@ implements ClientSenderInterface {
 	public void testFbofZustand() {
 		final long SLEEP = 100;
 		final int N = 50;
-		
-		ausgabe = new NS_Stufe[50];
-		NS_Stufe[] tabelle = new NS_Stufe []  { NS0, NS0, NS1, NS2, NS2, NS0, 
-								   				 NS1, NS1, NS2, NS3, NS4, NS1,
-								   				 NS2, NS2, NS2, NS3, NS4, NS2,
-								   				 NS2, NS2, NS3, NS3, NS4, NS3,
-								   				 NS0, NS1, NS2, NS3, NS4, NS_Stufe.NS_WERT_NE };
-		ausgabeZeitStempel = new long[N];
 
-		
-		final NI_Stufe[] niStufe = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4, NINV };
-		final WFD_Stufe[] wfdStufe = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
-		
-		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
-		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+		NaesseStufeTest.ausgabe = new NS_Stufe[50];
+		final NS_Stufe[] tabelle = new NS_Stufe[] { NS0, NS0, NS1, NS2, NS2,
+				NS0, NS1, NS1, NS2, NS3, NS4, NS1, NS2, NS2, NS2, NS3, NS4,
+				NS2, NS2, NS2, NS3, NS3, NS4, NS3, NS0, NS1, NS2, NS3, NS4,
+				NS_Stufe.NS_WERT_NE };
+		NaesseStufeTest.ausgabeZeitStempel = new long[N];
+
+		final NI_Stufe[] niStufe = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4,
+				NINV };
+		final WFD_Stufe[] wfdStufe = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3,
+				WFDNV };
+
+		NaesseStufeTest.hauptModul = new VerwaltungAufbereitungUFDTest();
+		final String[] connArgs = new String[DAVTest.CON_DATA.length];
+		for (int i = 0; i < DAVTest.CON_DATA.length; i++) {
 			connArgs[i] = DAVTest.CON_DATA[i];
-		StandardApplicationRunner.run(hauptModul, connArgs);
+		}
+		StandardApplicationRunner.run(NaesseStufeTest.hauptModul, connArgs);
 		try {
-			Thread.sleep(5*SLEEP);
-		} catch (Exception e) { 	}
-		
-		long zeitStempel = System.currentTimeMillis()- 120 * 60 * 1000;
-		long delta = 5 * 60 * 1000;
-		
+			Thread.sleep(5 * SLEEP);
+		} catch (final Exception e) {
+		}
+
+		long zeitStempel = System.currentTimeMillis() - (120 * 60 * 1000);
+		final long delta = 5 * 60 * 1000;
+
 		try {
-			Thread.sleep(5*SLEEP);
-		} catch (Exception e) { 	}
-		
-		int k=0, m=0;
+			Thread.sleep(5 * SLEEP);
+		} catch (final Exception e) {
+		}
+
+		int k = 0, m = 0;
 		int iNS1, iNS2;
 		boolean unbestimmbar = false;
-		ausgabeIndex = 0;
-		for(int i =0; i<5; i++) {
+		NaesseStufeTest.ausgabeIndex = 0;
+		for (int i = 0; i < 5; i++) {
 
-			for(int j=0; j<6; j++) {
-				if((i+j)%5>0 && (i+j)%5<3) {
-					sendeFbofZustand(fbofZustandSensor, FBOF_EIS, zeitStempel);
+			for (int j = 0; j < 6; j++) {
+				if ((((i + j) % 5) > 0) && (((i + j) % 5) < 3)) {
+					NaesseStufeTest.sendeFbofZustand(
+							NaesseStufeTest.fbofZustandSensor, FBOF_EIS,
+							zeitStempel);
 					unbestimmbar = true;
-				}
-				else {
-					sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel);
+				} else {
+					NaesseStufeTest.sendeFbofZustand(
+							NaesseStufeTest.fbofZustandSensor, FBOF_TROCKEN,
+							zeitStempel);
 					unbestimmbar = false;
 				}
-			
-				ausgabeZeitStempel[k] = zeitStempel;
-				ausgabe[k] = tabelle[m++];
-				
-				if(unbestimmbar) ausgabe[k] = NS_Stufe.NS_WERT_NE;
-				if(k>0 && !unbestimmbar) {
-					iNS1 = getStufe(ausgabe[k]);
-					iNS2 = getStufe(ausgabe[k-1]);
-					if(wfdStufe[i] == WFDNV
-							&& ((iNS2 - iNS1)>1 && iNS1!=-1)) ausgabeZeitStempel[k] += ABTR_INTERVALL;
-					while((iNS2 - iNS1)>1 && iNS1!=-1) {
-						ausgabe[k+1] = ausgabe[k];
-						ausgabe[k] = getStufe(--iNS2);
-						ausgabeZeitStempel[k+1] = ausgabeZeitStempel[k] + ABTR_INTERVALL;
+
+				NaesseStufeTest.ausgabeZeitStempel[k] = zeitStempel;
+				NaesseStufeTest.ausgabe[k] = tabelle[m++];
+
+				if (unbestimmbar) {
+					NaesseStufeTest.ausgabe[k] = NS_Stufe.NS_WERT_NE;
+				}
+				if ((k > 0) && !unbestimmbar) {
+					iNS1 = NaesseStufe.getStufe(NaesseStufeTest.ausgabe[k]);
+					iNS2 = NaesseStufe.getStufe(NaesseStufeTest.ausgabe[k - 1]);
+					if ((wfdStufe[i] == WFDNV)
+							&& (((iNS2 - iNS1) > 1) && (iNS1 != -1))) {
+						NaesseStufeTest.ausgabeZeitStempel[k] += ABTR_INTERVALL;
+					}
+					while (((iNS2 - iNS1) > 1) && (iNS1 != -1)) {
+						NaesseStufeTest.ausgabe[k + 1] = NaesseStufeTest.ausgabe[k];
+						NaesseStufeTest.ausgabe[k] = NaesseStufe
+								.getStufe(--iNS2);
+						NaesseStufeTest.ausgabeZeitStempel[k + 1] = NaesseStufeTest.ausgabeZeitStempel[k]
+								+ ABTR_INTERVALL;
 						k++;
 					}
 				}
-				warten = true;
-				sendeNiStufe(niSensor, niStufe[j], zeitStempel);
-				sendeWfdStufe(wfdSensor, wfdStufe[i], zeitStempel);
-				sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
-				
+				NaesseStufeTest.warten = true;
+				sendeNiStufe(NaesseStufeTest.niSensor, niStufe[j], zeitStempel);
+				sendeWfdStufe(NaesseStufeTest.wfdSensor, wfdStufe[i],
+						zeitStempel);
+				NaesseStufeTest.sendeNiederschlagsArt(NaesseStufeTest.naSensor,
+						NART_KEIN, zeitStempel);
+
 				try {
 					Thread.sleep(SLEEP);
-				} catch (Exception e) { 	}
+				} catch (final Exception e) {
+				}
 				k++;
 				zeitStempel += delta;
 			}
 		}
 		try {
-			while(warten) Thread.sleep(5*SLEEP);
-		} catch (Exception e) { }
-		hauptModul.disconnect();
-		hauptModul = null;
-		ausgabe = null;
+			while (NaesseStufeTest.warten) {
+				Thread.sleep(5 * SLEEP);
+			}
+		} catch (final Exception e) {
+		}
+		NaesseStufeTest.hauptModul.disconnect();
+		NaesseStufeTest.hauptModul = null;
+		NaesseStufeTest.ausgabe = null;
 	}
 
 	/**
@@ -570,68 +716,82 @@ implements ClientSenderInterface {
 	@Test
 	public void testVerzoegerung() {
 		final long SLEEP = 100;
-		ausgabe = new NS_Stufe[] { NS4, NS3, NS3, NS2, NS2, NS4, NS3, NS2, NS1, NS0 } ;
-		ausgabeZeitStempel = new long[ausgabe.length];
+		NaesseStufeTest.ausgabe = new NS_Stufe[] { NS4, NS3, NS3, NS2, NS2,
+				NS4, NS3, NS2, NS1, NS0 };
+		NaesseStufeTest.ausgabeZeitStempel = new long[NaesseStufeTest.ausgabe.length];
 
 		final NI_Stufe[] niStufe = new NI_Stufe[] { NI4, NI3, NI2, NI1, NI0 };
-		
-		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
-		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+
+		NaesseStufeTest.hauptModul = new VerwaltungAufbereitungUFDTest();
+		final String[] connArgs = new String[DAVTest.CON_DATA.length];
+		for (int i = 0; i < DAVTest.CON_DATA.length; i++) {
 			connArgs[i] = DAVTest.CON_DATA[i];
-		StandardApplicationRunner.run(hauptModul, connArgs);
-		try {
-			Thread.sleep(5*SLEEP);
-		} catch (Exception e) { 	}
-		
-		long zeitStempel = System.currentTimeMillis()- 120 * 60 * 1000;
-		long delta = 5 * 60 * 1000;
-	
-		try {
-			Thread.sleep(5*SLEEP);
-		} catch (Exception e) { 	}
-		
-		ausgabeIndex = 0;
-		
-		for(int i =0; i<5; i++) {
-			ausgabeZeitStempel[i] = zeitStempel;
-			warten = true;	
-			sendeNiStufe(niSensor, niStufe[i], zeitStempel);
-			sendeWfdStufe(wfdSensor, WFD3, zeitStempel);
-			sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel);
-			sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
-			
-			try {
-				Thread.sleep(SLEEP);
-			} catch (Exception e) { 	}
-			zeitStempel += delta;			
 		}
-		
-		for(int i =5; i<10; i++) {
-			ausgabeZeitStempel[i] = zeitStempel;
-			if(i>5) ausgabeZeitStempel[i] += ABTR_INTERVALL;
-			warten = true;	
-			sendeNiStufe(niSensor, niStufe[i-5], zeitStempel);
-			sendeWfdStufe(wfdSensor, WFDNV, zeitStempel);
-			sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel);
-			sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
-			
+		StandardApplicationRunner.run(NaesseStufeTest.hauptModul, connArgs);
+		try {
+			Thread.sleep(5 * SLEEP);
+		} catch (final Exception e) {
+		}
+
+		long zeitStempel = System.currentTimeMillis() - (120 * 60 * 1000);
+		final long delta = 5 * 60 * 1000;
+
+		try {
+			Thread.sleep(5 * SLEEP);
+		} catch (final Exception e) {
+		}
+
+		NaesseStufeTest.ausgabeIndex = 0;
+
+		for (int i = 0; i < 5; i++) {
+			NaesseStufeTest.ausgabeZeitStempel[i] = zeitStempel;
+			NaesseStufeTest.warten = true;
+			sendeNiStufe(NaesseStufeTest.niSensor, niStufe[i], zeitStempel);
+			sendeWfdStufe(NaesseStufeTest.wfdSensor, WFD3, zeitStempel);
+			NaesseStufeTest.sendeFbofZustand(NaesseStufeTest.fbofZustandSensor,
+					FBOF_TROCKEN, zeitStempel);
+			NaesseStufeTest.sendeNiederschlagsArt(NaesseStufeTest.naSensor,
+					NART_KEIN, zeitStempel);
+
 			try {
 				Thread.sleep(SLEEP);
-			} catch (Exception e) { 	}
+			} catch (final Exception e) {
+			}
 			zeitStempel += delta;
-			
 		}
-	
-		
+
+		for (int i = 5; i < 10; i++) {
+			NaesseStufeTest.ausgabeZeitStempel[i] = zeitStempel;
+			if (i > 5) {
+				NaesseStufeTest.ausgabeZeitStempel[i] += ABTR_INTERVALL;
+			}
+			NaesseStufeTest.warten = true;
+			sendeNiStufe(NaesseStufeTest.niSensor, niStufe[i - 5], zeitStempel);
+			sendeWfdStufe(NaesseStufeTest.wfdSensor, WFDNV, zeitStempel);
+			NaesseStufeTest.sendeFbofZustand(NaesseStufeTest.fbofZustandSensor,
+					FBOF_TROCKEN, zeitStempel);
+			NaesseStufeTest.sendeNiederschlagsArt(NaesseStufeTest.naSensor,
+					NART_KEIN, zeitStempel);
+
+			try {
+				Thread.sleep(SLEEP);
+			} catch (final Exception e) {
+			}
+			zeitStempel += delta;
+
+		}
+
 		try {
-			while(warten) Thread.sleep(5*SLEEP);
-		} catch (Exception e) { }
-		hauptModul.disconnect();
-		hauptModul = null;
-		ausgabe = null;
+			while (NaesseStufeTest.warten) {
+				Thread.sleep(5 * SLEEP);
+			}
+		} catch (final Exception e) {
+		}
+		NaesseStufeTest.hauptModul.disconnect();
+		NaesseStufeTest.hauptModul = null;
+		NaesseStufeTest.ausgabe = null;
 	}
-	
+
 	/**
 	 * Testfall 4 - wie Test 1 nur die Niederschlagsart sich aendert
 	 */
@@ -639,91 +799,107 @@ implements ClientSenderInterface {
 	public void testNieArt() {
 		final long SLEEP = 100;
 		final int N = 50;
-		
-		ausgabe = new NS_Stufe[50];
-		NS_Stufe[] tabelle = new NS_Stufe []  { NS0, NS0, NS1, NS2, NS2, NS0, 
-								   				 NS1, NS1, NS2, NS3, NS4, NS1,
-								   				 NS2, NS2, NS2, NS3, NS4, NS2,
-								   				 NS2, NS2, NS3, NS3, NS4, NS3,
-								   				 NS0, NS1, NS2, NS3, NS4, NS_Stufe.NS_WERT_NE };
-		ausgabeZeitStempel = new long[N];
 
-		
-		final NI_Stufe[] niStufe = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4, NINV };
-		final WFD_Stufe[] wfdStufe = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
-		
-		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
-		for(int i=0; i<DAVTest.CON_DATA.length; i++)
+		NaesseStufeTest.ausgabe = new NS_Stufe[50];
+		final NS_Stufe[] tabelle = new NS_Stufe[] { NS0, NS0, NS1, NS2, NS2,
+				NS0, NS1, NS1, NS2, NS3, NS4, NS1, NS2, NS2, NS2, NS3, NS4,
+				NS2, NS2, NS2, NS3, NS3, NS4, NS3, NS0, NS1, NS2, NS3, NS4,
+				NS_Stufe.NS_WERT_NE };
+		NaesseStufeTest.ausgabeZeitStempel = new long[N];
+
+		final NI_Stufe[] niStufe = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4,
+				NINV };
+		final WFD_Stufe[] wfdStufe = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3,
+				WFDNV };
+
+		NaesseStufeTest.hauptModul = new VerwaltungAufbereitungUFDTest();
+		final String[] connArgs = new String[DAVTest.CON_DATA.length];
+		for (int i = 0; i < DAVTest.CON_DATA.length; i++) {
 			connArgs[i] = DAVTest.CON_DATA[i];
-		StandardApplicationRunner.run(hauptModul, connArgs);
+		}
+		StandardApplicationRunner.run(NaesseStufeTest.hauptModul, connArgs);
 		try {
-			Thread.sleep(5*SLEEP);
-		} catch (Exception e) { 	}
-		
-		long zeitStempel = System.currentTimeMillis()- 120 * 60 * 1000;
-		long delta = 5 * 60 * 1000;
+			Thread.sleep(5 * SLEEP);
+		} catch (final Exception e) {
+		}
+
+		long zeitStempel = System.currentTimeMillis() - (120 * 60 * 1000);
+		final long delta = 5 * 60 * 1000;
 
 		try {
-			Thread.sleep(5*SLEEP);
-		} catch (Exception e) { 	}
-		
-		int k=0, m=0;
+			Thread.sleep(5 * SLEEP);
+		} catch (final Exception e) {
+		}
+
+		int k = 0, m = 0;
 		int iNS1, iNS2;
 		boolean unbestimmbar = false;
-		ausgabeIndex = 0;
-		for(int i =0; i<5; i++) {
+		NaesseStufeTest.ausgabeIndex = 0;
+		for (int i = 0; i < 5; i++) {
 
-			for(int j=0; j<6; j++) {
-				if((i+j)%5>0 && (i+j)%5<3) {
-					sendeNiederschlagsArt(naSensor, NART_SCHNEE, zeitStempel);
+			for (int j = 0; j < 6; j++) {
+				if ((((i + j) % 5) > 0) && (((i + j) % 5) < 3)) {
+					NaesseStufeTest.sendeNiederschlagsArt(
+							NaesseStufeTest.naSensor, NART_SCHNEE, zeitStempel);
 					unbestimmbar = true;
-				}
-				else  {
-					sendeNiederschlagsArt(naSensor, NART_KEIN, zeitStempel);
+				} else {
+					NaesseStufeTest.sendeNiederschlagsArt(
+							NaesseStufeTest.naSensor, NART_KEIN, zeitStempel);
 					unbestimmbar = false;
 				}
-				
-				ausgabeZeitStempel[k] = zeitStempel;
-				ausgabe[k] = tabelle[m++];
-				
-				if(unbestimmbar) ausgabe[k] = NS_Stufe.NS_WERT_NE;
-				if(k>0 && !unbestimmbar) {
-					iNS1 = getStufe(ausgabe[k]);
-					iNS2 = getStufe(ausgabe[k-1]);
-					if(wfdStufe[i] == WFDNV
-							&& ((iNS2 - iNS1)>1 && iNS1!=-1)) ausgabeZeitStempel[k] += ABTR_INTERVALL;
-					while((iNS2 - iNS1)>1 && iNS1!=-1) {
-						ausgabe[k+1] = ausgabe[k];
-						ausgabe[k] = getStufe(--iNS2);
-						ausgabeZeitStempel[k+1] = ausgabeZeitStempel[k] + ABTR_INTERVALL;
+
+				NaesseStufeTest.ausgabeZeitStempel[k] = zeitStempel;
+				NaesseStufeTest.ausgabe[k] = tabelle[m++];
+
+				if (unbestimmbar) {
+					NaesseStufeTest.ausgabe[k] = NS_Stufe.NS_WERT_NE;
+				}
+				if ((k > 0) && !unbestimmbar) {
+					iNS1 = NaesseStufe.getStufe(NaesseStufeTest.ausgabe[k]);
+					iNS2 = NaesseStufe.getStufe(NaesseStufeTest.ausgabe[k - 1]);
+					if ((wfdStufe[i] == WFDNV)
+							&& (((iNS2 - iNS1) > 1) && (iNS1 != -1))) {
+						NaesseStufeTest.ausgabeZeitStempel[k] += ABTR_INTERVALL;
+					}
+					while (((iNS2 - iNS1) > 1) && (iNS1 != -1)) {
+						NaesseStufeTest.ausgabe[k + 1] = NaesseStufeTest.ausgabe[k];
+						NaesseStufeTest.ausgabe[k] = NaesseStufe
+								.getStufe(--iNS2);
+						NaesseStufeTest.ausgabeZeitStempel[k + 1] = NaesseStufeTest.ausgabeZeitStempel[k]
+								+ ABTR_INTERVALL;
 						k++;
 					}
 				}
-				warten = true;
-				sendeNiStufe(niSensor, niStufe[j], zeitStempel);
-				sendeWfdStufe(wfdSensor, wfdStufe[i], zeitStempel);
-				sendeFbofZustand(fbofZustandSensor, FBOF_TROCKEN, zeitStempel);
-				
+				NaesseStufeTest.warten = true;
+				sendeNiStufe(NaesseStufeTest.niSensor, niStufe[j], zeitStempel);
+				sendeWfdStufe(NaesseStufeTest.wfdSensor, wfdStufe[i],
+						zeitStempel);
+				NaesseStufeTest.sendeFbofZustand(
+						NaesseStufeTest.fbofZustandSensor, FBOF_TROCKEN,
+						zeitStempel);
+
 				try {
 					Thread.sleep(SLEEP);
-				} catch (Exception e) { 	}
+				} catch (final Exception e) {
+				}
 				k++;
 				zeitStempel += delta;
 			}
 		}
 		try {
-			while(warten) Thread.sleep(5*SLEEP);
-		} catch (Exception e) { }
-		hauptModul.disconnect();
-		hauptModul = null;
-		ausgabe = null;
+			while (NaesseStufeTest.warten) {
+				Thread.sleep(5 * SLEEP);
+			}
+		} catch (final Exception e) {
+		}
+		NaesseStufeTest.hauptModul.disconnect();
+		NaesseStufeTest.hauptModul = null;
+		NaesseStufeTest.ausgabe = null;
 	}
-	
+
 	@Override
-	void infoVerzoegerung(int stufe) {
+	void infoVerzoegerung(final int stufe) {
 		System.out.println(" ---- Verzoegerung StufeVon: " + stufe);
 	}
 
 }
- 

@@ -26,14 +26,13 @@
 package de.bsvrz.dua.daufd.hysterese;
 
 /**
- * Wird geworfen, wenn versucht wird eine Hysterese anzulegen, deren 
- * Parameter ungültig sind
- * 
+ * Wird geworfen, wenn versucht wird eine Hysterese anzulegen, deren Parameter
+ * ungültig sind
+ *
  * @author BitCtrl Systems GmbH, Thierfelder
  *
  */
-public class HystereseException 
-extends Exception{
+public class HystereseException extends Exception {
 
 	/**
 	 * Auto-generiert
@@ -42,11 +41,12 @@ extends Exception{
 
 	/**
 	 * Standardkonstruktor
-	 * 
-	 * @param nachricht eine Nachricht
+	 *
+	 * @param nachricht
+	 *            eine Nachricht
 	 */
-	HystereseException(String nachricht){
+	HystereseException(final String nachricht) {
 		super(nachricht);
 	}
-	
+
 }

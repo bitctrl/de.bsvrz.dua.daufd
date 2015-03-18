@@ -30,7 +30,7 @@ import de.bsvrz.sys.funclib.bitctrl.dua.dfs.schnittstellen.IDatenFlussSteuerung;
 
 /**
  * Ermöglicht die Klassifizierung der Helligkeit in Stufen
- * 
+ *
  * @author uhlmann
  *
  */
@@ -71,7 +71,8 @@ public class StufeHelligkeit extends AbstraktStufe {
 		return "typ.ufdsHelligkeit";
 	}
 
-	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
+	@Override
+	public void aktualisierePublikation(final IDatenFlussSteuerung dfs) {
 		// leer
 	}
 

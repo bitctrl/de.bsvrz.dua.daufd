@@ -71,7 +71,8 @@ public class StufeWindrichtung extends AbstraktStufe {
 		return "typ.ufdsWindRichtung";
 	}
 
-	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
+	@Override
+	public void aktualisierePublikation(final IDatenFlussSteuerung dfs) {
 		// leer
 	}
 

@@ -26,55 +26,53 @@
 package de.bsvrz.dua.daufd.hysterese;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 /**
  * Tests des Moduls Hysterese
- * 
+ *
  * @author BitCtrl Systems GmbH, Thierfelder
  *
  */
 public class HystereseTest {
-	
+
 	/**
 	 * Test der Hysterese mit <code>long</code>-Werten
 	 */
 	@Test
-	public void testGetStufeInteger()
-	throws Exception{
-		Hysterese hysterese = new Hysterese();
-		
-		hysterese.initialisiere(new long[]{ 0,  5, 15, 20, 25},
-								new long[]{10, 15, 35, 35, 35});
+	public void testGetStufeInteger() throws Exception {
+		final Hysterese hysterese = new Hysterese();
+
+		hysterese.initialisiere(new long[] { 0, 5, 15, 20, 25 }, new long[] {
+				10, 15, 35, 35, 35 });
 
 		Assert.assertEquals(hysterese.getStufe(0), 0);
 		Assert.assertEquals(hysterese.getStufe(-1), -1);
 		Assert.assertEquals(hysterese.getStufe(35), -1);
 		Assert.assertEquals(hysterese.getStufe(36), -1);
 		Assert.assertEquals(hysterese.getStufe(34), 4);
-		
+
 		Assert.assertEquals(hysterese.getStufe(-1), -1);
 		Assert.assertEquals(hysterese.getStufe(6), 0);
 		Assert.assertEquals(hysterese.getStufe(9), 0);
 		Assert.assertEquals(hysterese.getStufe(0), 0);
 		Assert.assertEquals(hysterese.getStufe(10), 1);
-		
+
 		Assert.assertEquals(hysterese.getStufe(5), 1);
 		Assert.assertEquals(hysterese.getStufe(4), 0);
 		Assert.assertEquals(hysterese.getStufe(10), 1);
 		Assert.assertEquals(hysterese.getStufe(5), 1);
 		Assert.assertEquals(hysterese.getStufe(14), 1);
 		Assert.assertEquals(hysterese.getStufe(15), 2);
-		
+
 		Assert.assertEquals(hysterese.getStufe(4), 0);
 		Assert.assertEquals(hysterese.getStufe(31), 4);
 		Assert.assertEquals(hysterese.getStufe(25), 4);
 		Assert.assertEquals(hysterese.getStufe(19), 2);
-		
+
 		Assert.assertEquals(hysterese.getStufe(4), 0);
 		Assert.assertEquals(hysterese.getStufe(29), 4);
-		
+
 		Assert.assertEquals(hysterese.getStufe(4), 0);
 		Assert.assertEquals(hysterese.getStufe(25), 2);
 		Assert.assertEquals(hysterese.getStufe(4), 0);
@@ -87,48 +85,46 @@ public class HystereseTest {
 		Assert.assertEquals(hysterese.getStufe(14), 1);
 		Assert.assertEquals(hysterese.getStufe(28), 3);
 		Assert.assertEquals(hysterese.getStufe(21), 3);
-		Assert.assertEquals(hysterese.getStufe(30), 3);		
+		Assert.assertEquals(hysterese.getStufe(30), 3);
 		Assert.assertEquals(hysterese.getStufe(14), 1);
 		Assert.assertEquals(hysterese.getStufe(30), 4);
-		
+
 	}
 
-	
 	/**
 	 * Test der Hysterese mit <code>double</code>-Werten
 	 */
 	@Test
-	public void testGetStufeDouble()
-	throws Exception{
-		Hysterese hysterese = new Hysterese();
-		
-		hysterese.initialisiere(new double[]{0.0, 0.5},
-								new double[]{1.0, 1.5});
+	public void testGetStufeDouble() throws Exception {
+		final Hysterese hysterese = new Hysterese();
+
+		hysterese.initialisiere(new double[] { 0.0, 0.5 }, new double[] { 1.0,
+				1.5 });
 
 		Assert.assertEquals(hysterese.getStufe(0), 0);
 		Assert.assertEquals(hysterese.getStufe(-1), -1);
 		Assert.assertEquals(hysterese.getStufe(2), -1);
 		Assert.assertEquals(hysterese.getStufe(-0.00001), -1);
 		Assert.assertEquals(hysterese.getStufe(1.5000), -1);
-		
+
 		Assert.assertEquals(hysterese.getStufe(1), 1);
 		Assert.assertEquals(hysterese.getStufe(0.5), 1);
 		Assert.assertEquals(hysterese.getStufe(0.4999), 0);
 		Assert.assertEquals(hysterese.getStufe(0.0), 0);
-		Assert.assertEquals(hysterese.getStufe(0.9999), 0);		
+		Assert.assertEquals(hysterese.getStufe(0.9999), 0);
 		Assert.assertEquals(hysterese.getStufe(1.0), 1);
 		Assert.assertEquals(hysterese.getStufe(0.9999), 1);
-		
+
 		Assert.assertEquals(hysterese.getStufe(1.5), -1);
 		Assert.assertEquals(hysterese.getStufe(0.95), 1);
 		Assert.assertEquals(hysterese.getStufe(0.99), 1);
-		
+
 		Assert.assertEquals(hysterese.getStufe(1.6), -1);
 		Assert.assertEquals(hysterese.getStufe(0.6), 0);
 		Assert.assertEquals(hysterese.getStufe(0.4), 0);
 		Assert.assertEquals(hysterese.getStufe(1.001), 1);
 		Assert.assertEquals(hysterese.getStufe(0.49), 0);
-		
+
 	}
 
 }

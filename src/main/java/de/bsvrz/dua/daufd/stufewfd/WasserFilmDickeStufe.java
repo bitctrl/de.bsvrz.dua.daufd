@@ -29,12 +29,11 @@ import de.bsvrz.dua.daufd.vew.AbstraktStufe;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.schnittstellen.IDatenFlussSteuerung;
 
 /**
- * Berechnet die WasserFilmDickeStufe aus den Messwerten
- * Die eigentliche berechnung ins fuer mehrere Module gemeinsam
- * in der Klasse AbstraktStufe 
- * 
+ * Berechnet die WasserFilmDickeStufe aus den Messwerten Die eigentliche
+ * berechnung ins fuer mehrere Module gemeinsam in der Klasse AbstraktStufe
+ *
  * @author BitCtrl Systems GmbH, Bachraty
- * 
+ *
  */
 public class WasserFilmDickeStufe extends AbstraktStufe {
 
@@ -76,51 +75,56 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
+	@Override
+	public void aktualisierePublikation(final IDatenFlussSteuerung dfs) {
 		// TODO Auto-generated method stub
 	}
 
 	/**
-	 *  WFD Stufen, die unterscheidet werden
-	 *  
+	 * WFD Stufen, die unterscheidet werden
+	 * 
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 */
 	public enum WFD_Stufe {
-		WFD_STUFE0,
-		WFD_STUFE1,
-		WFD_STUFE2,
-		WFD_STUFE3,
-		WFD_WERT_NV // Wert nicht verfuegbar
+		WFD_STUFE0, WFD_STUFE1, WFD_STUFE2, WFD_STUFE3, WFD_WERT_NV // Wert
+																	// nicht
+																	// verfuegbar
 	}
+
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	protected final static WFD_Stufe[] mapIntStufe = new WFD_Stufe [] 
-    { WFD_Stufe.WFD_STUFE0, WFD_Stufe.WFD_STUFE1, WFD_Stufe.WFD_STUFE2, WFD_Stufe.WFD_STUFE3 };
+	protected final static WFD_Stufe[] mapIntStufe = new WFD_Stufe[] {
+			WFD_Stufe.WFD_STUFE0, WFD_Stufe.WFD_STUFE1, WFD_Stufe.WFD_STUFE2,
+			WFD_Stufe.WFD_STUFE3 };
 
-	
 	/**
 	 * Konvertiert die WFD_stufe aus Integer ins symbolischen Format
-	 * @param stufe Stufe Int
+	 * 
+	 * @param stufe
+	 *            Stufe Int
 	 * @return WFD Stufe symbolisch
 	 */
-	static public WFD_Stufe getStufe(int stufe) {
+	static public WFD_Stufe getStufe(final int stufe) {
 		WFD_Stufe stufeSymb;
-		if(  stufe < 0 || stufe > mapIntStufe.length)
+		if ((stufe < 0) || (stufe > WasserFilmDickeStufe.mapIntStufe.length)) {
 			stufeSymb = WFD_Stufe.WFD_WERT_NV;
-		else stufeSymb = mapIntStufe[stufe];
+		} else {
+			stufeSymb = WasserFilmDickeStufe.mapIntStufe[stufe];
+		}
 		return stufeSymb;
 	}
-	
 
 	/**
-	 * Konvertiert die WFD_stufe aus  symbolischen Format ins Integer
-	 * @param stufe WFD_Stufe symbolisch
+	 * Konvertiert die WFD_stufe aus symbolischen Format ins Integer
+	 * 
+	 * @param stufe
+	 *            WFD_Stufe symbolisch
 	 * @return Stufe int
 	 */
-	static public int getStufe(WFD_Stufe stufe) {
+	static public int getStufe(final WFD_Stufe stufe) {
 		int intStufe = -1;
-		if(stufe != WFD_Stufe.WFD_WERT_NV) {
+		if (stufe != WFD_Stufe.WFD_WERT_NV) {
 			intStufe = stufe.ordinal();
 		}
 		return intStufe;

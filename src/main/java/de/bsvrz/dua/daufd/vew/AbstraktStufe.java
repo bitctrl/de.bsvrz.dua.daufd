@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import de.bsvrz.dav.daf.main.ClientReceiverInterface;
 import de.bsvrz.dav.daf.main.ClientSenderInterface;
 import de.bsvrz.dav.daf.main.Data;
+import de.bsvrz.dav.daf.main.Data.Array;
 import de.bsvrz.dav.daf.main.DataDescription;
 import de.bsvrz.dav.daf.main.DataNotSubscribedException;
 import de.bsvrz.dav.daf.main.OneSubscriptionPerSendData;
@@ -41,7 +42,6 @@ import de.bsvrz.dav.daf.main.ReceiverRole;
 import de.bsvrz.dav.daf.main.ResultData;
 import de.bsvrz.dav.daf.main.SendSubscriptionNotConfirmed;
 import de.bsvrz.dav.daf.main.SenderRole;
-import de.bsvrz.dav.daf.main.Data.Array;
 import de.bsvrz.dav.daf.main.config.ConfigurationObject;
 import de.bsvrz.dav.daf.main.config.ObjectSet;
 import de.bsvrz.dav.daf.main.config.SystemObject;
@@ -56,13 +56,14 @@ import de.bsvrz.sys.funclib.debug.Debug;
 /**
  * Generelle Formel und Berechnungen fuer die Module
  * NiederschlagintensitaetStufe, SichtweiteStufe und WasserfilmdickeStufe
- * 
+ *
  * @author BitCtrl Systems GmbH, Bachraty
- * 
+ *
  */
 public abstract class AbstraktStufe implements IBearbeitungsKnoten,
-		ClientReceiverInterface, ClientSenderInterface {
+ClientReceiverInterface, ClientSenderInterface {
 
+	private static final Debug LOGGER = Debug.getLogger();
 	/**
 	 * Verbindung zum Hauptmodul
 	 */
@@ -96,9 +97,9 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 
 	/**
 	 * Parameter und Daten, die pro Sensor gespeichert werden sollen
-	 * 
+	 *
 	 * @author BitCtrl Systems GmbH, Bachraty
-	 * 
+	 *
 	 */
 	protected class SensorParameter {
 		/**
@@ -168,14 +169,15 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 	/**
 	 * {@inheritDoc}
 	 */
-	public void initialisiere(IVerwaltung verwaltung)
+	@Override
+	public void initialisiere(final IVerwaltung verwaltung)
 			throws DUAInitialisierungsException {
 		this.verwaltung = verwaltung;
 		DD_KLASSIFIZIERUNG = new DataDescription(verwaltung.getVerbindung()
 				.getDataModel()
 				.getAttributeGroup(getKlassifizierungsAttributGruppe()),
 				verwaltung.getVerbindung().getDataModel()
-						.getAspect(ASP_SOLL_PARAM));
+				.getAspect(ASP_SOLL_PARAM));
 
 		DD_AGGREGATION = new DataDescription(verwaltung.getVerbindung()
 				.getDataModel()
@@ -185,18 +187,21 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 		DD_QUELLE = new DataDescription(verwaltung.getVerbindung()
 				.getDataModel().getAttributeGroup(getStufeAttributGruppe()),
 				verwaltung.getVerbindung().getDataModel()
-						.getAspect(ASP_KLASSIFIZIERUNG));
+				.getAspect(ASP_KLASSIFIZIERUNG));
 
-		if (verwaltung.getSystemObjekte() == null
-				|| verwaltung.getSystemObjekte().length == 0)
+		if ((verwaltung.getSystemObjekte() == null)
+				|| (verwaltung.getSystemObjekte().length == 0)) {
 			return;
+		}
 
-		for (SystemObject so : verwaltung.getSystemObjekte()) {
-			if (!(so instanceof ConfigurationObject))
+		for (final SystemObject so : verwaltung.getSystemObjekte()) {
+			if (!(so instanceof ConfigurationObject)) {
 				continue;
-			ConfigurationObject confObjekt = (ConfigurationObject) so;
-			ObjectSet sensorMenge = confObjekt.getObjectSet(MNG_SENSOREN);
-			for (SystemObject sensor : sensorMenge.getElements()) {
+			}
+			final ConfigurationObject confObjekt = (ConfigurationObject) so;
+			final ObjectSet sensorMenge = confObjekt
+					.getObjectSet(AbstraktStufe.MNG_SENSOREN);
+			for (final SystemObject sensor : sensorMenge.getElements()) {
 				if (sensor.isValid()) {
 					if (getSensorTyp().equals(sensor.getType().getPid())) {
 						try {
@@ -204,7 +209,7 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 									sensor, DD_QUELLE, SenderRole.source());
 							sensorDaten.put(sensor, new SensorParameter());
 							sensoren.add(sensor);
-						} catch (OneSubscriptionPerSendData e) {
+						} catch (final OneSubscriptionPerSendData e) {
 							throw new DUAInitialisierungsException(
 									"Anmeldung als Quelle fuer Objekt"
 											+ so.getPid() + " unerfolgreich:"
@@ -225,30 +230,33 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 	/**
 	 * {@inheritDoc}
 	 */
-	public void update(ResultData[] results) {
-		for (ResultData resData : results) {
-			DataDescription dataDescription = resData.getDataDescription();
-			Data daten = resData.getData();
-			SystemObject objekt = resData.getObject();
-			SensorParameter param = sensorDaten.get(objekt);
+	@Override
+	public void update(final ResultData[] results) {
+		for (final ResultData resData : results) {
+			final DataDescription dataDescription = resData
+					.getDataDescription();
+			final Data daten = resData.getData();
+			final SystemObject objekt = resData.getObject();
+			final SensorParameter param = sensorDaten.get(objekt);
 
 			if (dataDescription.getAttributeGroup().getPid()
 					.equals(getKlassifizierungsAttributGruppe())
 					&& dataDescription.getAspect().getPid()
-							.equals(ASP_SOLL_PARAM)) {
+					.equals(ASP_SOLL_PARAM)) {
 
 				if (param == null) {
-					Debug.getLogger().warning(
+					LOGGER.warning(
 							"Objekt " + objekt
-									+ " in der Hashtabelle nicht gefunden");
+							+ " in der Hashtabelle nicht gefunden");
 					continue;
 				} else if (daten == null) {
 					param.initialisiert = false;
 					continue;
 				}
 
-				Array stufen = daten.getArray(getKlassifizierungsAttribut());
-				int laenge = stufen.getLength();
+				final Array stufen = daten
+						.getArray(getKlassifizierungsAttribut());
+				final int laenge = stufen.getLength();
 				param.stufeBis = new double[laenge];
 				param.stufeVon = new double[laenge];
 
@@ -262,25 +270,27 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 				try {
 					param.hysterese.initialisiere(param.stufeVon,
 							param.stufeBis);
-				} catch (HystereseException e) {
-					Debug.getLogger().error(
+				} catch (final HystereseException e) {
+					LOGGER.error(
 							"Fehler bei Initialisierung der Hystereze Klasse:"
 									+ e.getMessage());
 					continue;
 				}
-				if (!Double.isNaN(param.b0) && !Double.isNaN(param.fb))
+				if (!Double.isNaN(param.b0) && !Double.isNaN(param.fb)) {
 					param.initialisiert = true;
-				if (param.letzteDaten != null && param.initialisiert)
+				}
+				if ((param.letzteDaten != null) && param.initialisiert) {
 					berechneAusgabe(objekt, param, param.letzteDatenZeitStempel);
+				}
 			} else if (dataDescription.getAttributeGroup().getPid()
 					.equals(getAggregationsAtrributGruppe())
 					&& dataDescription.getAspect().getPid()
-							.equals(ASP_SOLL_PARAM)) {
+					.equals(ASP_SOLL_PARAM)) {
 
 				if (param == null) {
-					Debug.getLogger().warning(
+					LOGGER.warning(
 							"Objekt " + objekt
-									+ " in der Hashtabelle nicht gefunden");
+							+ " in der Hashtabelle nicht gefunden");
 					continue;
 				} else if (daten == null) {
 					param.initialisiert = false;
@@ -288,10 +298,12 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 				}
 				param.b0 = daten.getScaledValue("b0").doubleValue();
 				param.fb = daten.getScaledValue("fb").doubleValue();
-				if (param.hysterese != null)
+				if (param.hysterese != null) {
 					param.initialisiert = true;
-				if (param.letzteDaten != null && param.initialisiert)
+				}
+				if ((param.letzteDaten != null) && param.initialisiert) {
 					berechneAusgabe(objekt, param, param.letzteDatenZeitStempel);
+				}
 			}
 		}
 	}
@@ -299,13 +311,15 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 	/**
 	 * {@inheritDoc}
 	 */
-	public void aktualisiereDaten(ResultData[] resultate) {
+	@Override
+	public void aktualisiereDaten(final ResultData[] resultate) {
 
-		for (ResultData resData : resultate) {
-			DataDescription dataDescription = resData.getDataDescription();
-			SystemObject objekt = resData.getObject();
-			Data daten = resData.getData();
-			SensorParameter param = sensorDaten.get(objekt);
+		for (final ResultData resData : resultate) {
+			final DataDescription dataDescription = resData
+					.getDataDescription();
+			final SystemObject objekt = resData.getObject();
+			final Data daten = resData.getData();
+			final SensorParameter param = sensorDaten.get(objekt);
 			if (dataDescription.getAttributeGroup().getPid()
 					.equals(getMesswertAttributGruppe())) {
 				if (daten == null) {
@@ -316,23 +330,25 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 					continue;
 				}
 				if (param == null) {
-					Debug.getLogger().warning(
+					LOGGER.warning(
 							"Objekt " + objekt
-									+ " in der Hashtabelle nicht gefunden");
+							+ " in der Hashtabelle nicht gefunden");
 					continue;
 				}
 				param.letzteDaten = daten;
-				if (param.initialisiert)
+				if (param.initialisiert) {
 					berechneAusgabe(objekt, param, resData.getDataTime());
+				}
 			}
 		}
-		if (naechsterBearbeitungsKnoten != null)
+		if (naechsterBearbeitungsKnoten != null) {
 			naechsterBearbeitungsKnoten.aktualisiereDaten(resultate);
+		}
 	}
 
 	/**
 	 * Berechnet die Ausgabe aus dem eingekommenen DS
-	 * 
+	 *
 	 * @param objekt
 	 *            Objekt
 	 * @param param
@@ -340,16 +356,17 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 	 * @param zeitStempel
 	 *            des letzten DS
 	 */
-	public void berechneAusgabe(SystemObject objekt, SensorParameter param,
-			long zeitStempel) {
+	public void berechneAusgabe(final SystemObject objekt,
+			final SensorParameter param, final long zeitStempel) {
 		int stufe = -1;
 		// hysterese ist null im fall, dass wir noch die
 		// Klasifizierungsparameter nicht bekommen haben
 		if (param.letzteDaten.getItem(getMesswertAttribut()).getItem("Wert")
 				.asUnscaledValue().longValue() >= 0) {
-			double messwert = param.letzteDaten.getItem(getMesswertAttribut())
-					.getItem("Wert").asScaledValue().doubleValue();
-			double messwertGeglaettet = berechneMesswertGlaettung(param,
+			final double messwert = param.letzteDaten
+					.getItem(getMesswertAttribut()).getItem("Wert")
+					.asScaledValue().doubleValue();
+			final double messwertGeglaettet = berechneMesswertGlaettung(param,
 					messwert);
 			stufe = param.hysterese.getStufe(messwertGeglaettet);
 		}
@@ -361,7 +378,7 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 
 	/**
 	 * Sendet einen Datensatz mit Messwert Klassifizierung
-	 * 
+	 *
 	 * @param objekt
 	 *            Sensor
 	 * @param stufe
@@ -369,46 +386,47 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 	 * @param zeitStempel
 	 *            Zeitpunkt
 	 */
-	public void SendeStufe(SystemObject objekt, int stufe, long zeitStempel,
-			boolean keineDaten) {
+	public void SendeStufe(final SystemObject objekt, final int stufe,
+			final long zeitStempel, final boolean keineDaten) {
 
 		// Mann muss ein Array dem naechsten Knoten weitergeben
-		ResultData[] resultate = new ResultData[1];
+		final ResultData[] resultate = new ResultData[1];
 
-		if (keineDaten)
+		if (keineDaten) {
 			resultate[0] = new ResultData(objekt, DD_QUELLE, zeitStempel, null);
-		else {
-			Data data = verwaltung.getVerbindung().createData(
+		} else {
+			final Data data = verwaltung.getVerbindung().createData(
 					verwaltung.getVerbindung().getDataModel()
-							.getAttributeGroup(getStufeAttributGruppe()));
+					.getAttributeGroup(getStufeAttributGruppe()));
 			data.getItem("Stufe").asUnscaledValue().set(stufe); //$NON-NLS-1$
 			resultate[0] = new ResultData(objekt, DD_QUELLE, zeitStempel, data);
 		}
 
 		try {
 			verwaltung.getVerbindung().sendData(resultate);
-		} catch (DataNotSubscribedException e) {
-			Debug.getLogger()
-					.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		} catch (SendSubscriptionNotConfirmed e) {
-			Debug.getLogger()
-					.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		} catch (final DataNotSubscribedException e) {
+			LOGGER
+			.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		} catch (final SendSubscriptionNotConfirmed e) {
+			LOGGER
+			.error("Fehler bei Sendung von daten fuer " + objekt.getPid() + " ATG " + getStufeAttributGruppe() + " :\n" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
-		if (naechsterBearbeitungsKnoten != null)
+		if (naechsterBearbeitungsKnoten != null) {
 			naechsterBearbeitungsKnoten.aktualisiereDaten(resultate);
+		}
 	}
 
 	/**
 	 * Berechnet die Glaettung nach der Formel in [AFo]
-	 * 
+	 *
 	 * @param param
 	 *            Sensorparameter (enthaelt Konstanten}
 	 * @param messwert
 	 *            Messwert
 	 * @return Geglaetettes Messwert
 	 */
-	public double berechneMesswertGlaettung(SensorParameter param,
-			double messwert) {
+	public double berechneMesswertGlaettung(final SensorParameter param,
+			final double messwert) {
 		double messwertGlatt;
 		double b_i;
 
@@ -423,7 +441,8 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 			return 0.0;
 		}
 
-		b_i = param.b0 + (1.0 - param.fb * param.MesswertGlatti_1 / messwert);
+		b_i = param.b0
+				+ (1.0 - ((param.fb * param.MesswertGlatti_1) / messwert));
 		if (b_i < param.b0) {
 			b_i = param.b0;
 		}
@@ -431,7 +450,8 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 			b_i = 1.0;
 		}
 
-		messwertGlatt = b_i * messwert + (1.0 - b_i) * param.MesswertGlatti_1;
+		messwertGlatt = (b_i * messwert)
+				+ ((1.0 - b_i) * param.MesswertGlatti_1);
 
 		param.MesswertGlatti_1 = messwertGlatt;
 		return messwertGlatt;
@@ -439,35 +459,35 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 
 	/**
 	 * Erfragt die Klassifizierung ATG als Zeichenkette
-	 * 
+	 *
 	 * @return Klassifizierung ATG
 	 */
 	public abstract String getKlassifizierungsAttributGruppe();
 
 	/**
 	 * Erfragt die Aggregations ATG als Zeichenkette
-	 * 
+	 *
 	 * @return Aggregations ATG
 	 */
 	public abstract String getAggregationsAtrributGruppe();
 
 	/**
 	 * Erfragt die Messwert ATG als Zeichenkette
-	 * 
+	 *
 	 * @return Messwert ATG
 	 */
 	public abstract String getMesswertAttributGruppe();
 
 	/**
 	 * Erfragt den Attribut fuer das Sensorwert in Messwert ATG als Zeichenkette
-	 * 
+	 *
 	 * @return Messwert Attribut
 	 */
 	public abstract String getMesswertAttribut();
 
 	/**
 	 * Erfragt die Stufe ATG als Zeichenkette
-	 * 
+	 *
 	 * @return Stufe ATG
 	 */
 	public abstract String getStufeAttributGruppe();
@@ -475,14 +495,14 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 	/**
 	 * Erfragt den Attribut fuer Klassifizierung in Klassifizierung ATG als
 	 * Zeichenkette
-	 * 
+	 *
 	 * @return Klasifizierung Attribut
 	 */
 	public abstract String getKlassifizierungsAttribut();
 
 	/**
 	 * Erfragt den Sensortyp als Zeichenkette
-	 * 
+	 *
 	 * @return Sensortyp
 	 */
 	public abstract String getSensorTyp();
@@ -490,42 +510,47 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten,
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setNaechstenBearbeitungsKnoten(IBearbeitungsKnoten knoten) {
+	@Override
+	public void setNaechstenBearbeitungsKnoten(final IBearbeitungsKnoten knoten) {
 		this.naechsterBearbeitungsKnoten = knoten;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setPublikation(boolean publizieren) {
+	@Override
+	public void setPublikation(final boolean publizieren) {
 		this.publizieren = publizieren;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void dataRequest(SystemObject object,
-			DataDescription dataDescription, byte state) {
+	@Override
+	public void dataRequest(final SystemObject object,
+			final DataDescription dataDescription, final byte state) {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean isRequestSupported(SystemObject object,
-			DataDescription dataDescription) {
+	@Override
+	public boolean isRequestSupported(final SystemObject object,
+			final DataDescription dataDescription) {
 		return false;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public ModulTyp getModulTyp() {
 		return null;
 	}
 
 	/**
 	 * erfragt die menge der bearbeiteten Sensoren
-	 * 
+	 *
 	 * @return Menge der Sensoren
 	 */
 	public Collection<SystemObject> getSensoren() {

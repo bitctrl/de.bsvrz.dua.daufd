@@ -34,11 +34,10 @@ import de.bsvrz.sys.funclib.application.StandardApplicationRunner;
 import de.bsvrz.sys.funclib.commandLineArgs.ArgumentList;
 
 /**
- * Stellt eine Datenverteiler-Verbindung
- * zur Verfügung.
- * 
+ * Stellt eine Datenverteiler-Verbindung zur Verfügung.
+ *
  * @author BitCtrl Systems GmbH, Thierfelder
- * 
+ *
  */
 public class DAVTest {
 
@@ -46,26 +45,22 @@ public class DAVTest {
 	 * Verbindungsdaten
 	 */
 	public static final String[] CON_DATA = new String[] {
-			"-datenverteiler=localhost:8083",  
-			"-benutzer=Tester", 
-			"-authentifizierung=passwd", 
-			"-debugLevelStdErrText=OFF", 
+		"-datenverteiler=localhost:8083", "-benutzer=Tester",
+			"-authentifizierung=passwd", "-debugLevelStdErrText=OFF",
 			"-debugLevelFileText=OFF",
-			"-KonfigurationsBereichsPid=kb.daUfdTest" };
+	"-KonfigurationsBereichsPid=kb.daUfdTest" };
 
-//	/**
-//	 * Verbindungsdaten
-//	 */
-//	public static final String[] CON_DATA = new String[] {
-//			"-datenverteiler=10.44.44.10:8083",  
-//			"-benutzer=Tester", 
-//			"-authentifizierung=c:\\passwd", 
-//			"-debugLevelStdErrText=OFF",
-//			"-debugLevelFileText=OFF",
-//			"-KonfigurationsBereichsPid=kb.daUfdTest" };
-	
+	// /**
+	// * Verbindungsdaten
+	// */
+	// public static final String[] CON_DATA = new String[] {
+	// "-datenverteiler=10.44.44.10:8083",
+	// "-benutzer=Tester",
+	// "-authentifizierung=c:\\passwd",
+	// "-debugLevelStdErrText=OFF",
+	// "-debugLevelFileText=OFF",
+	// "-KonfigurationsBereichsPid=kb.daUfdTest" };
 
-	
 	/**
 	 * Verbindung zum Datenverteiler
 	 */
@@ -76,69 +71,73 @@ public class DAVTest {
 	 */
 	public static Random R = new Random(System.currentTimeMillis());
 
-	
 	/**
-	 * Erfragt bzw. initialisiert eine
-	 * Datenverteiler-Verbindung
-	 * 
+	 * Erfragt bzw. initialisiert eine Datenverteiler-Verbindung
+	 *
 	 * @return die Datenverteiler-Verbindung
-	 * @throws Exception falls die Verbindung nicht
-	 * hergestellt werden konnte
+	 * @throws Exception
+	 *             falls die Verbindung nicht hergestellt werden konnte
 	 */
-	public static final ClientDavInterface getDav()
-	throws Exception {
-		
-		if(VERBINDUNG == null) {
+	public static final ClientDavInterface getDav() throws Exception {
+
+		if (DAVTest.VERBINDUNG == null) {
 			StandardApplicationRunner.run(new StandardApplication() {
-	
-				public void initialize(ClientDavInterface connection)
+
+				@Override
+				public void initialize(final ClientDavInterface connection)
 						throws Exception {
 					DAVTest.VERBINDUNG = connection;
 				}
-	
-				public void parseArguments(ArgumentList argumentList)
+
+				@Override
+				public void parseArguments(final ArgumentList argumentList)
 						throws Exception {
 					//
 				}
-	
-			}, CON_DATA);
+
+			}, DAVTest.CON_DATA);
 		}
-		
-		return VERBINDUNG;
+
+		return DAVTest.VERBINDUNG;
 	}
-	
-	
+
 	/**
 	 * Wartet bis zu dem übergebenen Zeitpunkt
-	 * 
-	 * @param zeitStempel ein Zeitstempel in ms
+	 *
+	 * @param zeitStempel
+	 *            ein Zeitstempel in ms
 	 */
-	public static final void warteBis(final long zeitStempel){
-		while(System.currentTimeMillis() <= zeitStempel){
-			try{ Thread.sleep(5L); }catch(InterruptedException e){}
+	public static final void warteBis(final long zeitStempel) {
+		while (System.currentTimeMillis() <= zeitStempel) {
+			try {
+				Thread.sleep(5L);
+			} catch (final InterruptedException e) {
+			}
 		}
 	}
 
-
 	/**
-	 * Erfragt einen Array mit zufälligen Zahlen von
-	 * 0 bis <code>anzahl</code>. Jede Zahl darf nur 
-	 * einmal im Array vorkommen.
-	 * 
-	 * @param anzahl die Obergrenze
-	 * @return Array mit zufälligen Zahlen von
-	 * 0 bis <code>anzahl</code>
+	 * Erfragt einen Array mit zufälligen Zahlen von 0 bis <code>anzahl</code>.
+	 * Jede Zahl darf nur einmal im Array vorkommen.
+	 *
+	 * @param anzahl
+	 *            die Obergrenze
+	 * @return Array mit zufälligen Zahlen von 0 bis <code>anzahl</code>
 	 */
-	public static final int[] getZufaelligeZahlen(int anzahl){
+	public static final int[] getZufaelligeZahlen(final int anzahl) {
 		int belegt = 0;
-		int[] zahlen = new int[anzahl];
-		for(int i = 0; i<anzahl; i++)zahlen[i] = -1;
-		
-		while(belegt < anzahl){
-			int index = R.nextInt(anzahl);
-			if(zahlen[index] == -1)zahlen[index] = belegt++;
+		final int[] zahlen = new int[anzahl];
+		for (int i = 0; i < anzahl; i++) {
+			zahlen[i] = -1;
 		}
-		
+
+		while (belegt < anzahl) {
+			final int index = DAVTest.R.nextInt(anzahl);
+			if (zahlen[index] == -1) {
+				zahlen[index] = belegt++;
+			}
+		}
+
 		return zahlen;
 	}
 
