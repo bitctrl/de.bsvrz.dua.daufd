@@ -29,7 +29,7 @@ package de.bsvrz.dua.daufd.stufenaesse;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -68,7 +68,7 @@ implements ClientSenderInterface {
 	/**
 	 * Abtrocknungphasen Verzoegerung [AFo]
 	 */
-	private static final long abtrocknungPhasen[] = new long[] {
+	private static final long[] abtrocknungPhasen = new long[] {
 		180, 60, 60, 60 
 	};
 	/**
@@ -91,11 +91,11 @@ implements ClientSenderInterface {
 	/**
 	 * Errechnete Ausgabewerte
 	 */
-	private static NS_Stufe ausgabe [] = null;
+	private static NS_Stufe[] ausgabe = null;
 	/**
 	 * Errechnete zeitStempel der Ausgabewerten
 	 */
-	private static long ausgabeZeitStempel [] = null;
+	private static long[] ausgabeZeitStempel = null;
 	/**
 	 * Aktueller index im Ausgabewerten
 	 */
@@ -122,7 +122,7 @@ implements ClientSenderInterface {
 	 */
 	private static final String TYP_UFDMS = "typ.umfeldDatenMessStelle";
 	private static final String ATG_UFDMS_AP = "atg.ufdmsAbtrockungsPhasen";
-	private static final String ATT_STUFE[] = new String [] { 
+	private static final String[] ATT_STUFE = new String [] { 
 		 "ZeitNass1Trocken", "ZeitNass4Nass3", "ZeitNass3Nass2", "ZeitNass2Nass1"
 	};
 
@@ -411,7 +411,7 @@ implements ClientSenderInterface {
 		final int N = 50;
 	
 		ausgabe = new NS_Stufe[50];
-		NS_Stufe tabelle [] = new NS_Stufe []  { NS0, NS0, NS1, NS2, NS2, NS0, 
+		NS_Stufe[] tabelle = new NS_Stufe []  { NS0, NS0, NS1, NS2, NS2, NS0, 
 								   				 NS1, NS1, NS2, NS3, NS4, NS1,
 								   				 NS2, NS2, NS2, NS3, NS4, NS2,
 								   				 NS2, NS2, NS3, NS3, NS4, NS3,
@@ -419,11 +419,11 @@ implements ClientSenderInterface {
 		ausgabeZeitStempel = new long[N];
 
 		
-		final NI_Stufe niStufe [] = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4, NINV };
-		final WFD_Stufe wfdStufe [] = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
+		final NI_Stufe[] niStufe = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4, NINV };
+		final WFD_Stufe[] wfdStufe = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
 		
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
 		for(int i=0; i<DAVTest.CON_DATA.length; i++)
 			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
@@ -485,7 +485,7 @@ implements ClientSenderInterface {
 		final int N = 50;
 		
 		ausgabe = new NS_Stufe[50];
-		NS_Stufe tabelle [] = new NS_Stufe []  { NS0, NS0, NS1, NS2, NS2, NS0, 
+		NS_Stufe[] tabelle = new NS_Stufe []  { NS0, NS0, NS1, NS2, NS2, NS0, 
 								   				 NS1, NS1, NS2, NS3, NS4, NS1,
 								   				 NS2, NS2, NS2, NS3, NS4, NS2,
 								   				 NS2, NS2, NS3, NS3, NS4, NS3,
@@ -493,11 +493,11 @@ implements ClientSenderInterface {
 		ausgabeZeitStempel = new long[N];
 
 		
-		final NI_Stufe niStufe [] = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4, NINV };
-		final WFD_Stufe wfdStufe [] = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
+		final NI_Stufe[] niStufe = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4, NINV };
+		final WFD_Stufe[] wfdStufe = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
 		
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
 		for(int i=0; i<DAVTest.CON_DATA.length; i++)
 			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
@@ -573,10 +573,10 @@ implements ClientSenderInterface {
 		ausgabe = new NS_Stufe[] { NS4, NS3, NS3, NS2, NS2, NS4, NS3, NS2, NS1, NS0 } ;
 		ausgabeZeitStempel = new long[ausgabe.length];
 
-		final NI_Stufe niStufe [] = new NI_Stufe[] { NI4, NI3, NI2, NI1, NI0 };
+		final NI_Stufe[] niStufe = new NI_Stufe[] { NI4, NI3, NI2, NI1, NI0 };
 		
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
 		for(int i=0; i<DAVTest.CON_DATA.length; i++)
 			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
@@ -641,7 +641,7 @@ implements ClientSenderInterface {
 		final int N = 50;
 		
 		ausgabe = new NS_Stufe[50];
-		NS_Stufe tabelle [] = new NS_Stufe []  { NS0, NS0, NS1, NS2, NS2, NS0, 
+		NS_Stufe[] tabelle = new NS_Stufe []  { NS0, NS0, NS1, NS2, NS2, NS0, 
 								   				 NS1, NS1, NS2, NS3, NS4, NS1,
 								   				 NS2, NS2, NS2, NS3, NS4, NS2,
 								   				 NS2, NS2, NS3, NS3, NS4, NS3,
@@ -649,11 +649,11 @@ implements ClientSenderInterface {
 		ausgabeZeitStempel = new long[N];
 
 		
-		final NI_Stufe niStufe [] = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4, NINV };
-		final WFD_Stufe wfdStufe [] = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
+		final NI_Stufe[] niStufe = new NI_Stufe[] { NI0, NI1, NI2, NI3, NI4, NINV };
+		final WFD_Stufe[] wfdStufe = new WFD_Stufe[] { WFD0, WFD1, WFD2, WFD3, WFDNV};
 		
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
 		for(int i=0; i<DAVTest.CON_DATA.length; i++)
 			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);

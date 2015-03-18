@@ -26,7 +26,7 @@
 
 package de.bsvrz.dua.daufd.hysterese;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
@@ -41,15 +41,15 @@ public class HysterezeTester2 {
 	/**
 	 * Stufe untere Grenzwerte
 	 */
-	private  double stufeVon[] = null;
+	private  double[] stufeVon = null;
 	/**
 	 * Stufe obere Grenzwerte 
 	 */
-	private  double stufeBis[] = null;
+	private  double[] stufeBis = null;
 	
 	private long anzahlTest = 0;
 
-	public void init(double von[], double bis[]) {
+	public void init(double[] von, double[] bis) {
 		stufeVon = new double[von.length];
 		stufeBis = new double[bis.length];
 		for(int i=0; i<von.length-1; i++) {

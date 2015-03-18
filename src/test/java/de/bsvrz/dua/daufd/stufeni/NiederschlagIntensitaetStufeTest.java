@@ -28,7 +28,7 @@ package de.bsvrz.dua.daufd.stufeni;
 
 import java.util.Collection;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -62,13 +62,13 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 	/**
 	 * NI-Stufe untere Grenzwerte [AFo]
 	 */
-	private final static double stufeVon[] = new double[] {
+	private final static double[] stufeVon = new double[] {
 		0.0, 0.2, 1.0, 4.0, 10.0 	
 	};
 	/**
 	 * NI-Stufe obere Grenzwerte [AFo]
 	 */
-	private final static double stufeBis[] = new double[] {
+	private final static double[] stufeBis = new double[] {
 		0.3, 1.2, 5.0, 12.0, 200.0 // Max Wert vom DaK 	
 	};
 	/**
@@ -108,7 +108,7 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 	/**
 	 * Erwarete Ausgabedaten - Stufen
 	 */
-	private static int stufen [] = null;
+	private static int[] stufen = null;
 	/**
 	 * Aktueller Index in Ausgabe-Testdaten 
 	 */
@@ -116,7 +116,7 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 	/**
 	 * Erwertete Zeitstempel der Ausgabedaten
 	 */
-	private static long zeitStempel [];
+	private static long[] zeitStempel;
 	/**
 	 * Die Messwerte die bei Testfaellen reingeschickt werden
 	 */
@@ -174,7 +174,7 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 		}
 
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
 		for(int i=0; i<DAVTest.CON_DATA.length; i++)
 			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
@@ -230,7 +230,7 @@ public class NiederschlagIntensitaetStufeTest  extends NiederschlagIntensitaetSt
 		}
 	
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
 		for(int i=0; i<DAVTest.CON_DATA.length; i++)
 			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);

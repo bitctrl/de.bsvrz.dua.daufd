@@ -351,7 +351,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	 *  String-Konstanten Attribute
 	 */
 	public static final String MNG_SENSOREN = "UmfeldDatenSensoren";
-	public static final String ATT_STUFE[] = new String [] { 
+	public static final String[] ATT_STUFE = new String [] { 
 		 "ZeitNass1Trocken", "ZeitNass4Nass3", "ZeitNass3Nass2", "ZeitNass2Nass1"
 	};
 

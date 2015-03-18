@@ -95,7 +95,7 @@ public class SichtWeiteStufe extends AbstraktStufe {
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	protected final static SW_Stufe mapIntStufe[] = new SW_Stufe[] {
+	protected final static SW_Stufe[] mapIntStufe = new SW_Stufe[] {
 			SW_Stufe.SW_STUFE0, SW_Stufe.SW_STUFE1, SW_Stufe.SW_STUFE2,
 			SW_Stufe.SW_STUFE3, SW_Stufe.SW_STUFE4, SW_Stufe.SW_STUFE5 };
 

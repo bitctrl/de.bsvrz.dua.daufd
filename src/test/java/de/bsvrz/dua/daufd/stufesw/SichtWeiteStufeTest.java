@@ -28,7 +28,7 @@ package de.bsvrz.dua.daufd.stufesw;
 
 import java.util.Collection;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -63,13 +63,13 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	/**
 	 * SW-Stufe untere Grenzwerte [AFo]
 	 */
-	private final static double stufeVon[] = new double[] {
+	private final static double[] stufeVon = new double[] {
 		0, 50, 80, 120, 250, 400 	
 	};
 	/**
 	 * SW-Stufe obere Grenzwerte [AFo]
 	 */
-	private final static double stufeBis[] = new double[] {
+	private final static double[] stufeBis = new double[] {
 		60, 100, 150, 300, 500, 60000   // Max Wert vom DaK 	
 	};
 	/**
@@ -109,7 +109,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	/**
 	 * Erwarete Ausgabedaten - Stufen
 	 */
-	private static int stufen [] = null;
+	private static int[] stufen = null;
 	/**
 	 * Aktueller Index in Ausgabe-Testdaten 
 	 */
@@ -117,7 +117,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 	/**
 	 * Erwertete Zeitstempel der Ausgabedaten
 	 */
-	private static long zeitStempel [];
+	private static long[] zeitStempel;
 	/**
 	 * Die Messwerte die bei Testfaellen reingeschickt werden
 	 */
@@ -175,7 +175,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 		}
 
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
 		for(int i=0; i<DAVTest.CON_DATA.length; i++)
 			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);
@@ -233,7 +233,7 @@ public class SichtWeiteStufeTest extends  SichtWeiteStufe {
 		}
 	
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
 		for(int i=0; i<DAVTest.CON_DATA.length; i++)
 			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);

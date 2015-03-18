@@ -95,7 +95,7 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	protected final static WFD_Stufe mapIntStufe [] = new WFD_Stufe [] 
+	protected final static WFD_Stufe[] mapIntStufe = new WFD_Stufe [] 
     { WFD_Stufe.WFD_STUFE0, WFD_Stufe.WFD_STUFE1, WFD_Stufe.WFD_STUFE2, WFD_Stufe.WFD_STUFE3 };
 
 	

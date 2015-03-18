@@ -98,7 +98,7 @@ public class NiederschlagIntensitaetStufe  extends AbstraktStufe {
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	protected final static NI_Stufe mapIntStufe [] = new NI_Stufe [] 
+	protected final static NI_Stufe[] mapIntStufe = new NI_Stufe [] 
     { NI_Stufe.NI_STUFE0, NI_Stufe.NI_STUFE1, NI_Stufe.NI_STUFE2, NI_Stufe.NI_STUFE3, NI_Stufe.NI_STUFE4 };
 
 	

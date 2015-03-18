@@ -25,7 +25,7 @@
  */
 package de.bsvrz.dua.daufd.tp;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -58,11 +58,11 @@ public class TaupunktTest extends Taupunkt {
 	/**
 	 * Die TestWerte
 	 */
-	private static double taupunktLuft [] = null, taupunktFbof [] = null;
+	private static double taupunktLuft[] = null, taupunktFbof[] = null;
 	/**
 	 * Die ZeitStempel der Testwerte
 	 */
-	private static long zeitStempel [] = null;
+	private static long[] zeitStempel = null;
 	/**
 	 * Intervall der Datenerzeugung;
 	 */
@@ -266,8 +266,8 @@ public class TaupunktTest extends Taupunkt {
 	 */
 	@Test
 	public void TestTaupunkt() {
-		double T [] = new double [] { 0.1, -0.2, 0.1, 0.0, 10, 0.5, -10.1, -1.0};
-		double feuchte [] = new double [] { 83, 99, 100, 70, 6, 52, 89 };
+		double[] T = new double [] { 0.1, -0.2, 0.1, 0.0, 10, 0.5, -10.1, -1.0};
+		double[] feuchte = new double [] { 83, 99, 100, 70, 6, 52, 89 };
 		taupunktLuft = new double[T.length * feuchte.length];
 		taupunktFbof = new double[T.length * feuchte.length];
 		zeitStempel = new long[taupunktLuft.length];
@@ -275,7 +275,7 @@ public class TaupunktTest extends Taupunkt {
 
 		
 		hauptModul = new VerwaltungAufbereitungUFDTest();
-		String connArgs [] =   new String [DAVTest.CON_DATA.length] ;
+		String[] connArgs =   new String [DAVTest.CON_DATA.length] ;
 		for(int i=0; i<DAVTest.CON_DATA.length; i++)
 			connArgs[i] = DAVTest.CON_DATA[i];
 		StandardApplicationRunner.run(hauptModul, connArgs);

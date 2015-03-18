@@ -167,7 +167,7 @@ extends AbstraktVerwaltungsAdapter {
 	 * Haupmethode
 	 * @param args Aufrufsargumente
 	 */
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 		VerwaltungAufbereitungUFD verwaltung = new VerwaltungAufbereitungUFD();
 		StandardApplicationRunner.run(verwaltung, args);
 	}
