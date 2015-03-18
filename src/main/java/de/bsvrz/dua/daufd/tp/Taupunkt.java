@@ -66,11 +66,11 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	/**
 	 * DatenBeschreibung des Datensatzes mit Taupunkttemperatur der Fahrbahn
 	 */
-	private DataDescription DD_UFDMS_TT_FB = null;
+	private DataDescription ddUfdmsTtFb = null;
 	/**
 	 * DatenBeschreibung des Datensatzes mit Taupunkttemperatur der Fahrbahn
 	 */
-	private DataDescription DD_UFDMS_TT_L = null;
+	private DataDescription ddUfdmsTtL = null;
 	/**
 	 * LuftTemperatur Sensoren, deren Daten bearebietet werden sollen
 	 */
@@ -234,12 +234,12 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					}
 					continue;
 				}
-				final long T = data.getTimeValue("T").getMillis();
+				final long timeVal = data.getTimeValue("T").getMillis();
 				lDaten.luftTemperatur = data;
 				lDaten.ltZeitStemepel = resData.getDataTime();
 				if (lDaten.berechnetLuftTaupunkt) {
-					BerechneTaupunktTemperaturLuft(lDaten,
-							resData.getDataTime(), T);
+					berechneTaupunktTemperaturLuft(lDaten,
+							resData.getDataTime(), timeVal);
 				}
 			} else if (Taupunkt.ATG_UFDS_FBOFT.equals(resData
 					.getDataDescription().getAttributeGroup().getPid())
@@ -259,12 +259,12 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					}
 					continue;
 				}
-				final long T = data.getTimeValue("T").getMillis();
+				final long timeVal = data.getTimeValue("T").getMillis();
 				lDaten.fbofTemperatur = data;
 				lDaten.fboftZeitStemepel = resData.getDataTime();
 				if (lDaten.berechnetFbofTaupunkt) {
-					BerechneTaupunktTemperaturFbof(lDaten,
-							resData.getDataTime(), T);
+					berechneTaupunktTemperaturFbof(lDaten,
+							resData.getDataTime(), timeVal);
 				}
 
 			} else if (Taupunkt.ATG_UFDS_RLF.equals(resData
@@ -291,17 +291,17 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					}
 					continue;
 				}
-				final long T = data.getTimeValue("T").getMillis();
+				final long timeVal = data.getTimeValue("T").getMillis();
 				lDaten.relativeLuftFeuchte = data;
 				lDaten.rlfZeitStemepel = resData.getDataTime();
 
 				if (lDaten.berechnetFbofTaupunkt) {
-					BerechneTaupunktTemperaturFbof(lDaten,
-							resData.getDataTime(), T);
+					berechneTaupunktTemperaturFbof(lDaten,
+							resData.getDataTime(), timeVal);
 				}
 				if (lDaten.berechnetLuftTaupunkt) {
-					BerechneTaupunktTemperaturLuft(lDaten,
-							resData.getDataTime(), T);
+					berechneTaupunktTemperaturLuft(lDaten,
+							resData.getDataTime(), timeVal);
 				}
 			}
 		}
@@ -323,7 +323,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 * @param zeitIntervall
 	 *            das Intervall
 	 */
-	public void BerechneTaupunktTemperaturFbof(final LokaleDaten lDaten,
+	public void berechneTaupunktTemperaturFbof(final LokaleDaten lDaten,
 			final long zeitStemepel, final long zeitIntervall) {
 		boolean nichtermittelbar = false;
 
@@ -394,7 +394,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		// Berechnung und Sendung
 		final double relFeucht = rlF;
 		final double fobofTemp = 0.1 * fbofT;
-		double ergebnis = Berechnetaupunkt(relFeucht, fobofTemp);
+		double ergebnis = berechnetaupunkt(relFeucht, fobofTemp);
 		//
 		// Der "att.ufdsTaupunktTemperatur" ist auf dem Beriech<-100,100>
 		// begrentzt
@@ -424,7 +424,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 * @param zeitIntervall
 	 *            das Intervall
 	 */
-	public void BerechneTaupunktTemperaturLuft(final LokaleDaten lDaten,
+	public void berechneTaupunktTemperaturLuft(final LokaleDaten lDaten,
 			final long zeitStemepel, final long zeitIntervall) {
 
 		boolean nichtermittelbar = false;
@@ -499,7 +499,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		// Berechnung und Sendung
 		final double relFeucht = rlF;
 		final double luftTemp = 0.1 * luftT;
-		double ergebnis = Berechnetaupunkt(relFeucht, luftTemp);
+		double ergebnis = berechnetaupunkt(relFeucht, luftTemp);
 		//
 		// Der "att.ufdsTaupunktTemperatur" ist auf dem Beriech<-100,100>
 		// begrentzt
@@ -535,10 +535,10 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		lDaten.tpFbofZeitStemepel = zeitStempel;
 
 		if (keineDaten) {
-			resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_FB,
+			resDatei = new ResultData(lDaten.messStelle, ddUfdmsTtFb,
 					lDaten.tpFbofZeitStemepel, null);
 		} else {
-			resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_FB,
+			resDatei = new ResultData(lDaten.messStelle, ddUfdmsTtFb,
 					lDaten.tpFbofZeitStemepel, lDaten.taupunktFbof);
 		}
 		try {
@@ -546,13 +546,13 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		} catch (final DataNotSubscribedException e) {
 			LOGGER.error(
 					"Sendung von Datensatz "
-							+ DD_UFDMS_TT_FB.getAttributeGroup().getPid()
+							+ ddUfdmsTtFb.getAttributeGroup().getPid()
 							+ " fuer Objekt " + lDaten.messStelle.getPid()
 							+ " unerfolgreich:\n" + e.getMessage());
 		} catch (final SendSubscriptionNotConfirmed e) {
 			LOGGER.error(
 					"Sendung von Datensatz "
-							+ DD_UFDMS_TT_FB.getAttributeGroup().getPid()
+							+ ddUfdmsTtFb.getAttributeGroup().getPid()
 							+ " fuer Objekt " + lDaten.messStelle.getPid()
 							+ " unerfolgreich:\n" + e.getMessage());
 		}
@@ -575,10 +575,10 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		lDaten.tpLuftZeitStemepel = zeitStempel;
 
 		if (keineDaten) {
-			resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_L,
+			resDatei = new ResultData(lDaten.messStelle, ddUfdmsTtL,
 					lDaten.tpLuftZeitStemepel, null);
 		} else {
-			resDatei = new ResultData(lDaten.messStelle, DD_UFDMS_TT_L,
+			resDatei = new ResultData(lDaten.messStelle, ddUfdmsTtL,
 					lDaten.tpLuftZeitStemepel, lDaten.taupunktLuft);
 		}
 
@@ -587,13 +587,13 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		} catch (final DataNotSubscribedException e) {
 			LOGGER.error(
 					"Sendung von Datensatz "
-							+ DD_UFDMS_TT_L.getAttributeGroup().getPid()
+							+ ddUfdmsTtL.getAttributeGroup().getPid()
 							+ " fuer Objekt " + lDaten.messStelle.getPid()
 							+ " unerfolgreich:\n" + e.getMessage());
 		} catch (final SendSubscriptionNotConfirmed e) {
 			LOGGER.error(
 					"Sendung von Datensatz "
-							+ DD_UFDMS_TT_L.getAttributeGroup().getPid()
+							+ ddUfdmsTtL.getAttributeGroup().getPid()
 							+ " fuer Objekt " + lDaten.messStelle.getPid()
 							+ " unerfolgreich:\n" + e.getMessage());
 		}
@@ -608,7 +608,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 *            Temperatur
 	 * @return die Taupunkttemperatur
 	 */
-	public double Berechnetaupunkt(final double feuchte, final double temperatur) {
+	public double berechnetaupunkt(final double feuchte, final double temperatur) {
 		final double x = (241.2 * Math.log(feuchte / 100.0))
 				+ ((4222.03716 * temperatur) / (241.2 + temperatur));
 		final double y = 17.5043 - Math.log(feuchte / 100.0)
@@ -632,12 +632,12 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 			throws DUAInitialisierungsException {
 		Taupunkt.verwaltung = verwaltung1;
 
-		DD_UFDMS_TT_FB = new DataDescription(verwaltung1.getVerbindung()
+		ddUfdmsTtFb = new DataDescription(verwaltung1.getVerbindung()
 				.getDataModel().getAttributeGroup(Taupunkt.ATG_UFDMS_TTFB),
 				verwaltung1.getVerbindung().getDataModel()
 						.getAspect(Taupunkt.ASP_ANALYSE));
 
-		DD_UFDMS_TT_L = new DataDescription(verwaltung1.getVerbindung()
+		ddUfdmsTtL = new DataDescription(verwaltung1.getVerbindung()
 				.getDataModel().getAttributeGroup(Taupunkt.ATG_UFDMS_TTL),
 				verwaltung1.getVerbindung().getDataModel()
 						.getAspect(Taupunkt.ASP_ANALYSE));
@@ -682,7 +682,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 				}
 				if (hatFBOFSensor && hatRLFSensor) {
 					final ResultData resultate = new ResultData(so,
-							DD_UFDMS_TT_FB, System.currentTimeMillis(), null);
+							ddUfdmsTtFb, System.currentTimeMillis(), null);
 					verwaltung1.getVerbindung()
 							.subscribeSource(this, resultate);
 				} else {
@@ -691,7 +691,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 
 				if (hatLTSensor && hatRLFSensor) {
 					final ResultData resultate = new ResultData(so,
-							DD_UFDMS_TT_L, System.currentTimeMillis(), null);
+							ddUfdmsTtL, System.currentTimeMillis(), null);
 					verwaltung1.getVerbindung()
 							.subscribeSource(this, resultate);
 				} else {

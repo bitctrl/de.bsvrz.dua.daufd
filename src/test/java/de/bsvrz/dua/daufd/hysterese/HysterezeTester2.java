@@ -76,7 +76,7 @@ public class HysterezeTester2 {
 	 */
 	public int hystereze(final double wert, final int stufeAlt) {
 
-		double dist = 1.0, dist_neu;
+		double dist = 1.0, distNeu;
 		int j = -1;
 
 		for (int i = 0; i < this.stufeVon.length; i++) {
@@ -84,10 +84,10 @@ public class HysterezeTester2 {
 				if (stufeAlt == i) {
 					return stufeAlt;
 				} else {
-					dist_neu = Math
+					distNeu = Math
 							.abs(((wert - stufeVon[i]) / (stufeBis[i] - stufeVon[i])) - 0.5);
-					if (dist_neu < dist) {
-						dist = dist_neu;
+					if (distNeu < dist) {
+						dist = distNeu;
 						j = i;
 					}
 				}
@@ -100,7 +100,7 @@ public class HysterezeTester2 {
 	 * Testet die Hystereze Klasse
 	 */
 	@Test
-	public void Test() {
+	public void test() {
 
 		for (int i = 0; i < 50; i++) {
 			// Zufaelliger Anzahl der Intervalle, 2 - 20;
@@ -111,7 +111,7 @@ public class HysterezeTester2 {
 
 			final double minWert = 0; // Math.random() * 100 - 50;
 			final double maxWert = Math.random() * 100;
-			final int ANZAHL_TESTS = 1000;
+			final int anzahlTests = 1000;
 
 			vonMenge[0] = minWert;
 			bisMenge[intervalle - 1] = maxWert;
@@ -135,7 +135,7 @@ public class HysterezeTester2 {
 
 			// Vergleicht 1000 zufaellige Nummer
 			int alt = -1;
-			for (int k = 0; k < ANZAHL_TESTS; k++) {
+			for (int k = 0; k < anzahlTests; k++) {
 				final double rand = (1.1 * Math.random() * (maxWert - minWert))
 						- (0.05 * (maxWert - minWert));
 				final int r1 = hyst.getStufe(rand);

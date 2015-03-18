@@ -56,16 +56,16 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 	/**
 	 * Datenbeschreibung fuer die Klasifizierung Daten
 	 */
-	private DataDescription DD_KLASIFIZIERUNG = null;
+	private DataDescription ddKlassifizierung = null;
 	/**
 	 * Datenbeschreibung fuer die Aggregation Daten
 	 */
-	private DataDescription DD_AGGREGATION = null;
+	private DataDescription ddAggregation = null;
 
 	/**
 	 * Verbindung zum DAV
 	 */
-	private ClientDavInterface DAV = null;
+	private ClientDavInterface davConnection = null;
 	/**
 	 * Aspekt fuer Parametrierung
 	 */
@@ -73,19 +73,19 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 	/**
 	 * Typ des Objektes
 	 */
-	private String TYP = null;
+	private String typ = null;
 	/**
 	 * Attributgruppe des Objektes fuer Klassifizierung
 	 */
-	private String ATG_KLASS = null;
+	private String atgKlassifizierung = null;
 	/**
 	 * Attributgruppe des Objektes fuer Aggregation
 	 */
-	private String ATG_AGGREG = null;
+	private String atgAggregation = null;
 	/**
 	 * Attribut zur Parametrierung fuer Klassifizierung
 	 */
-	private String ATT_KLASS = null;
+	private String attKlassifizierung = null;
 	/**
 	 * Untere Grenzwerte
 	 */
@@ -128,10 +128,10 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 			final String atgAggregation, final double[] stufeVon,
 			final double[] stufeBis, final double b0, final double fb)
 			throws DUAInitialisierungsException {
-		this.TYP = typ;
-		this.ATG_KLASS = atgKlassifizierung;
-		this.ATT_KLASS = attKlasifizierung;
-		this.ATG_AGGREG = atgAggregation;
+		this.typ = typ;
+		this.atgKlassifizierung = atgKlassifizierung;
+		this.attKlassifizierung = attKlasifizierung;
+		this.atgAggregation = atgAggregation;
 
 		if ((stufeVon == null) || (stufeBis == null)
 				|| (stufeVon.length != stufeBis.length)) {
@@ -155,40 +155,40 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 	 *            konfigurationsbereiche in denen alle Objekte parametriert
 	 *            werden sollen
 	 */
-	public void ParametriereUfds(final ClientDavInterface dav,
+	public void parametriereUfds(final ClientDavInterface dav,
 			final Collection<ConfigurationArea> konfBereiche) {
-		this.DAV = dav;
+		this.davConnection = dav;
 
-		DD_KLASIFIZIERUNG = new DataDescription(DAV.getDataModel()
-				.getAttributeGroup(ATG_KLASS), DAV.getDataModel().getAspect(
+		ddKlassifizierung = new DataDescription(davConnection.getDataModel()
+				.getAttributeGroup(atgKlassifizierung), davConnection.getDataModel().getAspect(
 				UfdsKlassifizierungParametrierung.ASP_PARAM_VORGABE));
 
-		DD_AGGREGATION = new DataDescription(DAV.getDataModel()
-				.getAttributeGroup(ATG_AGGREG), DAV.getDataModel().getAspect(
+		ddAggregation = new DataDescription(davConnection.getDataModel()
+				.getAttributeGroup(atgAggregation), davConnection.getDataModel().getAspect(
 				UfdsKlassifizierungParametrierung.ASP_PARAM_VORGABE));
 
 		final Collection<SystemObjectType> sotMenge = new LinkedList<SystemObjectType>();
-		sotMenge.add(DAV.getDataModel().getType(TYP));
+		sotMenge.add(davConnection.getDataModel().getType(typ));
 
-		final Collection<SystemObject> ufdsObjekte = DAV.getDataModel()
+		final Collection<SystemObject> ufdsObjekte = davConnection.getDataModel()
 				.getObjects(konfBereiche, sotMenge,
 						ObjectTimeSpecification.valid());
 
 		if (ufdsObjekte == null) {
 			LOGGER.error(
-					"Kein Objekt vom " + TYP
+					"Kein Objekt vom " + typ
 							+ " in den KonfigurationsBeriechen :"
 							+ konfBereiche);
 			System.exit(-1);
 		}
 
 		try {
-			DAV.subscribeSender(this, ufdsObjekte, DD_KLASIFIZIERUNG,
+			davConnection.subscribeSender(this, ufdsObjekte, ddKlassifizierung,
 					SenderRole.sender());
 			// Der DAV ist zu langsam und antwortet mit
 			// "Sendeanmeldung nocht nicht bestaettigt"
 			Thread.sleep(100);
-			DAV.subscribeSender(this, ufdsObjekte, DD_AGGREGATION,
+			davConnection.subscribeSender(this, ufdsObjekte, ddAggregation,
 					SenderRole.sender());
 			// Der DAV ist zu langsam und antwortet mit
 			// "Sendeanmeldung nocht nicht bestaettigt"
@@ -196,7 +196,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		} catch (final Exception e) {
 			LOGGER.error(
 					"Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ "
-							+ TYP + ":" + e.getMessage());
+							+ typ + ":" + e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -206,7 +206,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		// dataRequest(so, DD_AGGREGATION, START_SENDING);
 		// }
 
-		DAV.unsubscribeSender(this, ufdsObjekte, DD_KLASIFIZIERUNG);
+		davConnection.unsubscribeSender(this, ufdsObjekte, ddKlassifizierung);
 
 	}
 
@@ -216,13 +216,13 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 	@Override
 	public void dataRequest(final SystemObject object,
 			final DataDescription dataDescription, final byte state) {
-		if (dataDescription.getAttributeGroup().getPid().equals(ATG_KLASS)
+		if (dataDescription.getAttributeGroup().getPid().equals(atgKlassifizierung)
 				&& (state == ClientSenderInterface.START_SENDING)) {
 
-			final Data datei = DAV.createData(DAV.getDataModel()
-					.getAttributeGroup(ATG_KLASS));
+			final Data datei = davConnection.createData(davConnection.getDataModel()
+					.getAttributeGroup(atgKlassifizierung));
 
-			final Data.Array stufen = datei.getArray(ATT_KLASS);
+			final Data.Array stufen = datei.getArray(attKlassifizierung);
 			stufen.setLength(stufeBis.length);
 
 			for (int i = 0; i < stufeBis.length; i++) {
@@ -230,12 +230,12 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 				stufen.getItem(i).getScaledValue("bis").set(stufeBis[i]);
 			}
 			final ResultData resDatei = new ResultData(object,
-					DD_KLASIFIZIERUNG, System.currentTimeMillis(), datei);
+					ddKlassifizierung, System.currentTimeMillis(), datei);
 
 			try {
-				DAV.sendData(resDatei);
+				davConnection.sendData(resDatei);
 				System.out.println("Objekt " + object.getPid() + " Atg: "
-						+ ATG_KLASS + " parametriert ");
+						+ atgKlassifizierung + " parametriert ");
 			} catch (final Exception e) {
 				LOGGER.error(
 						"Fehler bei Sendung von Daten für Klassifizierung des Objektes :"
@@ -244,22 +244,22 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 				e.printStackTrace();
 			}
 		} else if (dataDescription.getAttributeGroup().getPid()
-				.equals(ATG_AGGREG)
+				.equals(atgAggregation)
 				&& (state == ClientSenderInterface.START_SENDING)) {
 
-			final Data datei = DAV.createData(DAV.getDataModel()
-					.getAttributeGroup(ATG_AGGREG));
+			final Data datei = davConnection.createData(davConnection.getDataModel()
+					.getAttributeGroup(atgAggregation));
 
 			datei.getScaledValue("b0").set(b0);
 			datei.getScaledValue("fb").set(fb);
 
-			final ResultData resDatei = new ResultData(object, DD_AGGREGATION,
+			final ResultData resDatei = new ResultData(object, ddAggregation,
 					System.currentTimeMillis(), datei);
 
 			try {
-				DAV.sendData(resDatei);
+				davConnection.sendData(resDatei);
 				System.out.println("Objekt " + object.getPid() + " Atg: "
-						+ ATG_AGGREG + " parametriert ");
+						+ atgAggregation + " parametriert ");
 			} catch (final Exception e) {
 				LOGGER.error(
 						"Fehler bei Sendung von Daten für Aggregation des Objektes :"

@@ -85,7 +85,7 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 	 * 
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 */
-	public enum WFD_Stufe {
+	public enum WFDStufe {
 		WFD_STUFE0, WFD_STUFE1, WFD_STUFE2, WFD_STUFE3, WFD_WERT_NV // Wert
 																	// nicht
 																	// verfuegbar
@@ -94,9 +94,9 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	protected final static WFD_Stufe[] mapIntStufe = new WFD_Stufe[] {
-			WFD_Stufe.WFD_STUFE0, WFD_Stufe.WFD_STUFE1, WFD_Stufe.WFD_STUFE2,
-			WFD_Stufe.WFD_STUFE3 };
+	private final static WFDStufe[] MAP_INT_STUFE = new WFDStufe[] {
+			WFDStufe.WFD_STUFE0, WFDStufe.WFD_STUFE1, WFDStufe.WFD_STUFE2,
+			WFDStufe.WFD_STUFE3 };
 
 	/**
 	 * Konvertiert die WFD_stufe aus Integer ins symbolischen Format
@@ -105,12 +105,12 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 	 *            Stufe Int
 	 * @return WFD Stufe symbolisch
 	 */
-	static public WFD_Stufe getStufe(final int stufe) {
-		WFD_Stufe stufeSymb;
-		if ((stufe < 0) || (stufe > WasserFilmDickeStufe.mapIntStufe.length)) {
-			stufeSymb = WFD_Stufe.WFD_WERT_NV;
+	static public WFDStufe getStufe(final int stufe) {
+		WFDStufe stufeSymb;
+		if ((stufe < 0) || (stufe > WasserFilmDickeStufe.MAP_INT_STUFE.length)) {
+			stufeSymb = WFDStufe.WFD_WERT_NV;
 		} else {
-			stufeSymb = WasserFilmDickeStufe.mapIntStufe[stufe];
+			stufeSymb = WasserFilmDickeStufe.MAP_INT_STUFE[stufe];
 		}
 		return stufeSymb;
 	}
@@ -122,9 +122,9 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 	 *            WFD_Stufe symbolisch
 	 * @return Stufe int
 	 */
-	static public int getStufe(final WFD_Stufe stufe) {
+	static public int getStufe(final WFDStufe stufe) {
 		int intStufe = -1;
-		if (stufe != WFD_Stufe.WFD_WERT_NV) {
+		if (stufe != WFDStufe.WFD_WERT_NV) {
 			intStufe = stufe.ordinal();
 		}
 		return intStufe;

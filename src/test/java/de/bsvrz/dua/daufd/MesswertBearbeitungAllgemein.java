@@ -46,104 +46,104 @@ public class MesswertBearbeitungAllgemein {
 	 */
 	public static double[] generiereMesswerte(final double min, final double max) {
 
-		final int N = 31;
-		final int M = 32;
-		final int K = 7;
-		final int L = 30;
-		final int ANZAHL = N + M + K + L;
+		final int n = 31;
+		final int m = 32;
+		final int k = 7;
+		final int l = 30;
+		final int anzahl = n + m + k + l;
 		final double intervall = max - min;
 		double schritt;
 
-		final double[] Messwert = new double[ANZAHL];
+		final double[] messwert = new double[anzahl];
 
 		// Zuerst steigende und dann sinkende Werte
-		schritt = intervall / N;
-		for (int i = 0; i < N; i++) {
-			Messwert[i] = max - Math.abs((2 * i * schritt) - intervall);
+		schritt = intervall / n;
+		for (int i = 0; i < n; i++) {
+			messwert[i] = max - Math.abs((2 * i * schritt) - intervall);
 		}
 
 		// Divergiert vo der Mitte des INtervalles
-		schritt = intervall / M;
-		for (int i = N; i < (N + M); i++) {
-			final int j = i - N;
-			Messwert[i] = (intervall / 2)
+		schritt = intervall / m;
+		for (int i = n; i < (n + m); i++) {
+			final int j = i - n;
+			messwert[i] = (intervall / 2)
 					- ((Math.pow(-1.0, j) * j * schritt) / 2);
 		}
 
 		// Zuerst sinkende und dann steigende Werte, mit groesserem Gradient
-		schritt = intervall / K;
-		for (int i = N + M; i < (N + M + K); i++) {
-			final int j = i - N - M;
-			Messwert[i] = min + Math.abs(intervall - (j * schritt * 2));
+		schritt = intervall / k;
+		for (int i = n + m; i < (n + m + k); i++) {
+			final int j = i - n - m;
+			messwert[i] = min + Math.abs(intervall - (j * schritt * 2));
 		}
 
 		// Zufaellige Werte
-		for (int i = N + M + K; i < (N + M + K + L); i++) {
-			Messwert[i] = min + (Math.random() * intervall);
+		for (int i = n + m + k; i < (n + m + k + l); i++) {
+			messwert[i] = min + (Math.random() * intervall);
 		}
 
-		return Messwert;
+		return messwert;
 	}
 
 	/**
 	 * Generiert Geraeusch und setzt zufaellige Werte als 0
 	 * 
-	 * @param Messwert
+	 * @param messwert
 	 *            Original Array
 	 * @param intervall
 	 *            Intervall des Gerausches
 	 * @param anzahlNullWerte
 	 *            Anzahl der Messwerte, die als 0 gesetzt werden
 	 */
-	public static void gerauescheMesswerte(final double[] Messwert,
+	public static void gerauescheMesswerte(final double[] messwert,
 			final double intervall, final int anzahlNullWerte) {
-		for (int i = 0; i < Messwert.length; i++) {
-			Messwert[i] += (Math.random() * intervall) - (intervall / 2);
+		for (int i = 0; i < messwert.length; i++) {
+			messwert[i] += (Math.random() * intervall) - (intervall / 2);
 		}
 		for (int i = 0; i < anzahlNullWerte; i++) {
-			if (Messwert[i] < 0) {
-				Messwert[i] = 0;
+			if (messwert[i] < 0) {
+				messwert[i] = 0;
 			}
 		}
 		for (int i = 0; i < anzahlNullWerte; i++) {
-			final int j = (int) (Math.random() * Messwert.length);
-			Messwert[j] = 0;
+			final int j = (int) (Math.random() * messwert.length);
+			messwert[j] = 0;
 		}
 	}
 
 	/**
 	 * Glaettet die Messwerte
 	 *
-	 * @param Messwert
+	 * @param messwert
 	 *            Messwerte
 	 * @param b
 	 *            Koefizient b
-	 * @param MesswertGlatt
+	 * @param messwertGlatt
 	 *            Ausgabe geglaettete Messwerte
 	 * @param f
 	 *            Koefizient f
 	 * @param b0
 	 *            Koefizient b[0]
 	 */
-	public static void glaetteMesswerte(final double[] Messwert,
-			final double[] b, final double[] MesswertGlatt, final double f,
+	public static void glaetteMesswerte(final double[] messwert,
+			final double[] b, final double[] messwertGlatt, final double f,
 			final double b0) {
 
 		b[0] = b0;
-		MesswertGlatt[0] = Messwert[0];
+		messwertGlatt[0] = messwert[0];
 
-		for (int i = 1; i < Messwert.length; i++) {
-			if (Messwert[i] == 0) {
-				MesswertGlatt[i] = 0;
+		for (int i = 1; i < messwert.length; i++) {
+			if (messwert[i] == 0) {
+				messwertGlatt[i] = 0;
 				b[i] = b[0];
 			} else {
 				b[i] = b[0]
-						+ (1.0 - ((f * MesswertGlatt[i - 1]) / Messwert[i]));
+						+ (1.0 - ((f * messwertGlatt[i - 1]) / messwert[i]));
 				if ((b[i] < b[0]) || (b[i] > 1.0)) {
 					b[i] = b[0];
 				}
-				MesswertGlatt[i] = (b[i] * Messwert[i])
-						+ ((1.0 - b[i]) * MesswertGlatt[i - 1]);
+				messwertGlatt[i] = (b[i] * messwert[i])
+						+ ((1.0 - b[i]) * messwertGlatt[i - 1]);
 			}
 		}
 	}
@@ -151,26 +151,26 @@ public class MesswertBearbeitungAllgemein {
 	/**
 	 * Rundet die Messwerte auf eine Stelle nach dem Komma, weil die Skalierung
 	 * ist 0.1, und deswegen in Datensaetzen genauere Werte nicht enthalten
-	 * werden koennen
+	 * werden koennen.
 	 *
-	 * @param Messwert
+	 * @param messwert
 	 */
-	public static void rundeMesswerte(final double[] Messwert) {
+	public static void rundeMesswerte(final double[] messwert) {
 		double d;
-		for (int i = 0; i < Messwert.length; i++) {
-			d = Math.round(Messwert[i] * 10);
-			Messwert[i] = d / 10.0;
+		for (int i = 0; i < messwert.length; i++) {
+			d = Math.round(messwert[i] * 10);
+			messwert[i] = d / 10.0;
 		}
 	}
 
 	/**
-	 * Rundet die Messwerte auf Ganze Zahl
+	 * Rundet die Messwerte auf Ganze Zahl.
 	 * 
-	 * @param Messwert
+	 * @param messwert
 	 */
-	public static void rundeMesswerteGanzeZahl(final double[] Messwert) {
-		for (int i = 0; i < Messwert.length; i++) {
-			Messwert[i] = Math.round(Messwert[i]);
+	public static void rundeMesswerteGanzeZahl(final double[] messwert) {
+		for (int i = 0; i < messwert.length; i++) {
+			messwert[i] = Math.round(messwert[i]);
 		}
 	}
 }

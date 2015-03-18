@@ -80,16 +80,16 @@ ClientReceiverInterface, ClientSenderInterface {
 	 * Datenbeschreibung fuer DS, die die Parametrierung fuer die Glaettung
 	 * enthaten
 	 */
-	protected DataDescription DD_AGGREGATION;
+	protected DataDescription ddAggregation;
 	/**
 	 * Datenbeschreibung fuer DS, die die Parametrierung fuer die Klassifikation
 	 * enthalten
 	 */
-	protected DataDescription DD_KLASSIFIZIERUNG;
+	protected DataDescription ddKlassifizierung;
 	/**
 	 * Datenbeschreibung fuer Ausgabedatensaete
 	 */
-	protected DataDescription DD_QUELLE;
+	protected DataDescription ddQuelle;
 	/**
 	 * Sensoren, deren Daten bearebietet werden sollen
 	 */
@@ -133,7 +133,7 @@ ClientReceiverInterface, ClientSenderInterface {
 		/**
 		 * Geglaettetes Messwert aus dem vorherigen Zyklus
 		 */
-		public double MesswertGlatti_1 = Double.NaN;
+		public double messwertGlatti1 = Double.NaN;
 		/**
 		 * Letzte berechnete Stufe
 		 */
@@ -155,11 +155,11 @@ ClientReceiverInterface, ClientSenderInterface {
 	/**
 	 * Aspekt Parameter-Soll
 	 */
-	protected final String ASP_SOLL_PARAM = "asp.parameterSoll";
+	protected static final String ASP_SOLL_PARAM = "asp.parameterSoll";
 	/**
 	 * Aspekt Klassifizierung
 	 */
-	protected final String ASP_KLASSIFIZIERUNG = "asp.klassifizierung";
+	protected static final String ASP_KLASSIFIZIERUNG = "asp.klassifizierung";
 	/**
 	 * Abbildet dem SystemObjekt Sensor auf eine Sturuktur mit Parameter des
 	 * Sensors
@@ -173,18 +173,18 @@ ClientReceiverInterface, ClientSenderInterface {
 	public void initialisiere(final IVerwaltung verwaltung)
 			throws DUAInitialisierungsException {
 		this.verwaltung = verwaltung;
-		DD_KLASSIFIZIERUNG = new DataDescription(verwaltung.getVerbindung()
+		ddKlassifizierung = new DataDescription(verwaltung.getVerbindung()
 				.getDataModel()
 				.getAttributeGroup(getKlassifizierungsAttributGruppe()),
 				verwaltung.getVerbindung().getDataModel()
 				.getAspect(ASP_SOLL_PARAM));
 
-		DD_AGGREGATION = new DataDescription(verwaltung.getVerbindung()
+		ddAggregation = new DataDescription(verwaltung.getVerbindung()
 				.getDataModel()
 				.getAttributeGroup(getAggregationsAtrributGruppe()), verwaltung
 				.getVerbindung().getDataModel().getAspect(ASP_SOLL_PARAM));
 
-		DD_QUELLE = new DataDescription(verwaltung.getVerbindung()
+		ddQuelle = new DataDescription(verwaltung.getVerbindung()
 				.getDataModel().getAttributeGroup(getStufeAttributGruppe()),
 				verwaltung.getVerbindung().getDataModel()
 				.getAspect(ASP_KLASSIFIZIERUNG));
@@ -206,7 +206,7 @@ ClientReceiverInterface, ClientSenderInterface {
 					if (getSensorTyp().equals(sensor.getType().getPid())) {
 						try {
 							verwaltung.getVerbindung().subscribeSender(this,
-									sensor, DD_QUELLE, SenderRole.source());
+									sensor, ddQuelle, SenderRole.source());
 							sensorDaten.put(sensor, new SensorParameter());
 							sensoren.add(sensor);
 						} catch (final OneSubscriptionPerSendData e) {
@@ -220,10 +220,10 @@ ClientReceiverInterface, ClientSenderInterface {
 			}
 		}
 		verwaltung.getVerbindung().subscribeReceiver(this, sensoren,
-				DD_AGGREGATION, ReceiveOptions.normal(),
+				ddAggregation, ReceiveOptions.normal(),
 				ReceiverRole.receiver());
 		verwaltung.getVerbindung().subscribeReceiver(this, sensoren,
-				DD_KLASSIFIZIERUNG, ReceiveOptions.normal(),
+				ddKlassifizierung, ReceiveOptions.normal(),
 				ReceiverRole.receiver());
 	}
 
@@ -325,7 +325,7 @@ ClientReceiverInterface, ClientSenderInterface {
 				if (daten == null) {
 					if (!param.keineDaten) {
 						param.keineDaten = true;
-						SendeStufe(objekt, -1, resData.getDataTime(), true);
+						sendeStufe(objekt, -1, resData.getDataTime(), true);
 					}
 					continue;
 				}
@@ -372,7 +372,7 @@ ClientReceiverInterface, ClientSenderInterface {
 		}
 		param.stufe = stufe;
 		param.keineDaten = false;
-		SendeStufe(objekt, stufe, zeitStempel, false);
+		sendeStufe(objekt, stufe, zeitStempel, false);
 		param.letzteDaten = null;
 	}
 
@@ -386,20 +386,20 @@ ClientReceiverInterface, ClientSenderInterface {
 	 * @param zeitStempel
 	 *            Zeitpunkt
 	 */
-	public void SendeStufe(final SystemObject objekt, final int stufe,
+	public void sendeStufe(final SystemObject objekt, final int stufe,
 			final long zeitStempel, final boolean keineDaten) {
 
 		// Mann muss ein Array dem naechsten Knoten weitergeben
 		final ResultData[] resultate = new ResultData[1];
 
 		if (keineDaten) {
-			resultate[0] = new ResultData(objekt, DD_QUELLE, zeitStempel, null);
+			resultate[0] = new ResultData(objekt, ddQuelle, zeitStempel, null);
 		} else {
 			final Data data = verwaltung.getVerbindung().createData(
 					verwaltung.getVerbindung().getDataModel()
 					.getAttributeGroup(getStufeAttributGruppe()));
 			data.getItem("Stufe").asUnscaledValue().set(stufe); //$NON-NLS-1$
-			resultate[0] = new ResultData(objekt, DD_QUELLE, zeitStempel, data);
+			resultate[0] = new ResultData(objekt, ddQuelle, zeitStempel, data);
 		}
 
 		try {
@@ -428,32 +428,32 @@ ClientReceiverInterface, ClientSenderInterface {
 	public double berechneMesswertGlaettung(final SensorParameter param,
 			final double messwert) {
 		double messwertGlatt;
-		double b_i;
+		double bI;
 
 		// erstes Wert
-		if (Double.isNaN(param.MesswertGlatti_1)) {
-			param.MesswertGlatti_1 = messwert;
+		if (Double.isNaN(param.messwertGlatti1)) {
+			param.messwertGlatti1 = messwert;
 			return messwert;
 		}
 		// Messwert gleich 0
 		if (Math.abs(messwert) < 0.000001) {
-			param.MesswertGlatti_1 = 0.0;
+			param.messwertGlatti1 = 0.0;
 			return 0.0;
 		}
 
-		b_i = param.b0
-				+ (1.0 - ((param.fb * param.MesswertGlatti_1) / messwert));
-		if (b_i < param.b0) {
-			b_i = param.b0;
+		bI = param.b0
+				+ (1.0 - ((param.fb * param.messwertGlatti1) / messwert));
+		if (bI < param.b0) {
+			bI = param.b0;
 		}
-		if (b_i > 1.0) {
-			b_i = 1.0;
+		if (bI > 1.0) {
+			bI = 1.0;
 		}
 
-		messwertGlatt = (b_i * messwert)
-				+ ((1.0 - b_i) * param.MesswertGlatti_1);
+		messwertGlatt = (bI * messwert)
+				+ ((1.0 - bI) * param.messwertGlatti1);
 
-		param.MesswertGlatti_1 = messwertGlatt;
+		param.messwertGlatti1 = messwertGlatt;
 		return messwertGlatt;
 	}
 

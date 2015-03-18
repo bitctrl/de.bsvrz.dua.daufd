@@ -64,13 +64,13 @@ public class VerwaltungAufbereitungUFDTest extends VerwaltungAufbereitungUFD {
 		/*
 		 * Die parametrierung des Testkonfigruationsbereichs
 		 */
-		NaesseStufeTest.ParametriereUfds(verbindung,
+		NaesseStufeTest.parametriereUfds(verbindung,
 				this.getKonfigurationsBereiche());
-		WasserFilmDickeStufeTest.ParametriereUfds(verbindung,
+		WasserFilmDickeStufeTest.parametriereUfds(verbindung,
 				this.getKonfigurationsBereiche());
-		NiederschlagIntensitaetStufeTest.ParametriereUfds(verbindung,
+		NiederschlagIntensitaetStufeTest.parametriereUfds(verbindung,
 				this.getKonfigurationsBereiche());
-		SichtWeiteStufeTest.ParametriereUfds(verbindung,
+		SichtWeiteStufeTest.parametriereUfds(verbindung,
 				this.getKonfigurationsBereiche());
 		try {
 			Thread.sleep(1000);

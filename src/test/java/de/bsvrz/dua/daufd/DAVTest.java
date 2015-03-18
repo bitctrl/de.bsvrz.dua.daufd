@@ -64,12 +64,12 @@ public class DAVTest {
 	/**
 	 * Verbindung zum Datenverteiler
 	 */
-	protected static ClientDavInterface VERBINDUNG = null;
+	protected static ClientDavInterface verbindung;
 
 	/**
 	 * Randomizer
 	 */
-	public static Random R = new Random(System.currentTimeMillis());
+	public static final Random RANDOM = new Random(System.currentTimeMillis());
 
 	/**
 	 * Erfragt bzw. initialisiert eine Datenverteiler-Verbindung
@@ -80,13 +80,13 @@ public class DAVTest {
 	 */
 	public static final ClientDavInterface getDav() throws Exception {
 
-		if (DAVTest.VERBINDUNG == null) {
+		if (DAVTest.verbindung == null) {
 			StandardApplicationRunner.run(new StandardApplication() {
 
 				@Override
 				public void initialize(final ClientDavInterface connection)
 						throws Exception {
-					DAVTest.VERBINDUNG = connection;
+					DAVTest.verbindung = connection;
 				}
 
 				@Override
@@ -98,7 +98,7 @@ public class DAVTest {
 			}, DAVTest.CON_DATA);
 		}
 
-		return DAVTest.VERBINDUNG;
+		return DAVTest.verbindung;
 	}
 
 	/**
@@ -132,7 +132,7 @@ public class DAVTest {
 		}
 
 		while (belegt < anzahl) {
-			final int index = DAVTest.R.nextInt(anzahl);
+			final int index = DAVTest.RANDOM.nextInt(anzahl);
 			if (zahlen[index] == -1) {
 				zahlen[index] = belegt++;
 			}

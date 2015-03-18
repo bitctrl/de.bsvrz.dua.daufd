@@ -86,7 +86,7 @@ public class NiederschlagIntensitaetStufe extends AbstraktStufe {
 	 * 
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 */
-	public enum NI_Stufe {
+	public enum NIStufe {
 		NI_STUFE0, NI_STUFE1, NI_STUFE2, NI_STUFE3, NI_STUFE4, NI_WERT_NV // Wert
 																			// nicht
 																			// verfuegbar
@@ -95,9 +95,9 @@ public class NiederschlagIntensitaetStufe extends AbstraktStufe {
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	protected final static NI_Stufe[] mapIntStufe = new NI_Stufe[] {
-			NI_Stufe.NI_STUFE0, NI_Stufe.NI_STUFE1, NI_Stufe.NI_STUFE2,
-			NI_Stufe.NI_STUFE3, NI_Stufe.NI_STUFE4 };
+	private static final NIStufe[] MAP_INT_STUFE = new NIStufe[] {
+			NIStufe.NI_STUFE0, NIStufe.NI_STUFE1, NIStufe.NI_STUFE2,
+			NIStufe.NI_STUFE3, NIStufe.NI_STUFE4 };
 
 	/**
 	 * Konvertiert die NI_stufe aus Integer ins symbolische Format
@@ -106,13 +106,13 @@ public class NiederschlagIntensitaetStufe extends AbstraktStufe {
 	 *            Stufe int
 	 * @return NI_Stufe symbolisch
 	 */
-	static public NI_Stufe getStufe(final int stufe) {
-		NI_Stufe stufeSymb;
+	static public NIStufe getStufe(final int stufe) {
+		NIStufe stufeSymb;
 		if ((stufe < 0)
-				|| (stufe > NiederschlagIntensitaetStufe.mapIntStufe.length)) {
-			stufeSymb = NI_Stufe.NI_WERT_NV;
+				|| (stufe > NiederschlagIntensitaetStufe.MAP_INT_STUFE.length)) {
+			stufeSymb = NIStufe.NI_WERT_NV;
 		} else {
-			stufeSymb = NiederschlagIntensitaetStufe.mapIntStufe[stufe];
+			stufeSymb = NiederschlagIntensitaetStufe.MAP_INT_STUFE[stufe];
 		}
 		return stufeSymb;
 	}
@@ -124,9 +124,9 @@ public class NiederschlagIntensitaetStufe extends AbstraktStufe {
 	 *            NI_Stufe symbolisch
 	 * @return Stufe int
 	 */
-	static public int getStufe(final NI_Stufe stufe) {
+	static public int getStufe(final NIStufe stufe) {
 		int intStufe = -1;
-		if (stufe != NI_Stufe.NI_WERT_NV) {
+		if (stufe != NIStufe.NI_WERT_NV) {
 			intStufe = stufe.ordinal();
 		}
 		return intStufe;

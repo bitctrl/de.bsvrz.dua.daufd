@@ -87,7 +87,7 @@ public class SichtWeiteStufe extends AbstraktStufe {
 	 *
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 */
-	public enum SW_Stufe {
+	public enum SWStufe {
 		SW_STUFE0, SW_STUFE1, SW_STUFE2, SW_STUFE3, SW_STUFE4, SW_STUFE5, SW_WERT_NV // Wert
 		// nicht
 		// verfuegbar
@@ -96,9 +96,9 @@ public class SichtWeiteStufe extends AbstraktStufe {
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	protected final static SW_Stufe[] mapIntStufe = new SW_Stufe[] {
-		SW_Stufe.SW_STUFE0, SW_Stufe.SW_STUFE1, SW_Stufe.SW_STUFE2,
-		SW_Stufe.SW_STUFE3, SW_Stufe.SW_STUFE4, SW_Stufe.SW_STUFE5 };
+	private static final SWStufe[] MAP_INT_STUFE = new SWStufe[] {
+		SWStufe.SW_STUFE0, SWStufe.SW_STUFE1, SWStufe.SW_STUFE2,
+		SWStufe.SW_STUFE3, SWStufe.SW_STUFE4, SWStufe.SW_STUFE5 };
 
 	/**
 	 * Ergibt die SW Stufe fuer ein bestimmtes sensor
@@ -107,15 +107,15 @@ public class SichtWeiteStufe extends AbstraktStufe {
 	 *            Sensoer
 	 * @return SW Stufe
 	 */
-	public SW_Stufe getStufe(final SystemObject sensor) {
+	public SWStufe getStufe(final SystemObject sensor) {
 
-		SW_Stufe stufe;
+		SWStufe stufe;
 		final SensorParameter sensorDaten = this.sensorDaten.get(sensor);
 		if ((sensorDaten.stufe < 0)
-				|| (sensorDaten.stufe > SichtWeiteStufe.mapIntStufe.length)) {
-			stufe = SW_Stufe.SW_WERT_NV;
+				|| (sensorDaten.stufe > SichtWeiteStufe.MAP_INT_STUFE.length)) {
+			stufe = SWStufe.SW_WERT_NV;
 		} else {
-			stufe = SichtWeiteStufe.mapIntStufe[sensorDaten.stufe];
+			stufe = SichtWeiteStufe.MAP_INT_STUFE[sensorDaten.stufe];
 		}
 		return stufe;
 	}
@@ -133,35 +133,35 @@ public class SichtWeiteStufe extends AbstraktStufe {
 	public double berechneMesswertGlaettung(final SensorParameter param,
 			final double messwert) {
 		double messwertGlatt;
-		double b_i;
+		double bI;
 
 		// erstes Wert
-		if (Double.isNaN(param.MesswertGlatti_1)) {
-			param.MesswertGlatti_1 = messwert;
+		if (Double.isNaN(param.messwertGlatti1)) {
+			param.messwertGlatti1 = messwert;
 			return messwert;
 		}
 		// alter geglaetteter Messwert gleich 0
-		if (Math.abs(param.MesswertGlatti_1) < 0.000001) {
-			param.MesswertGlatti_1 = messwert;
+		if (Math.abs(param.messwertGlatti1) < 0.000001) {
+			param.messwertGlatti1 = messwert;
 		}
 		if (Math.abs(messwert) < 0.000001) {
-			param.MesswertGlatti_1 = 0.0;
+			param.messwertGlatti1 = 0.0;
 			return 0.0;
 		}
 
-		b_i = param.b0
-				+ (1.0 - ((param.fb * messwert) / param.MesswertGlatti_1));
-		if (b_i < param.b0) {
-			b_i = param.b0;
+		bI = param.b0
+				+ (1.0 - ((param.fb * messwert) / param.messwertGlatti1));
+		if (bI < param.b0) {
+			bI = param.b0;
 		}
-		if (b_i > 1.0) {
-			b_i = 1.0;
+		if (bI > 1.0) {
+			bI = 1.0;
 		}
 
-		messwertGlatt = (b_i * messwert)
-				+ ((1.0 - b_i) * param.MesswertGlatti_1);
+		messwertGlatt = (bI * messwert)
+				+ ((1.0 - bI) * param.messwertGlatti1);
 
-		param.MesswertGlatti_1 = messwertGlatt;
+		param.messwertGlatti1 = messwertGlatt;
 		return messwertGlatt;
 	}
 
