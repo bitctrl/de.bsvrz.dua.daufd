@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>de.bsvrz.sys</groupId>
 			<artifactId>de.bsvrz.sys.funclib.bitctrl</artifactId>
-			<version>1.2.3-SNAPSHOT</version>
+			<version>[1.2.3,2.0.0)</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
