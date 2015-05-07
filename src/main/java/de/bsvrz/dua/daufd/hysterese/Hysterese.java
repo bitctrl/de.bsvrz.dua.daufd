@@ -247,7 +247,7 @@ public class Hysterese {
 	/**
 	 * Ermittelt die Indizes der Intervalle, in denen der übergebene Wert liegt.<br>
 	 * <b>Achtung:</b> Ein Wert <code>wert</code> liegt innerhalb des Intervalls
-	 * <code>[a, b[</code>, wenn gilt: <code>a <= wert < b</code>
+	 * <code>[a, b[</code>, wenn gilt: <code>a &lt;= wert &lt; b</code>
 	 *
 	 * @param wert
 	 *            ein Wert
