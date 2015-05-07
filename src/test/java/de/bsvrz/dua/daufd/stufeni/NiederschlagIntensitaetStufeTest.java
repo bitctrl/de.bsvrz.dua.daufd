@@ -53,7 +53,6 @@ import de.bsvrz.sys.funclib.debug.Debug;
  * Testet und paramteriert den Modul NiederschalIntensitaetStufe.
  * 
  * @author BitCtrl Systems GmbH, Bachraty
- * @version $Id$
  */
 @Ignore("Testdatenverteiler prüfen")
 public class NiederschlagIntensitaetStufeTest extends
