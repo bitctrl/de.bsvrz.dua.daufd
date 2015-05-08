@@ -73,9 +73,6 @@ public class SichtWeiteStufe extends AbstraktStufe {
 		return "typ.ufdsSichtWeite";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void aktualisierePublikation(final IDatenFlussSteuerung dfs) {
 		// TODO Auto-generated method stub
@@ -96,9 +93,8 @@ public class SichtWeiteStufe extends AbstraktStufe {
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	private static final SWStufe[] MAP_INT_STUFE = new SWStufe[] {
-		SWStufe.SW_STUFE0, SWStufe.SW_STUFE1, SWStufe.SW_STUFE2,
-		SWStufe.SW_STUFE3, SWStufe.SW_STUFE4, SWStufe.SW_STUFE5 };
+	private static final SWStufe[] MAP_INT_STUFE = new SWStufe[] { SWStufe.SW_STUFE0, SWStufe.SW_STUFE1,
+			SWStufe.SW_STUFE2, SWStufe.SW_STUFE3, SWStufe.SW_STUFE4, SWStufe.SW_STUFE5 };
 
 	/**
 	 * Ergibt die SW Stufe fuer ein bestimmtes sensor
@@ -111,8 +107,7 @@ public class SichtWeiteStufe extends AbstraktStufe {
 
 		SWStufe stufe;
 		final SensorParameter sensorDaten = this.sensorDaten.get(sensor);
-		if ((sensorDaten.stufe < 0)
-				|| (sensorDaten.stufe > SichtWeiteStufe.MAP_INT_STUFE.length)) {
+		if ((sensorDaten.stufe < 0) || (sensorDaten.stufe > SichtWeiteStufe.MAP_INT_STUFE.length)) {
 			stufe = SWStufe.SW_WERT_NV;
 		} else {
 			stufe = SichtWeiteStufe.MAP_INT_STUFE[sensorDaten.stufe];
@@ -130,8 +125,7 @@ public class SichtWeiteStufe extends AbstraktStufe {
 	 * @return Geglaetettes Messwert
 	 */
 	@Override
-	public double berechneMesswertGlaettung(final SensorParameter param,
-			final double messwert) {
+	public double berechneMesswertGlaettung(final SensorParameter param, final double messwert) {
 		double messwertGlatt;
 		double bI;
 
@@ -149,8 +143,7 @@ public class SichtWeiteStufe extends AbstraktStufe {
 			return 0.0;
 		}
 
-		bI = param.b0
-				+ (1.0 - ((param.fb * messwert) / param.messwertGlatti1));
+		bI = param.b0 + (1.0 - ((param.fb * messwert) / param.messwertGlatti1));
 		if (bI < param.b0) {
 			bI = param.b0;
 		}
@@ -158,8 +151,7 @@ public class SichtWeiteStufe extends AbstraktStufe {
 			bI = 1.0;
 		}
 
-		messwertGlatt = (bI * messwert)
-				+ ((1.0 - bI) * param.messwertGlatti1);
+		messwertGlatt = (bI * messwert) + ((1.0 - bI) * param.messwertGlatti1);
 
 		param.messwertGlatti1 = messwertGlatt;
 		return messwertGlatt;

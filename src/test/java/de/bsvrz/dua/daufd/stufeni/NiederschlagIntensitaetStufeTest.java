@@ -51,24 +51,24 @@ import de.bsvrz.sys.funclib.debug.Debug;
 
 /**
  * Testet und paramteriert den Modul NiederschalIntensitaetStufe.
- * 
+ *
  * @author BitCtrl Systems GmbH, Bachraty
  */
 @Ignore("Testdatenverteiler prüfen")
-public class NiederschlagIntensitaetStufeTest extends
-		NiederschlagIntensitaetStufe {
+public class NiederschlagIntensitaetStufeTest extends NiederschlagIntensitaetStufe {
 
 	private static final Debug LOGGER = Debug.getLogger();
 	/**
 	 * NI-Stufe untere Grenzwerte [AFo]
 	 */
-	private static final double[] STUFE_VON = new double[] { 0.0, 0.2, 1.0, 4.0,
-			10.0 };
+	private static final double[] STUFE_VON = new double[] { 0.0, 0.2, 1.0, 4.0, 10.0 };
 	/**
 	 * NI-Stufe obere Grenzwerte [AFo]
 	 */
-	private static final double[] STUFE_BIS = new double[] { 0.3, 1.2, 5.0,
-			12.0, 200.0 // Max Wert vom DaK
+	private static final double[] STUFE_BIS = new double[] { 0.3, 1.2, 5.0, 12.0, 200.0 // Max
+																						// Wert
+																						// vom
+																						// DaK
 	};
 	/**
 	 * Koefizient fuer Glaettung.
@@ -135,7 +135,7 @@ public class NiederschlagIntensitaetStufeTest extends
 
 	/**
 	 * Sendet die Parametrierung aus dem Tabellen der AFo dem DAV
-	 * 
+	 *
 	 * @param dav
 	 *            DAV
 	 * @param konfBereiche
@@ -146,19 +146,15 @@ public class NiederschlagIntensitaetStufeTest extends
 			final Collection<ConfigurationArea> konfBereiche) {
 		try {
 			final UfdsKlassifizierungParametrierung param = new UfdsKlassifizierungParametrierung(
-					NiederschlagIntensitaetStufeTest.TYP_UFDS_NI,
-					NiederschlagIntensitaetStufeTest.ATG_UFDS_KLASS_NI,
+					NiederschlagIntensitaetStufeTest.TYP_UFDS_NI, NiederschlagIntensitaetStufeTest.ATG_UFDS_KLASS_NI,
 					NiederschlagIntensitaetStufeTest.ATT_UFDS_KLASS_NI,
-					NiederschlagIntensitaetStufeTest.ATG_UFDS_AGGREG_NI,
-					NiederschlagIntensitaetStufeTest.STUFE_VON,
-					NiederschlagIntensitaetStufeTest.STUFE_BIS,
-					NiederschlagIntensitaetStufeTest.B0,
+					NiederschlagIntensitaetStufeTest.ATG_UFDS_AGGREG_NI, NiederschlagIntensitaetStufeTest.STUFE_VON,
+					NiederschlagIntensitaetStufeTest.STUFE_BIS, NiederschlagIntensitaetStufeTest.B0,
 					NiederschlagIntensitaetStufeTest.FB);
 			param.parametriereUfds(dav, konfBereiche);
 		} catch (final Exception e) {
-			LOGGER.error(
-					"Fehler bei Parametrierung der NiederschlagIntensitaet:"
-							+ e.getMessage());
+			NiederschlagIntensitaetStufeTest.LOGGER
+					.error("Fehler bei Parametrierung der NiederschlagIntensitaet:" + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -172,28 +168,24 @@ public class NiederschlagIntensitaetStufeTest extends
 		int alt;
 
 		final HysterezeTester2 hystTest = new HysterezeTester2();
-		NiederschlagIntensitaetStufeTest.messwert = MesswertBearbeitungAllgemein
-				.generiereMesswerte(
-						NiederschlagIntensitaetStufeTest.STUFE_VON[0],
-						NiederschlagIntensitaetStufeTest.STUFE_VON[NiederschlagIntensitaetStufeTest.STUFE_VON.length - 1] * 1.2);
+		NiederschlagIntensitaetStufeTest.messwert = MesswertBearbeitungAllgemein.generiereMesswerte(
+				NiederschlagIntensitaetStufeTest.STUFE_VON[0],
+				NiederschlagIntensitaetStufeTest.STUFE_VON[NiederschlagIntensitaetStufeTest.STUFE_VON.length - 1]
+						* 1.2);
 		NiederschlagIntensitaetStufeTest.messwertGlatt = new double[NiederschlagIntensitaetStufeTest.messwert.length];
 		final double[] b = new double[NiederschlagIntensitaetStufeTest.messwert.length];
 		NiederschlagIntensitaetStufeTest.stufen = new int[NiederschlagIntensitaetStufeTest.messwert.length];
 		NiederschlagIntensitaetStufeTest.zeitStempel = new long[NiederschlagIntensitaetStufeTest.messwert.length];
-		hystTest.init(NiederschlagIntensitaetStufeTest.STUFE_VON,
-				NiederschlagIntensitaetStufeTest.STUFE_BIS);
+		hystTest.init(NiederschlagIntensitaetStufeTest.STUFE_VON, NiederschlagIntensitaetStufeTest.STUFE_BIS);
 
-		MesswertBearbeitungAllgemein
-				.rundeMesswerte(NiederschlagIntensitaetStufeTest.messwert);
-		MesswertBearbeitungAllgemein.glaetteMesswerte(
-				NiederschlagIntensitaetStufeTest.messwert, b,
-				NiederschlagIntensitaetStufeTest.messwertGlatt,
-				NiederschlagIntensitaetStufeTest.FB,
+		MesswertBearbeitungAllgemein.rundeMesswerte(NiederschlagIntensitaetStufeTest.messwert);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(NiederschlagIntensitaetStufeTest.messwert, b,
+				NiederschlagIntensitaetStufeTest.messwertGlatt, NiederschlagIntensitaetStufeTest.FB,
 				NiederschlagIntensitaetStufeTest.B0);
 		alt = -1;
 		for (int i = 0; i < NiederschlagIntensitaetStufeTest.messwertGlatt.length; i++) {
-			NiederschlagIntensitaetStufeTest.stufen[i] = hystTest.hystereze(
-					NiederschlagIntensitaetStufeTest.messwertGlatt[i], alt);
+			NiederschlagIntensitaetStufeTest.stufen[i] = hystTest
+					.hystereze(NiederschlagIntensitaetStufeTest.messwertGlatt[i], alt);
 			alt = NiederschlagIntensitaetStufeTest.stufen[i];
 		}
 
@@ -202,20 +194,17 @@ public class NiederschlagIntensitaetStufeTest extends
 		for (int i = 0; i < DAVTest.CON_DATA.length; i++) {
 			connArgs[i] = DAVTest.CON_DATA[i];
 		}
-		StandardApplicationRunner.run(
-				NiederschlagIntensitaetStufeTest.hauptModul, connArgs);
+		StandardApplicationRunner.run(NiederschlagIntensitaetStufeTest.hauptModul, connArgs);
 		try {
 			Thread.sleep(5 * sleepTime);
 		} catch (final Exception e) {
 		}
 
-		NiederschlagIntensitaetStufeTest.zeitStempel[0] = System
-				.currentTimeMillis() - (120 * 60 * 1000);
+		NiederschlagIntensitaetStufeTest.zeitStempel[0] = System.currentTimeMillis() - (120 * 60 * 1000);
 		NiederschlagIntensitaetStufeTest.index = 0;
 		NiederschlagIntensitaetStufeTest.warten = true;
 		for (int i = 0; i < NiederschlagIntensitaetStufeTest.messwertGlatt.length; i++) {
-			sendeMesswert(NiederschlagIntensitaetStufeTest.testSensor,
-					NiederschlagIntensitaetStufeTest.messwert[i],
+			sendeMesswert(NiederschlagIntensitaetStufeTest.testSensor, NiederschlagIntensitaetStufeTest.messwert[i],
 					NiederschlagIntensitaetStufeTest.zeitStempel[i]);
 			if ((i + 1) < NiederschlagIntensitaetStufeTest.messwertGlatt.length) {
 				NiederschlagIntensitaetStufeTest.zeitStempel[i + 1] = NiederschlagIntensitaetStufeTest.zeitStempel[i]
@@ -250,30 +239,25 @@ public class NiederschlagIntensitaetStufeTest extends
 		int alt;
 
 		final HysterezeTester2 hystTest = new HysterezeTester2();
-		NiederschlagIntensitaetStufeTest.messwert = MesswertBearbeitungAllgemein
-				.generiereMesswerte(
-						NiederschlagIntensitaetStufeTest.STUFE_VON[0],
-						NiederschlagIntensitaetStufeTest.STUFE_VON[NiederschlagIntensitaetStufeTest.STUFE_VON.length - 1] * 1.2);
+		NiederschlagIntensitaetStufeTest.messwert = MesswertBearbeitungAllgemein.generiereMesswerte(
+				NiederschlagIntensitaetStufeTest.STUFE_VON[0],
+				NiederschlagIntensitaetStufeTest.STUFE_VON[NiederschlagIntensitaetStufeTest.STUFE_VON.length - 1]
+						* 1.2);
 		NiederschlagIntensitaetStufeTest.messwertGlatt = new double[NiederschlagIntensitaetStufeTest.messwert.length];
 		final double[] b = new double[NiederschlagIntensitaetStufeTest.messwert.length];
 		NiederschlagIntensitaetStufeTest.stufen = new int[NiederschlagIntensitaetStufeTest.messwert.length];
 		NiederschlagIntensitaetStufeTest.zeitStempel = new long[NiederschlagIntensitaetStufeTest.messwert.length];
-		hystTest.init(NiederschlagIntensitaetStufeTest.STUFE_VON,
-				NiederschlagIntensitaetStufeTest.STUFE_BIS);
+		hystTest.init(NiederschlagIntensitaetStufeTest.STUFE_VON, NiederschlagIntensitaetStufeTest.STUFE_BIS);
 
-		MesswertBearbeitungAllgemein.gerauescheMesswerte(
-				NiederschlagIntensitaetStufeTest.messwert, 0.15, 20);
-		MesswertBearbeitungAllgemein
-				.rundeMesswerte(NiederschlagIntensitaetStufeTest.messwert);
-		MesswertBearbeitungAllgemein.glaetteMesswerte(
-				NiederschlagIntensitaetStufeTest.messwert, b,
-				NiederschlagIntensitaetStufeTest.messwertGlatt,
-				NiederschlagIntensitaetStufeTest.FB,
+		MesswertBearbeitungAllgemein.gerauescheMesswerte(NiederschlagIntensitaetStufeTest.messwert, 0.15, 20);
+		MesswertBearbeitungAllgemein.rundeMesswerte(NiederschlagIntensitaetStufeTest.messwert);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(NiederschlagIntensitaetStufeTest.messwert, b,
+				NiederschlagIntensitaetStufeTest.messwertGlatt, NiederschlagIntensitaetStufeTest.FB,
 				NiederschlagIntensitaetStufeTest.B0);
 		alt = -1;
 		for (int i = 0; i < NiederschlagIntensitaetStufeTest.messwertGlatt.length; i++) {
-			NiederschlagIntensitaetStufeTest.stufen[i] = hystTest.hystereze(
-					NiederschlagIntensitaetStufeTest.messwertGlatt[i], alt);
+			NiederschlagIntensitaetStufeTest.stufen[i] = hystTest
+					.hystereze(NiederschlagIntensitaetStufeTest.messwertGlatt[i], alt);
 			alt = NiederschlagIntensitaetStufeTest.stufen[i];
 		}
 
@@ -282,20 +266,17 @@ public class NiederschlagIntensitaetStufeTest extends
 		for (int i = 0; i < DAVTest.CON_DATA.length; i++) {
 			connArgs[i] = DAVTest.CON_DATA[i];
 		}
-		StandardApplicationRunner.run(
-				NiederschlagIntensitaetStufeTest.hauptModul, connArgs);
+		StandardApplicationRunner.run(NiederschlagIntensitaetStufeTest.hauptModul, connArgs);
 		try {
 			Thread.sleep(5 * sleepTime);
 		} catch (final Exception e) {
 		}
 
-		NiederschlagIntensitaetStufeTest.zeitStempel[0] = System
-				.currentTimeMillis() - (120 * 60 * 1000);
+		NiederschlagIntensitaetStufeTest.zeitStempel[0] = System.currentTimeMillis() - (120 * 60 * 1000);
 		NiederschlagIntensitaetStufeTest.index = 0;
 		NiederschlagIntensitaetStufeTest.warten = true;
 		for (int i = 0; i < NiederschlagIntensitaetStufeTest.messwertGlatt.length; i++) {
-			sendeMesswert(NiederschlagIntensitaetStufeTest.testSensor,
-					NiederschlagIntensitaetStufeTest.messwert[i],
+			sendeMesswert(NiederschlagIntensitaetStufeTest.testSensor, NiederschlagIntensitaetStufeTest.messwert[i],
 					NiederschlagIntensitaetStufeTest.zeitStempel[i]);
 			if ((i + 1) < NiederschlagIntensitaetStufeTest.messwertGlatt.length) {
 				NiederschlagIntensitaetStufeTest.zeitStempel[i + 1] = NiederschlagIntensitaetStufeTest.zeitStempel[i]
@@ -320,40 +301,25 @@ public class NiederschlagIntensitaetStufeTest extends
 		NiederschlagIntensitaetStufeTest.messwertGlatt = null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public double berechneMesswertGlaettung(final SensorParameter param,
-			final double messwert) {
+	public double berechneMesswertGlaettung(final SensorParameter param, final double messwert) {
 		final double r = super.berechneMesswertGlaettung(param, messwert);
 		if (NiederschlagIntensitaetStufeTest.messwertGlatt == null) {
 			return r;
 		}
-		final double diff = NiederschlagIntensitaetStufeTest.messwertGlatt[NiederschlagIntensitaetStufeTest.index]
-				- r;
-		Assert.assertTrue(
-				NiederschlagIntensitaetStufeTest.index
-						+ " Wert : "
-						+ r
-						+ " Soll : "
-						+ NiederschlagIntensitaetStufeTest.messwertGlatt[NiederschlagIntensitaetStufeTest.index]
-						+ " Differenz : " + diff, diff < 0.001);
-		System.out
-				.println(String
-						.format("[ %4d ] Geglaetette Wert OK: %10.8f == %10.8f  Differrez: %10.8f",
-								NiederschlagIntensitaetStufeTest.index,
-								NiederschlagIntensitaetStufeTest.messwertGlatt[NiederschlagIntensitaetStufeTest.index],
-								r, diff));
+		final double diff = NiederschlagIntensitaetStufeTest.messwertGlatt[NiederschlagIntensitaetStufeTest.index] - r;
+		Assert.assertTrue(NiederschlagIntensitaetStufeTest.index + " Wert : " + r + " Soll : "
+				+ NiederschlagIntensitaetStufeTest.messwertGlatt[NiederschlagIntensitaetStufeTest.index]
+				+ " Differenz : " + diff, diff < 0.001);
+		System.out.println(String.format("[ %4d ] Geglaetette Wert OK: %10.8f == %10.8f  Differrez: %10.8f",
+				NiederschlagIntensitaetStufeTest.index,
+				NiederschlagIntensitaetStufeTest.messwertGlatt[NiederschlagIntensitaetStufeTest.index], r, diff));
 		return r;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void sendeStufe(final SystemObject objekt, final int stufe,
-			final long zeitStempel, final boolean keineDaten) {
+	public void sendeStufe(final SystemObject objekt, final int stufe, final long zeitStempel,
+			final boolean keineDaten) {
 		super.sendeStufe(objekt, stufe, zeitStempel, keineDaten);
 		if (keineDaten) {
 			return;
@@ -363,18 +329,11 @@ public class NiederschlagIntensitaetStufeTest extends
 		if (NiederschlagIntensitaetStufeTest.stufen == null) {
 			return;
 		}
-		Assert.assertEquals(
-				NiederschlagIntensitaetStufeTest.stufen[NiederschlagIntensitaetStufeTest.index],
-				stufe);
-		Assert.assertEquals(
-				NiederschlagIntensitaetStufeTest.zeitStempel[NiederschlagIntensitaetStufeTest.index],
+		Assert.assertEquals(NiederschlagIntensitaetStufeTest.stufen[NiederschlagIntensitaetStufeTest.index], stufe);
+		Assert.assertEquals(NiederschlagIntensitaetStufeTest.zeitStempel[NiederschlagIntensitaetStufeTest.index],
 				zeitStempel);
-		System.out
-				.println(String
-						.format("[ %4d ] Stufe OK: %3d == %3d",
-								NiederschlagIntensitaetStufeTest.index,
-								NiederschlagIntensitaetStufeTest.stufen[NiederschlagIntensitaetStufeTest.index],
-								stufe));
+		System.out.println(String.format("[ %4d ] Stufe OK: %3d == %3d", NiederschlagIntensitaetStufeTest.index,
+				NiederschlagIntensitaetStufeTest.stufen[NiederschlagIntensitaetStufeTest.index], stufe));
 		NiederschlagIntensitaetStufeTest.index++;
 		if (NiederschlagIntensitaetStufeTest.index >= NiederschlagIntensitaetStufeTest.stufen.length) {
 			synchronized (verwaltung) {
@@ -386,7 +345,7 @@ public class NiederschlagIntensitaetStufeTest extends
 
 	/**
 	 * Sendet einen Messwert an den DAV
-	 * 
+	 *
 	 * @param sensor
 	 *            Sensor, die Quelle des Messwertes
 	 * @param messwert
@@ -394,32 +353,23 @@ public class NiederschlagIntensitaetStufeTest extends
 	 * @param zeitStemepel
 	 *            ZeitStempel
 	 */
-	private void sendeMesswert(final SystemObject sensor,
-			final double messwert, final long zeitStemepel) {
-		final Data data = NiederschlagIntensitaetStufeTest.dav
-				.createData(NiederschlagIntensitaetStufeTest.dav.getDataModel()
-						.getAttributeGroup(getMesswertAttributGruppe()));
+	private void sendeMesswert(final SystemObject sensor, final double messwert, final long zeitStemepel) {
+		final Data data = NiederschlagIntensitaetStufeTest.dav.createData(
+				NiederschlagIntensitaetStufeTest.dav.getDataModel().getAttributeGroup(getMesswertAttributGruppe()));
 
 		final String att = getMesswertAttribut();
-		data.getTimeValue("T").setMillis(
-				NiederschlagIntensitaetStufeTest.ZEIT_INTERVALL);
+		data.getTimeValue("T").setMillis(NiederschlagIntensitaetStufeTest.ZEIT_INTERVALL);
 		data.getItem(att).getScaledValue("Wert").set(messwert);
 
-		data.getItem(att).getItem("Status").getItem("Erfassung")
-				.getUnscaledValue("NichtErfasst").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal")
-				.getUnscaledValue("WertMax").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal")
-				.getUnscaledValue("WertMin").set(0);
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung")
-				.getUnscaledValue("Implausibel").set(0);
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung")
-				.getUnscaledValue("Interpoliert").set(0);
+		data.getItem(att).getItem("Status").getItem("Erfassung").getUnscaledValue("NichtErfasst").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMax").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").set(0);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
 
-		final ResultData result = new ResultData(sensor,
-				NiederschlagIntensitaetStufeTest.ddMessWerte, zeitStemepel,
+		final ResultData result = new ResultData(sensor, NiederschlagIntensitaetStufeTest.ddMessWerte, zeitStemepel,
 				data);
 		try {
 			NiederschlagIntensitaetStufeTest.dav.sendData(result);
@@ -429,12 +379,8 @@ public class NiederschlagIntensitaetStufeTest extends
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void initialisiere(final IVerwaltung verwaltung)
-			throws DUAInitialisierungsException {
+	public void initialisiere(final IVerwaltung verwaltung) throws DUAInitialisierungsException {
 		super.initialisiere(verwaltung);
 
 		for (final SystemObject so : getSensoren()) {
@@ -445,17 +391,13 @@ public class NiederschlagIntensitaetStufeTest extends
 		}
 
 		NiederschlagIntensitaetStufeTest.ddMessWerte = new DataDescription(
-				verwaltung.getVerbindung().getDataModel()
-						.getAttributeGroup(getMesswertAttributGruppe()),
-				verwaltung.getVerbindung().getDataModel()
-						.getAspect("asp.messWertErsetzung"));
+				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getMesswertAttributGruppe()),
+				verwaltung.getVerbindung().getDataModel().getAspect("asp.messWertErsetzung"));
 
 		NiederschlagIntensitaetStufeTest.dav = verwaltung.getVerbindung();
 		try {
-			NiederschlagIntensitaetStufeTest.dav.subscribeSender(this,
-					getSensoren(),
-					NiederschlagIntensitaetStufeTest.ddMessWerte,
-					SenderRole.source());
+			NiederschlagIntensitaetStufeTest.dav.subscribeSender(this, getSensoren(),
+					NiederschlagIntensitaetStufeTest.ddMessWerte, SenderRole.source());
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}

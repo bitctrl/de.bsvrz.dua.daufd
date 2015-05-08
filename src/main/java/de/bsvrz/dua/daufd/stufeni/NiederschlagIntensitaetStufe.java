@@ -72,9 +72,6 @@ public class NiederschlagIntensitaetStufe extends AbstraktStufe {
 		return "typ.ufdsNiederschlagsIntensität";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void aktualisierePublikation(final IDatenFlussSteuerung dfs) {
 		// TODO Auto-generated method stub
@@ -83,33 +80,31 @@ public class NiederschlagIntensitaetStufe extends AbstraktStufe {
 
 	/**
 	 * NI Stufen, die unterscheidet werden
-	 * 
+	 *
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 */
 	public enum NIStufe {
 		NI_STUFE0, NI_STUFE1, NI_STUFE2, NI_STUFE3, NI_STUFE4, NI_WERT_NV // Wert
-																			// nicht
-																			// verfuegbar
+		// nicht
+		// verfuegbar
 	};
 
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	private static final NIStufe[] MAP_INT_STUFE = new NIStufe[] {
-			NIStufe.NI_STUFE0, NIStufe.NI_STUFE1, NIStufe.NI_STUFE2,
-			NIStufe.NI_STUFE3, NIStufe.NI_STUFE4 };
+	private static final NIStufe[] MAP_INT_STUFE = new NIStufe[] { NIStufe.NI_STUFE0, NIStufe.NI_STUFE1,
+			NIStufe.NI_STUFE2, NIStufe.NI_STUFE3, NIStufe.NI_STUFE4 };
 
 	/**
 	 * Konvertiert die NI_stufe aus Integer ins symbolische Format
-	 * 
+	 *
 	 * @param stufe
 	 *            Stufe int
 	 * @return NI_Stufe symbolisch
 	 */
 	static public NIStufe getStufe(final int stufe) {
 		NIStufe stufeSymb;
-		if ((stufe < 0)
-				|| (stufe > NiederschlagIntensitaetStufe.MAP_INT_STUFE.length)) {
+		if ((stufe < 0) || (stufe > NiederschlagIntensitaetStufe.MAP_INT_STUFE.length)) {
 			stufeSymb = NIStufe.NI_WERT_NV;
 		} else {
 			stufeSymb = NiederschlagIntensitaetStufe.MAP_INT_STUFE[stufe];
@@ -119,7 +114,7 @@ public class NiederschlagIntensitaetStufe extends AbstraktStufe {
 
 	/**
 	 * Konvertiert die NI_stufe aus symbolischen Format ins Integer
-	 * 
+	 *
 	 * @param stufe
 	 *            NI_Stufe symbolisch
 	 * @return Stufe int

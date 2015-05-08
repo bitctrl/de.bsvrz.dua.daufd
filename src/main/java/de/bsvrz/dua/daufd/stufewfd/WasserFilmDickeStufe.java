@@ -72,9 +72,6 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 		return "typ.ufdsWasserFilmDicke";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void aktualisierePublikation(final IDatenFlussSteuerung dfs) {
 		// TODO Auto-generated method stub
@@ -82,25 +79,24 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 
 	/**
 	 * WFD Stufen, die unterscheidet werden
-	 * 
+	 *
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 */
 	public enum WFDStufe {
 		WFD_STUFE0, WFD_STUFE1, WFD_STUFE2, WFD_STUFE3, WFD_WERT_NV // Wert
-																	// nicht
-																	// verfuegbar
+		// nicht
+		// verfuegbar
 	}
 
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	private final static WFDStufe[] MAP_INT_STUFE = new WFDStufe[] {
-			WFDStufe.WFD_STUFE0, WFDStufe.WFD_STUFE1, WFDStufe.WFD_STUFE2,
-			WFDStufe.WFD_STUFE3 };
+	private final static WFDStufe[] MAP_INT_STUFE = new WFDStufe[] { WFDStufe.WFD_STUFE0, WFDStufe.WFD_STUFE1,
+			WFDStufe.WFD_STUFE2, WFDStufe.WFD_STUFE3 };
 
 	/**
 	 * Konvertiert die WFD_stufe aus Integer ins symbolischen Format
-	 * 
+	 *
 	 * @param stufe
 	 *            Stufe Int
 	 * @return WFD Stufe symbolisch
@@ -117,7 +113,7 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 
 	/**
 	 * Konvertiert die WFD_stufe aus symbolischen Format ins Integer
-	 * 
+	 *
 	 * @param stufe
 	 *            WFD_Stufe symbolisch
 	 * @return Stufe int

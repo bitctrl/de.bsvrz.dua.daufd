@@ -61,7 +61,7 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 	private static final Debug LOGGER = Debug.getLogger();
 	/*
 	 * ################ WARNUNG #################
-	 * 
+	 *
 	 * Werte im Afo sind mit genuaigkeit 0.01 mm wobei die Skalierung ist 0.1 mm
 	 */
 	/**
@@ -72,9 +72,9 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 	 * WFD-Stufe obere Grenzwerte [AFo]
 	 */
 	private static double[] stufeBis = new double[] { 0.21, 0.28, 1.70, 200.0 // Max
-																				// Wert
-																				// vom
-																				// DaK
+		// Wert
+		// vom
+		// DaK
 	};
 	/**
 	 * Koefizient fuer Glaettung.
@@ -141,7 +141,7 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 
 	/**
 	 * Sendet die Parametrierung aus dem Tabellen der AFo dem DAV
-	 * 
+	 *
 	 * @param dav
 	 *            DAV
 	 * @param konfBereiche
@@ -152,18 +152,13 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 			final Collection<ConfigurationArea> konfBereiche) {
 		try {
 			final UfdsKlassifizierungParametrierung param = new UfdsKlassifizierungParametrierung(
-					WasserFilmDickeStufeTest.TYP_UFDS_WFD,
-					WasserFilmDickeStufeTest.ATG_UFDS_KLASS_WFD,
-					WasserFilmDickeStufeTest.ATT_UFDS_KLASS_WFD,
-					WasserFilmDickeStufeTest.ATG_UFDS_AGGREG_WFD,
-					WasserFilmDickeStufeTest.stufeVon,
-					WasserFilmDickeStufeTest.stufeBis,
-					WasserFilmDickeStufeTest.B0, WasserFilmDickeStufeTest.FB);
+					WasserFilmDickeStufeTest.TYP_UFDS_WFD, WasserFilmDickeStufeTest.ATG_UFDS_KLASS_WFD,
+					WasserFilmDickeStufeTest.ATT_UFDS_KLASS_WFD, WasserFilmDickeStufeTest.ATG_UFDS_AGGREG_WFD,
+					WasserFilmDickeStufeTest.stufeVon, WasserFilmDickeStufeTest.stufeBis, WasserFilmDickeStufeTest.B0,
+					WasserFilmDickeStufeTest.FB);
 			param.parametriereUfds(dav, konfBereiche);
 		} catch (final Exception e) {
-			LOGGER.error(
-					"Fehler bei Parametrierung der WasserFilmDicke:"
-							+ e.getMessage());
+			WasserFilmDickeStufeTest.LOGGER.error("Fehler bei Parametrierung der WasserFilmDicke:" + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -176,42 +171,34 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 		final long sleepTime = 50;
 		/*
 		 * ################ WARNUNG #################
-		 * 
+		 *
 		 * Werte im Afo sind mit genuaigkeit 0.01 mm wobei die Skalierung ist
 		 * 0.1 mm
-		 * 
+		 *
 		 * deswegen das Abrunden
 		 */
 		for (int i = 0; i < WasserFilmDickeStufeTest.stufeBis.length; i++) {
-			WasserFilmDickeStufeTest.stufeBis[i] = (Math
-					.round(WasserFilmDickeStufeTest.stufeBis[i] * 10)) / 10.0;
-			WasserFilmDickeStufeTest.stufeVon[i] = (Math
-					.round(WasserFilmDickeStufeTest.stufeVon[i] * 10)) / 10.0;
+			WasserFilmDickeStufeTest.stufeBis[i] = (Math.round(WasserFilmDickeStufeTest.stufeBis[i] * 10)) / 10.0;
+			WasserFilmDickeStufeTest.stufeVon[i] = (Math.round(WasserFilmDickeStufeTest.stufeVon[i] * 10)) / 10.0;
 		}
 		int alt;
 
 		final HysterezeTester2 hystTest = new HysterezeTester2();
-		WasserFilmDickeStufeTest.messwert = MesswertBearbeitungAllgemein
-				.generiereMesswerte(
-						WasserFilmDickeStufeTest.stufeVon[0],
-						WasserFilmDickeStufeTest.stufeVon[WasserFilmDickeStufeTest.stufeVon.length - 1] * 1.2);
+		WasserFilmDickeStufeTest.messwert = MesswertBearbeitungAllgemein.generiereMesswerte(
+				WasserFilmDickeStufeTest.stufeVon[0],
+				WasserFilmDickeStufeTest.stufeVon[WasserFilmDickeStufeTest.stufeVon.length - 1] * 1.2);
 		WasserFilmDickeStufeTest.messwertGlatt = new double[WasserFilmDickeStufeTest.messwert.length];
 		final double[] b = new double[WasserFilmDickeStufeTest.messwert.length];
 		WasserFilmDickeStufeTest.stufen = new int[WasserFilmDickeStufeTest.messwert.length];
 		WasserFilmDickeStufeTest.zeitStempel = new long[WasserFilmDickeStufeTest.messwert.length];
-		hystTest.init(WasserFilmDickeStufeTest.stufeVon,
-				WasserFilmDickeStufeTest.stufeBis);
+		hystTest.init(WasserFilmDickeStufeTest.stufeVon, WasserFilmDickeStufeTest.stufeBis);
 
-		MesswertBearbeitungAllgemein
-				.rundeMesswerte(WasserFilmDickeStufeTest.messwert);
-		MesswertBearbeitungAllgemein.glaetteMesswerte(
-				WasserFilmDickeStufeTest.messwert, b,
-				WasserFilmDickeStufeTest.messwertGlatt,
-				WasserFilmDickeStufeTest.FB, WasserFilmDickeStufeTest.B0);
+		MesswertBearbeitungAllgemein.rundeMesswerte(WasserFilmDickeStufeTest.messwert);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(WasserFilmDickeStufeTest.messwert, b,
+				WasserFilmDickeStufeTest.messwertGlatt, WasserFilmDickeStufeTest.FB, WasserFilmDickeStufeTest.B0);
 		alt = -1;
 		for (int i = 0; i < WasserFilmDickeStufeTest.messwertGlatt.length; i++) {
-			WasserFilmDickeStufeTest.stufen[i] = hystTest.hystereze(
-					WasserFilmDickeStufeTest.messwertGlatt[i], alt);
+			WasserFilmDickeStufeTest.stufen[i] = hystTest.hystereze(WasserFilmDickeStufeTest.messwertGlatt[i], alt);
 			alt = WasserFilmDickeStufeTest.stufen[i];
 		}
 
@@ -220,20 +207,17 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 		for (int i = 0; i < DAVTest.CON_DATA.length; i++) {
 			connArgs[i] = DAVTest.CON_DATA[i];
 		}
-		StandardApplicationRunner.run(WasserFilmDickeStufeTest.hauptModul,
-				connArgs);
+		StandardApplicationRunner.run(WasserFilmDickeStufeTest.hauptModul, connArgs);
 		try {
 			Thread.sleep(5 * sleepTime);
 		} catch (final Exception e) {
 		}
 
-		WasserFilmDickeStufeTest.zeitStempel[0] = System.currentTimeMillis()
-				- (120 * 60 * 1000);
+		WasserFilmDickeStufeTest.zeitStempel[0] = System.currentTimeMillis() - (120 * 60 * 1000);
 		WasserFilmDickeStufeTest.index = 0;
 		WasserFilmDickeStufeTest.warten = true;
 		for (int i = 0; i < WasserFilmDickeStufeTest.messwertGlatt.length; i++) {
-			sendeMesswert(WasserFilmDickeStufeTest.testSensor,
-					WasserFilmDickeStufeTest.messwert[i],
+			sendeMesswert(WasserFilmDickeStufeTest.testSensor, WasserFilmDickeStufeTest.messwert[i],
 					WasserFilmDickeStufeTest.zeitStempel[i]);
 			if ((i + 1) < WasserFilmDickeStufeTest.messwertGlatt.length) {
 				WasserFilmDickeStufeTest.zeitStempel[i + 1] = WasserFilmDickeStufeTest.zeitStempel[i]
@@ -269,44 +253,35 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 		final long sleepTime = 50;
 		/*
 		 * ################ WARNUNG #################
-		 * 
+		 *
 		 * Werte im Afo sind mit genuaigkeit 0.01 mm wobei die Skalierung ist
 		 * 0.1 mm
-		 * 
+		 *
 		 * deswegen das Abrunden
 		 */
 		for (int i = 0; i < WasserFilmDickeStufeTest.stufeBis.length; i++) {
-			WasserFilmDickeStufeTest.stufeBis[i] = (Math
-					.round(WasserFilmDickeStufeTest.stufeBis[i] * 10)) / 10.0;
-			WasserFilmDickeStufeTest.stufeVon[i] = (Math
-					.round(WasserFilmDickeStufeTest.stufeVon[i] * 10)) / 10.0;
+			WasserFilmDickeStufeTest.stufeBis[i] = (Math.round(WasserFilmDickeStufeTest.stufeBis[i] * 10)) / 10.0;
+			WasserFilmDickeStufeTest.stufeVon[i] = (Math.round(WasserFilmDickeStufeTest.stufeVon[i] * 10)) / 10.0;
 		}
 		int alt;
 
 		final HysterezeTester2 hystTest = new HysterezeTester2();
-		WasserFilmDickeStufeTest.messwert = MesswertBearbeitungAllgemein
-				.generiereMesswerte(
-						WasserFilmDickeStufeTest.stufeVon[0],
-						WasserFilmDickeStufeTest.stufeVon[WasserFilmDickeStufeTest.stufeVon.length - 1] * 1.2);
+		WasserFilmDickeStufeTest.messwert = MesswertBearbeitungAllgemein.generiereMesswerte(
+				WasserFilmDickeStufeTest.stufeVon[0],
+				WasserFilmDickeStufeTest.stufeVon[WasserFilmDickeStufeTest.stufeVon.length - 1] * 1.2);
 		WasserFilmDickeStufeTest.messwertGlatt = new double[WasserFilmDickeStufeTest.messwert.length];
 		final double[] b = new double[WasserFilmDickeStufeTest.messwert.length];
 		WasserFilmDickeStufeTest.stufen = new int[WasserFilmDickeStufeTest.messwert.length];
 		WasserFilmDickeStufeTest.zeitStempel = new long[WasserFilmDickeStufeTest.messwert.length];
-		hystTest.init(WasserFilmDickeStufeTest.stufeVon,
-				WasserFilmDickeStufeTest.stufeBis);
+		hystTest.init(WasserFilmDickeStufeTest.stufeVon, WasserFilmDickeStufeTest.stufeBis);
 
-		MesswertBearbeitungAllgemein.gerauescheMesswerte(
-				WasserFilmDickeStufeTest.messwert, 0.15, 20);
-		MesswertBearbeitungAllgemein
-				.rundeMesswerte(WasserFilmDickeStufeTest.messwert);
-		MesswertBearbeitungAllgemein.glaetteMesswerte(
-				WasserFilmDickeStufeTest.messwert, b,
-				WasserFilmDickeStufeTest.messwertGlatt,
-				WasserFilmDickeStufeTest.FB, WasserFilmDickeStufeTest.B0);
+		MesswertBearbeitungAllgemein.gerauescheMesswerte(WasserFilmDickeStufeTest.messwert, 0.15, 20);
+		MesswertBearbeitungAllgemein.rundeMesswerte(WasserFilmDickeStufeTest.messwert);
+		MesswertBearbeitungAllgemein.glaetteMesswerte(WasserFilmDickeStufeTest.messwert, b,
+				WasserFilmDickeStufeTest.messwertGlatt, WasserFilmDickeStufeTest.FB, WasserFilmDickeStufeTest.B0);
 		alt = -1;
 		for (int i = 0; i < WasserFilmDickeStufeTest.messwertGlatt.length; i++) {
-			WasserFilmDickeStufeTest.stufen[i] = hystTest.hystereze(
-					WasserFilmDickeStufeTest.messwertGlatt[i], alt);
+			WasserFilmDickeStufeTest.stufen[i] = hystTest.hystereze(WasserFilmDickeStufeTest.messwertGlatt[i], alt);
 			alt = WasserFilmDickeStufeTest.stufen[i];
 		}
 
@@ -315,20 +290,17 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 		for (int i = 0; i < DAVTest.CON_DATA.length; i++) {
 			connArgs[i] = DAVTest.CON_DATA[i];
 		}
-		StandardApplicationRunner.run(WasserFilmDickeStufeTest.hauptModul,
-				connArgs);
+		StandardApplicationRunner.run(WasserFilmDickeStufeTest.hauptModul, connArgs);
 		try {
 			Thread.sleep(5 * sleepTime);
 		} catch (final Exception e) {
 		}
 
-		WasserFilmDickeStufeTest.zeitStempel[0] = System.currentTimeMillis()
-				- (120 * 60 * 1000);
+		WasserFilmDickeStufeTest.zeitStempel[0] = System.currentTimeMillis() - (120 * 60 * 1000);
 		WasserFilmDickeStufeTest.index = 0;
 		WasserFilmDickeStufeTest.warten = true;
 		for (int i = 0; i < WasserFilmDickeStufeTest.messwertGlatt.length; i++) {
-			sendeMesswert(WasserFilmDickeStufeTest.testSensor,
-					WasserFilmDickeStufeTest.messwert[i],
+			sendeMesswert(WasserFilmDickeStufeTest.testSensor, WasserFilmDickeStufeTest.messwert[i],
 					WasserFilmDickeStufeTest.zeitStempel[i]);
 			if ((i + 1) < WasserFilmDickeStufeTest.messwertGlatt.length) {
 				WasserFilmDickeStufeTest.zeitStempel[i + 1] = WasserFilmDickeStufeTest.zeitStempel[i]
@@ -354,40 +326,25 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 		WasserFilmDickeStufeTest.messwertGlatt = null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public double berechneMesswertGlaettung(final SensorParameter param,
-			final double messwert) {
+	public double berechneMesswertGlaettung(final SensorParameter param, final double messwert) {
 		final double r = super.berechneMesswertGlaettung(param, messwert);
 		if (WasserFilmDickeStufeTest.messwertGlatt == null) {
 			return r;
 		}
-		final double diff = WasserFilmDickeStufeTest.messwertGlatt[WasserFilmDickeStufeTest.index]
-				- r;
-		Assert.assertTrue(
-				WasserFilmDickeStufeTest.index
-						+ " Wert : "
-						+ r
-						+ " Soll : "
-						+ WasserFilmDickeStufeTest.messwertGlatt[WasserFilmDickeStufeTest.index]
-						+ " Differenz : " + diff, diff < 0.001);
-		System.out
-				.println(String
-						.format("[ %4d ] Geglaetette Wert OK: %10.8f == %10.8f  Differrez: %10.8f",
-								WasserFilmDickeStufeTest.index,
-								WasserFilmDickeStufeTest.messwertGlatt[WasserFilmDickeStufeTest.index],
-								r, diff));
+		final double diff = WasserFilmDickeStufeTest.messwertGlatt[WasserFilmDickeStufeTest.index] - r;
+		Assert.assertTrue(WasserFilmDickeStufeTest.index + " Wert : " + r + " Soll : "
+				+ WasserFilmDickeStufeTest.messwertGlatt[WasserFilmDickeStufeTest.index] + " Differenz : " + diff,
+				diff < 0.001);
+		System.out.println(String.format("[ %4d ] Geglaetette Wert OK: %10.8f == %10.8f  Differrez: %10.8f",
+				WasserFilmDickeStufeTest.index, WasserFilmDickeStufeTest.messwertGlatt[WasserFilmDickeStufeTest.index],
+				r, diff));
 		return r;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void sendeStufe(final SystemObject objekt, final int stufe,
-			final long zeitStempel, final boolean keineDaten) {
+	public void sendeStufe(final SystemObject objekt, final int stufe, final long zeitStempel,
+			final boolean keineDaten) {
 		super.sendeStufe(objekt, stufe, zeitStempel, keineDaten);
 		if (keineDaten) {
 			return;
@@ -397,18 +354,10 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 		if (WasserFilmDickeStufeTest.stufen == null) {
 			return;
 		}
-		Assert.assertEquals(
-				WasserFilmDickeStufeTest.stufen[WasserFilmDickeStufeTest.index],
-				stufe);
-		Assert.assertEquals(
-				WasserFilmDickeStufeTest.zeitStempel[WasserFilmDickeStufeTest.index],
-				zeitStempel);
-		System.out
-				.println(String
-						.format("[ %4d ] Stufe OK: %3d == %3d",
-								WasserFilmDickeStufeTest.index,
-								WasserFilmDickeStufeTest.stufen[WasserFilmDickeStufeTest.index],
-								stufe));
+		Assert.assertEquals(WasserFilmDickeStufeTest.stufen[WasserFilmDickeStufeTest.index], stufe);
+		Assert.assertEquals(WasserFilmDickeStufeTest.zeitStempel[WasserFilmDickeStufeTest.index], zeitStempel);
+		System.out.println(String.format("[ %4d ] Stufe OK: %3d == %3d", WasserFilmDickeStufeTest.index,
+				WasserFilmDickeStufeTest.stufen[WasserFilmDickeStufeTest.index], stufe));
 		WasserFilmDickeStufeTest.index++;
 		if (WasserFilmDickeStufeTest.index >= WasserFilmDickeStufeTest.stufen.length) {
 			synchronized (verwaltung) {
@@ -420,7 +369,7 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 
 	/**
 	 * Sendet einen Messwert an den DAV
-	 * 
+	 *
 	 * @param sensor
 	 *            Sensor, die Quelle des Messwertes
 	 * @param messwert
@@ -428,32 +377,23 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 	 * @param zeitStemepel
 	 *            ZeitStempel
 	 */
-	private void sendeMesswert(final SystemObject sensor,
-			final double messwert, final long zeitStemepel) {
+	private void sendeMesswert(final SystemObject sensor, final double messwert, final long zeitStemepel) {
 		final Data data = WasserFilmDickeStufeTest.dav
-				.createData(WasserFilmDickeStufeTest.dav.getDataModel()
-						.getAttributeGroup(getMesswertAttributGruppe()));
+				.createData(WasserFilmDickeStufeTest.dav.getDataModel().getAttributeGroup(getMesswertAttributGruppe()));
 
 		final String att = getMesswertAttribut();
-		data.getTimeValue("T").setMillis(
-				WasserFilmDickeStufeTest.ZEIT_INTERVALL);
+		data.getTimeValue("T").setMillis(WasserFilmDickeStufeTest.ZEIT_INTERVALL);
 		data.getItem(att).getScaledValue("Wert").set(messwert);
 
-		data.getItem(att).getItem("Status").getItem("Erfassung")
-				.getUnscaledValue("NichtErfasst").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal")
-				.getUnscaledValue("WertMax").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal")
-				.getUnscaledValue("WertMin").set(0);
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung")
-				.getUnscaledValue("Implausibel").set(0);
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung")
-				.getUnscaledValue("Interpoliert").set(0);
+		data.getItem(att).getItem("Status").getItem("Erfassung").getUnscaledValue("NichtErfasst").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMax").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").set(0);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
 
-		final ResultData result = new ResultData(sensor,
-				WasserFilmDickeStufeTest.ddMessWerte, zeitStemepel, data);
+		final ResultData result = new ResultData(sensor, WasserFilmDickeStufeTest.ddMessWerte, zeitStemepel, data);
 		try {
 			WasserFilmDickeStufeTest.dav.sendData(result);
 		} catch (final Exception e) {
@@ -462,12 +402,8 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void initialisiere(final IVerwaltung verwaltung)
-			throws DUAInitialisierungsException {
+	public void initialisiere(final IVerwaltung verwaltung) throws DUAInitialisierungsException {
 		super.initialisiere(verwaltung);
 
 		for (final SystemObject so : getSensoren()) {
@@ -477,16 +413,14 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 			}
 		}
 
-		WasserFilmDickeStufeTest.ddMessWerte = new DataDescription(verwaltung
-				.getVerbindung().getDataModel()
-				.getAttributeGroup(getMesswertAttributGruppe()), verwaltung
-				.getVerbindung().getDataModel()
-				.getAspect("asp.messWertErsetzung"));
+		WasserFilmDickeStufeTest.ddMessWerte = new DataDescription(
+				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getMesswertAttributGruppe()),
+				verwaltung.getVerbindung().getDataModel().getAspect("asp.messWertErsetzung"));
 
 		WasserFilmDickeStufeTest.dav = verwaltung.getVerbindung();
 		try {
-			WasserFilmDickeStufeTest.dav.subscribeSender(this, getSensoren(),
-					WasserFilmDickeStufeTest.ddMessWerte, SenderRole.source());
+			WasserFilmDickeStufeTest.dav.subscribeSender(this, getSensoren(), WasserFilmDickeStufeTest.ddMessWerte,
+					SenderRole.source());
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}

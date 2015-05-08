@@ -68,8 +68,7 @@ public class TaupunktTest extends Taupunkt {
 	/**
 	 * Die EingabeDaten
 	 */
-	private static DataDescription ddSendeRlfDaten, ddSendeLtDaten,
-			ddSendeFboftDaten;
+	private static DataDescription ddSendeRlfDaten, ddSendeLtDaten, ddSendeFboftDaten;
 	/**
 	 * Verbindung zum dav
 	 */
@@ -89,44 +88,40 @@ public class TaupunktTest extends Taupunkt {
 
 	/**
 	 * Berechnet dem Taupunkt fuer Luftemperatur
-	 * 
+	 *
 	 * @param relativeLuftFeuchtigkeit
 	 *            Feuchte
 	 * @param luftTemperatur
 	 *            Temperatur
 	 * @return Taupunkt
 	 */
-	public double taupunktTemperaturLuft(final double relativeLuftFeuchtigkeit,
-			final double luftTemperatur) {
+	public double taupunktTemperaturLuft(final double relativeLuftFeuchtigkeit, final double luftTemperatur) {
 		return taupunktTemperatur(relativeLuftFeuchtigkeit, luftTemperatur);
 	}
 
 	/**
 	 * Berechnet dem Taupunkt fuer fahrbahntemperatur
-	 * 
+	 *
 	 * @param relativeLuftFeuchtigkeit
 	 *            Feuchte
 	 * @param fahrBahnTemperatur
 	 *            Temperatur
 	 * @return Taupunkt
 	 */
-	public double taupunktTemperaturFahrbahn(
-			final double relativeLuftFeuchtigkeit,
-			final double fahrBahnTemperatur) {
+	public double taupunktTemperaturFahrbahn(final double relativeLuftFeuchtigkeit, final double fahrBahnTemperatur) {
 		return taupunktTemperatur(relativeLuftFeuchtigkeit, fahrBahnTemperatur);
 	}
 
 	/**
 	 * Berechnet dem Taupunkt
-	 * 
+	 *
 	 * @param feuchtigkeit
 	 *            Feuchte
 	 * @param temperatur
 	 *            Temperatur
 	 * @return Taupunkt
 	 */
-	public double taupunktTemperatur(final double feuchtigkeit,
-			final double temperatur) {
+	public double taupunktTemperatur(final double feuchtigkeit, final double temperatur) {
 		final double rlf = feuchtigkeit;
 		final double temp = temperatur;
 		double tpt;
@@ -139,7 +134,7 @@ public class TaupunktTest extends Taupunkt {
 
 	/**
 	 * Sendet Daten fuer Testzwecken
-	 * 
+	 *
 	 * @param so
 	 *            SystemObjekt
 	 * @param datenBeschreibung
@@ -153,30 +148,23 @@ public class TaupunktTest extends Taupunkt {
 	 * @param implausibel
 	 *            True, wenn Datum Implausibel ist
 	 */
-	public void sendeDaten(final SystemObject so,
-			final DataDescription datenBeschreibung, final String att,
+	public void sendeDaten(final SystemObject so, final DataDescription datenBeschreibung, final String att,
 			final double wert, final long zeitStemepel, final int implausibel) {
 
-		final Data data = TaupunktTest.dav.createData(datenBeschreibung
-				.getAttributeGroup());
+		final Data data = TaupunktTest.dav.createData(datenBeschreibung.getAttributeGroup());
 		data.getTimeValue("T").setMillis(TaupunktTest.ZEIT_INTERVALL);
 		data.getItem(att).getScaledValue("Wert").set(wert);
 
-		data.getItem(att).getItem("Status").getItem("Erfassung")
-				.getUnscaledValue("NichtErfasst").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal")
-				.getUnscaledValue("WertMax").set(0);
-		data.getItem(att).getItem("Status").getItem("PlFormal")
-				.getUnscaledValue("WertMin").set(0);
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung")
-				.getUnscaledValue("Implausibel").set(implausibel);
-		data.getItem(att).getItem("Status").getItem("MessWertErsetzung")
-				.getUnscaledValue("Interpoliert").set(0);
+		data.getItem(att).getItem("Status").getItem("Erfassung").getUnscaledValue("NichtErfasst").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMax").set(0);
+		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel")
+		.set(implausibel);
+		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
 
-		final ResultData result = new ResultData(so, datenBeschreibung,
-				zeitStemepel, data);
+		final ResultData result = new ResultData(so, datenBeschreibung, zeitStemepel, data);
 		try {
 			TaupunktTest.dav.sendData(result);
 		} catch (final Exception e) {
@@ -185,12 +173,8 @@ public class TaupunktTest extends Taupunkt {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void initialisiere(final IVerwaltung verwaltung)
-			throws DUAInitialisierungsException {
+	public void initialisiere(final IVerwaltung verwaltung) throws DUAInitialisierungsException {
 		super.initialisiere(verwaltung);
 
 		ResultData resultate;
@@ -222,30 +206,23 @@ public class TaupunktTest extends Taupunkt {
 		try {
 
 			TaupunktTest.ddSendeRlfDaten = new DataDescription(
-					TaupunktTest.dav.getDataModel().getAttributeGroup(
-							"atg.ufdsRelativeLuftFeuchte"), TaupunktTest.dav
-							.getDataModel().getAspect("asp.messWertErsetzung"));
-			resultate = new ResultData(TaupunktTest.rlfSensor,
-					TaupunktTest.ddSendeRlfDaten,
-					System.currentTimeMillis(), null);
+					TaupunktTest.dav.getDataModel().getAttributeGroup("atg.ufdsRelativeLuftFeuchte"),
+					TaupunktTest.dav.getDataModel().getAspect("asp.messWertErsetzung"));
+			resultate = new ResultData(TaupunktTest.rlfSensor, TaupunktTest.ddSendeRlfDaten, System.currentTimeMillis(),
+					null);
 			TaupunktTest.dav.subscribeSource(this, resultate);
 
 			TaupunktTest.ddSendeLtDaten = new DataDescription(
-					TaupunktTest.dav.getDataModel().getAttributeGroup(
-							"atg.ufdsLuftTemperatur"), TaupunktTest.dav
-							.getDataModel().getAspect("asp.messWertErsetzung"));
-			resultate = new ResultData(TaupunktTest.ltSensor,
-					TaupunktTest.ddSendeLtDaten, System.currentTimeMillis(),
+					TaupunktTest.dav.getDataModel().getAttributeGroup("atg.ufdsLuftTemperatur"),
+					TaupunktTest.dav.getDataModel().getAspect("asp.messWertErsetzung"));
+			resultate = new ResultData(TaupunktTest.ltSensor, TaupunktTest.ddSendeLtDaten, System.currentTimeMillis(),
 					null);
 			TaupunktTest.dav.subscribeSource(this, resultate);
 
 			TaupunktTest.ddSendeFboftDaten = new DataDescription(
-					TaupunktTest.dav.getDataModel().getAttributeGroup(
-							"atg.ufdsFahrBahnOberFlächenTemperatur"),
-					TaupunktTest.dav.getDataModel().getAspect(
-							"asp.messWertErsetzung"));
-			resultate = new ResultData(TaupunktTest.fbofSensor,
-					TaupunktTest.ddSendeFboftDaten,
+					TaupunktTest.dav.getDataModel().getAttributeGroup("atg.ufdsFahrBahnOberFlächenTemperatur"),
+					TaupunktTest.dav.getDataModel().getAspect("asp.messWertErsetzung"));
+			resultate = new ResultData(TaupunktTest.fbofSensor, TaupunktTest.ddSendeFboftDaten,
 					System.currentTimeMillis(), null);
 			TaupunktTest.dav.subscribeSource(this, resultate);
 		} catch (final Exception e) {
@@ -254,12 +231,9 @@ public class TaupunktTest extends Taupunkt {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void sendeTaupunktTemperaturLuft(final LokaleDaten lDaten,
-			final long zeitStempel, final boolean keineDaten) {
+	public void sendeTaupunktTemperaturLuft(final LokaleDaten lDaten, final long zeitStempel,
+			final boolean keineDaten) {
 
 		super.sendeTaupunktTemperaturLuft(lDaten, zeitStempel, keineDaten);
 		if (keineDaten) {
@@ -269,25 +243,17 @@ public class TaupunktTest extends Taupunkt {
 			return;
 		}
 		double diff;
-		double messwert = lDaten.taupunktLuft.getUnscaledValue(
-				"TaupunktTemperaturLuft").doubleValue();
+		double messwert = lDaten.taupunktLuft.getUnscaledValue("TaupunktTemperaturLuft").doubleValue();
 		if (messwert >= -1000) {
-			messwert = lDaten.taupunktLuft.getScaledValue(
-					"TaupunktTemperaturLuft").doubleValue();
+			messwert = lDaten.taupunktLuft.getScaledValue("TaupunktTemperaturLuft").doubleValue();
 		}
 		diff = TaupunktTest.taupunktLuft[TaupunktTest.testWertLuft] - messwert;
 
-		Assert.assertTrue("DIfferenz = " + diff + " taupunkt "
-				+ TaupunktTest.taupunktLuft[TaupunktTest.testWertLuft] + "DS "
-				+ lDaten.taupunktLuft, Math.abs(diff) <= 0.05);
-		Assert.assertEquals(lDaten.tpLuftZeitStemepel,
-				TaupunktTest.zeitStempel[TaupunktTest.testWertLuft]);
-		System.out
-				.println(String
-						.format("[ %4d ] Luft Taupunkt T OK: %15.7f == %15.7f  Differrez: %15.7f",
-								TaupunktTest.testWertLuft,
-								TaupunktTest.taupunktLuft[TaupunktTest.testWertLuft],
-								messwert, diff));
+		Assert.assertTrue("DIfferenz = " + diff + " taupunkt " + TaupunktTest.taupunktLuft[TaupunktTest.testWertLuft]
+				+ "DS " + lDaten.taupunktLuft, Math.abs(diff) <= 0.05);
+		Assert.assertEquals(lDaten.tpLuftZeitStemepel, TaupunktTest.zeitStempel[TaupunktTest.testWertLuft]);
+		System.out.println(String.format("[ %4d ] Luft Taupunkt T OK: %15.7f == %15.7f  Differrez: %15.7f",
+				TaupunktTest.testWertLuft, TaupunktTest.taupunktLuft[TaupunktTest.testWertLuft], messwert, diff));
 		TaupunktTest.testWertLuft++;
 
 		if (TaupunktTest.testWertLuft == (TaupunktTest.taupunktLuft.length - 1)) {
@@ -298,12 +264,9 @@ public class TaupunktTest extends Taupunkt {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void sendeTaupunktTemperaturFbof(final LokaleDaten lDaten,
-			final long zeitStempel, final boolean keineDaten) {
+	public void sendeTaupunktTemperaturFbof(final LokaleDaten lDaten, final long zeitStempel,
+			final boolean keineDaten) {
 		super.sendeTaupunktTemperaturFbof(lDaten, zeitStempel, keineDaten);
 		if (keineDaten) {
 			return;
@@ -312,26 +275,19 @@ public class TaupunktTest extends Taupunkt {
 			return;
 		}
 		double diff;
-		double messwert = lDaten.taupunktFbof.getUnscaledValue(
-				"TaupunktTemperaturFahrBahn").doubleValue();
+		double messwert = lDaten.taupunktFbof.getUnscaledValue("TaupunktTemperaturFahrBahn").doubleValue();
 		if (messwert >= -1000) {
-			messwert = lDaten.taupunktFbof.getScaledValue(
-					"TaupunktTemperaturFahrBahn").doubleValue();
+			messwert = lDaten.taupunktFbof.getScaledValue("TaupunktTemperaturFahrBahn").doubleValue();
 		}
 
 		diff = TaupunktTest.taupunktFbof[TaupunktTest.testWertFbof] - messwert;
-		Assert.assertTrue(TaupunktTest.testWertFbof + " Differenz = " + diff
-				+ " taupunkt "
-				+ TaupunktTest.taupunktFbof[TaupunktTest.testWertFbof] + "DS "
-				+ lDaten.taupunktFbof, Math.abs(diff) <= 0.05);
-		Assert.assertEquals(lDaten.tpFbofZeitStemepel,
-				TaupunktTest.zeitStempel[TaupunktTest.testWertFbof]);
-		System.out
-				.println(String
-						.format("[ %4d ] Fbof Taupunkt T OK: %15.7f == %15.7f  Differrez: %15.7f",
-								TaupunktTest.testWertFbof,
-								TaupunktTest.taupunktFbof[TaupunktTest.testWertFbof],
-								messwert, diff));
+		Assert.assertTrue(
+				TaupunktTest.testWertFbof + " Differenz = " + diff + " taupunkt "
+						+ TaupunktTest.taupunktFbof[TaupunktTest.testWertFbof] + "DS " + lDaten.taupunktFbof,
+						Math.abs(diff) <= 0.05);
+		Assert.assertEquals(lDaten.tpFbofZeitStemepel, TaupunktTest.zeitStempel[TaupunktTest.testWertFbof]);
+		System.out.println(String.format("[ %4d ] Fbof Taupunkt T OK: %15.7f == %15.7f  Differrez: %15.7f",
+				TaupunktTest.testWertFbof, TaupunktTest.taupunktFbof[TaupunktTest.testWertFbof], messwert, diff));
 		TaupunktTest.testWertFbof++;
 
 		if (TaupunktTest.testWertFbof >= (TaupunktTest.taupunktFbof.length - 1)) {
@@ -347,8 +303,7 @@ public class TaupunktTest extends Taupunkt {
 	 */
 	@Test
 	public void testTaupunkt() {
-		final double[] values = new double[] { 0.1, -0.2, 0.1, 0.0, 10, 0.5, -10.1,
-				-1.0 };
+		final double[] values = new double[] { 0.1, -0.2, 0.1, 0.0, 10, 0.5, -10.1, -1.0 };
 		final double[] feuchte = new double[] { 83, 99, 100, 70, 6, 52, 89 };
 		TaupunktTest.taupunktLuft = new double[values.length * feuchte.length];
 		TaupunktTest.taupunktFbof = new double[values.length * feuchte.length];
@@ -371,38 +326,27 @@ public class TaupunktTest extends Taupunkt {
 			for (int j = 0; j < feuchte.length; j++) {
 				final double d = taupunktTemperatur(feuchte[j], values[i]);
 				// runden wegen Sklierung 0.1
-				TaupunktTest.taupunktLuft[(i * feuchte.length) + j] = (Math
-						.round(d * 10.0)) / 10.0;
-				TaupunktTest.taupunktFbof[(i * feuchte.length) + j] = (Math
-						.round(d * 10.0)) / 10.0;
+				TaupunktTest.taupunktLuft[(i * feuchte.length) + j] = (Math.round(d * 10.0)) / 10.0;
+				TaupunktTest.taupunktFbof[(i * feuchte.length) + j] = (Math.round(d * 10.0)) / 10.0;
 				TaupunktTest.zeitStempel[(i * feuchte.length) + j] = zeit;
 				zeit += TaupunktTest.ZEIT_INTERVALL;
 
 				// normale daten
 				if (((j + i) % 5) != 0) {
-					sendeDaten(TaupunktTest.ltSensor,
-							TaupunktTest.ddSendeLtDaten, "LuftTemperatur",
-							values[i], TaupunktTest.zeitStempel[(i * feuchte.length)
-									+ j], 0);
+					sendeDaten(TaupunktTest.ltSensor, TaupunktTest.ddSendeLtDaten, "LuftTemperatur", values[i],
+							TaupunktTest.zeitStempel[(i * feuchte.length) + j], 0);
 				} else {
 					// implausibel
 					if (((j + i) % 10) == 0) {
-						sendeDaten(TaupunktTest.ltSensor,
-								TaupunktTest.ddSendeLtDaten,
-								"LuftTemperatur", values[i],
-								TaupunktTest.zeitStempel[(i * feuchte.length)
-										+ j], 1);
+						sendeDaten(TaupunktTest.ltSensor, TaupunktTest.ddSendeLtDaten, "LuftTemperatur", values[i],
+								TaupunktTest.zeitStempel[(i * feuchte.length) + j], 1);
 					} else {
 					}
 					TaupunktTest.taupunktLuft[(i * feuchte.length) + j] = -1001;
 				}
-				sendeDaten(TaupunktTest.fbofSensor,
-						TaupunktTest.ddSendeFboftDaten,
-						"FahrBahnOberFlächenTemperatur", values[i],
-						TaupunktTest.zeitStempel[(i * feuchte.length) + j], 0);
-				sendeDaten(TaupunktTest.rlfSensor,
-						TaupunktTest.ddSendeRlfDaten, "RelativeLuftFeuchte",
-						feuchte[j],
+				sendeDaten(TaupunktTest.fbofSensor, TaupunktTest.ddSendeFboftDaten, "FahrBahnOberFlächenTemperatur",
+						values[i], TaupunktTest.zeitStempel[(i * feuchte.length) + j], 0);
+				sendeDaten(TaupunktTest.rlfSensor, TaupunktTest.ddSendeRlfDaten, "RelativeLuftFeuchte", feuchte[j],
 						TaupunktTest.zeitStempel[(i * feuchte.length) + j], 0);
 
 				try {
@@ -414,8 +358,7 @@ public class TaupunktTest extends Taupunkt {
 
 		synchronized (Taupunkt.verwaltung) {
 			try {
-				while (TaupunktTest.mussWartenLuft
-						|| TaupunktTest.mussWartenFbof) {
+				while (TaupunktTest.mussWartenLuft || TaupunktTest.mussWartenFbof) {
 					Taupunkt.verwaltung.wait();
 				}
 			} catch (final Exception e) {
