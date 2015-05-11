@@ -41,7 +41,7 @@ import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
 import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IVerwaltung;
 
 /**
- * Testet den Modul Taupunkt
+ * Testet den Modul Taupunkt.
  *
  * @author BitCtrl Systems GmbH, Bachraty
  *
@@ -49,45 +49,35 @@ import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IVerwaltung;
 @Ignore("Testdatenverteiler prüfen")
 public class TaupunktTest extends Taupunkt {
 
-	/**
-	 * Der Index des aktuelles TestWertes im Array
-	 */
-	private static int testWertLuft = 0, testWertFbof = 0;
-	/**
-	 * Die TestWerte
-	 */
-	private static double taupunktLuft[] = null, taupunktFbof[] = null;
-	/**
-	 * Die ZeitStempel der Testwerte
-	 */
-	private static long[] zeitStempel = null;
-	/**
-	 * Intervall der Datenerzeugung;
-	 */
-	private final static long ZEIT_INTERVALL = 300;
-	/**
-	 * Die EingabeDaten
-	 */
+	/** Der Index des aktuelles TestWertes im Array. */
+	private static int testWertLuft, testWertFbof;
+
+	/** Die TestWerte. */
+	private static double[] taupunktLuft, taupunktFbof;
+
+	/** Die ZeitStempel der Testwerte. */
+	private static long[] zeitStempel;
+
+	/** Intervall der Datenerzeugung. */
+	private static final long ZEIT_INTERVALL = 300;
+
+	/** Die EingabeDaten. */
 	private static DataDescription ddSendeRlfDaten, ddSendeLtDaten, ddSendeFboftDaten;
-	/**
-	 * Verbindung zum dav
-	 */
+
+	/** Verbindung zum dav. */
 	private static ClientDavInterface dav;
-	/**
-	 * SystemObjekte zum TestZwecken - liefern die Testdaten
-	 */
+
+	/** SystemObjekte zum TestZwecken - liefern die Testdaten. */
 	private static SystemObject rlfSensor, ltSensor, fbofSensor;
-	/**
-	 * Synchronizierung
-	 */
+
+	/** Synchronizierung. */
 	private static boolean mussWartenFbof = true, mussWartenLuft = true;
-	/**
-	 * Der Verwaltungsmodul
-	 */
+
+	/** Der Verwaltungsmodul. */
 	private static VerwaltungAufbereitungUFDTest hauptModul;
 
 	/**
-	 * Berechnet dem Taupunkt fuer Luftemperatur
+	 * Berechnet dem Taupunkt fuer Luftemperatur.
 	 *
 	 * @param relativeLuftFeuchtigkeit
 	 *            Feuchte
@@ -100,7 +90,7 @@ public class TaupunktTest extends Taupunkt {
 	}
 
 	/**
-	 * Berechnet dem Taupunkt fuer fahrbahntemperatur
+	 * Berechnet dem Taupunkt fuer fahrbahntemperatur.
 	 *
 	 * @param relativeLuftFeuchtigkeit
 	 *            Feuchte
@@ -113,7 +103,7 @@ public class TaupunktTest extends Taupunkt {
 	}
 
 	/**
-	 * Berechnet dem Taupunkt
+	 * Berechnet dem Taupunkt.
 	 *
 	 * @param feuchtigkeit
 	 *            Feuchte
@@ -133,7 +123,7 @@ public class TaupunktTest extends Taupunkt {
 	}
 
 	/**
-	 * Sendet Daten fuer Testzwecken
+	 * Sendet Daten fuer Testzwecken.
 	 *
 	 * @param so
 	 *            SystemObjekt
@@ -159,7 +149,7 @@ public class TaupunktTest extends Taupunkt {
 		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMax").set(0);
 		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);
 		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel")
-		.set(implausibel);
+				.set(implausibel);
 		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
 		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
@@ -284,7 +274,7 @@ public class TaupunktTest extends Taupunkt {
 		Assert.assertTrue(
 				TaupunktTest.testWertFbof + " Differenz = " + diff + " taupunkt "
 						+ TaupunktTest.taupunktFbof[TaupunktTest.testWertFbof] + "DS " + lDaten.taupunktFbof,
-						Math.abs(diff) <= 0.05);
+				Math.abs(diff) <= 0.05);
 		Assert.assertEquals(lDaten.tpFbofZeitStemepel, TaupunktTest.zeitStempel[TaupunktTest.testWertFbof]);
 		System.out.println(String.format("[ %4d ] Fbof Taupunkt T OK: %15.7f == %15.7f  Differrez: %15.7f",
 				TaupunktTest.testWertFbof, TaupunktTest.taupunktFbof[TaupunktTest.testWertFbof], messwert, diff));
@@ -298,9 +288,7 @@ public class TaupunktTest extends Taupunkt {
 		}
 	}
 
-	/**
-	 * Testet die Berechnung des Taupunktes
-	 */
+	/** Testet die Berechnung des Taupunktes. */
 	@Test
 	public void testTaupunkt() {
 		final double[] values = new double[] { 0.1, -0.2, 0.1, 0.0, 10, 0.5, -10.1, -1.0 };
@@ -340,7 +328,6 @@ public class TaupunktTest extends Taupunkt {
 					if (((j + i) % 10) == 0) {
 						sendeDaten(TaupunktTest.ltSensor, TaupunktTest.ddSendeLtDaten, "LuftTemperatur", values[i],
 								TaupunktTest.zeitStempel[(i * feuchte.length) + j], 1);
-					} else {
 					}
 					TaupunktTest.taupunktLuft[(i * feuchte.length) + j] = -1001;
 				}
