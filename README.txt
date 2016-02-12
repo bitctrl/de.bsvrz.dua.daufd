@@ -2,8 +2,7 @@
 *  Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD  *
 ************************************************************************************
 
-Version: 1.3.0
-
+Version: ${version}
 
 Übersicht
 =========
