@@ -250,7 +250,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	 * Abbildet integer Werte auf Symbolische Konstanten
 	 */
 	private final static NSStufe[] MAP_INT_NS_STUFE = new NSStufe[] { NSStufe.NS_TROCKEN, NSStufe.NS_NASS1,
-		NSStufe.NS_NASS2, NSStufe.NS_NASS3, NSStufe.NS_NASS4 };
+			NSStufe.NS_NASS2, NSStufe.NS_NASS3, NSStufe.NS_NASS4 };
 
 	/**
 	 * Abbildet die NS_Stufe von Int zur symbolischen Wert
@@ -655,7 +655,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(NaesseStufe.ATG_UFDMS_AP),
 				verwaltung.getVerbindung().getDataModel().getAspect(NaesseStufe.ASP_PARAM_SOLL));
 
-		if ((verwaltung.getSystemObjekte() == null) || (verwaltung.getSystemObjekte().length == 0)) {
+		if (verwaltung.getSystemObjekte().isEmpty()) {
 			return;
 		}
 

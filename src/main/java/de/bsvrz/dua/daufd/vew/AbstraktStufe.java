@@ -180,7 +180,7 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten, ClientReceiv
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getStufeAttributGruppe()),
 				verwaltung.getVerbindung().getDataModel().getAspect(AbstraktStufe.ASP_KLASSIFIZIERUNG));
 
-		if ((verwaltung.getSystemObjekte() == null) || (verwaltung.getSystemObjekte().length == 0)) {
+		if (verwaltung.getSystemObjekte().isEmpty()) {
 			return;
 		}
 
@@ -199,7 +199,7 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten, ClientReceiv
 							sensoren.add(sensor);
 						} catch (final OneSubscriptionPerSendData e) {
 							throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Objekt" + so.getPid()
-									+ " unerfolgreich:" + e.getMessage());
+							+ " unerfolgreich:" + e.getMessage());
 						}
 					}
 				}

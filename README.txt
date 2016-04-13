@@ -20,6 +20,9 @@ die Daten ggf. in den Datenverteiler publiziert.
 Versionsgeschichte
 ==================
 
+1.4.0
+- Umstellung auf Funclib-BitCtrl-Dua
+
 1.3.0
 - Umstellung auf Maven-Build
 

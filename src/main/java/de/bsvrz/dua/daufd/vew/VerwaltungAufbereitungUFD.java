@@ -76,12 +76,13 @@ public class VerwaltungAufbereitungUFD extends AbstraktVerwaltungsAdapter {
 
 		Collection<SystemObject> objekte;
 		final Collection<SystemObjectType> systemObjektTypen = new LinkedList<SystemObjectType>();
-		systemObjektTypen.add(verbindung.getDataModel().getType(VerwaltungAufbereitungUFD.TYP_UFDMS));
-		objekte = verbindung.getDataModel().getObjects(this.getKonfigurationsBereiche(), systemObjektTypen,
+		systemObjektTypen.add(getVerbindung().getDataModel().getType(VerwaltungAufbereitungUFD.TYP_UFDMS));
+		objekte = getVerbindung().getDataModel().getObjects(this.getKonfigurationsBereiche(), systemObjektTypen,
 				ObjectTimeSpecification.valid());
-		this.objekte = objekte.toArray(new SystemObject[0]);
 
-		if ((this.objekte == null) || (this.objekte.length == 0)) {
+		addSystemObjekte(objekte);
+
+		if (getSystemObjekte().isEmpty()) {
 			throw new DUAInitialisierungsException(
 					"Es wurden keine UmfeldDatenMessStellen im KB " + this.getKonfigurationsBereiche() + " gefunden");
 		}
@@ -156,9 +157,9 @@ public class VerwaltungAufbereitungUFD extends AbstraktVerwaltungsAdapter {
 			final String aspekt) throws DUAInitialisierungsException {
 
 		final DataDescription datenBeschreibung = new DataDescription(
-				verbindung.getDataModel().getAttributeGroup(attributGruppe),
-				verbindung.getDataModel().getAspect(aspekt));
-		verbindung.subscribeReceiver(this, sensoren, datenBeschreibung, ReceiveOptions.normal(),
+				getVerbindung().getDataModel().getAttributeGroup(attributGruppe),
+				getVerbindung().getDataModel().getAspect(aspekt));
+		getVerbindung().subscribeReceiver(this, sensoren, datenBeschreibung, ReceiveOptions.normal(),
 				ReceiverRole.receiver());
 
 	}

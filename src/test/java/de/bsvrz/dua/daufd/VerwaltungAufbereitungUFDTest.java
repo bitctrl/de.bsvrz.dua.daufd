@@ -49,7 +49,7 @@ import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IBearbeitungsKnoten;
 /**
  * Beim Testfaellen steuert die Verwaltung statt normalen Klassen die vererbten
  * versionen deren Namen mit -Test enden
- * 
+ *
  * @author BitCtrl Systems GmbH, Bachraty
  *
  */
@@ -64,13 +64,13 @@ public class VerwaltungAufbereitungUFDTest extends VerwaltungAufbereitungUFD {
 		/*
 		 * Die parametrierung des Testkonfigruationsbereichs
 		 */
-		NaesseStufeTest.parametriereUfds(verbindung,
+		NaesseStufeTest.parametriereUfds(getVerbindung(),
 				this.getKonfigurationsBereiche());
-		WasserFilmDickeStufeTest.parametriereUfds(verbindung,
+		WasserFilmDickeStufeTest.parametriereUfds(getVerbindung(),
 				this.getKonfigurationsBereiche());
-		NiederschlagIntensitaetStufeTest.parametriereUfds(verbindung,
+		NiederschlagIntensitaetStufeTest.parametriereUfds(getVerbindung(),
 				this.getKonfigurationsBereiche());
-		SichtWeiteStufeTest.parametriereUfds(verbindung,
+		SichtWeiteStufeTest.parametriereUfds(getVerbindung(),
 				this.getKonfigurationsBereiche());
 		try {
 			Thread.sleep(1000);
@@ -79,14 +79,14 @@ public class VerwaltungAufbereitungUFDTest extends VerwaltungAufbereitungUFD {
 
 		Collection<SystemObject> objekte;
 		final Collection<SystemObjectType> systemObjektTypen = new LinkedList<SystemObjectType>();
-		systemObjektTypen.add(verbindung.getDataModel().getType(
+		systemObjektTypen.add(getVerbindung().getDataModel().getType(
 				VerwaltungAufbereitungUFD.TYP_UFDMS));
-		objekte = verbindung.getDataModel().getObjects(
+		objekte = getVerbindung().getDataModel().getObjects(
 				this.getKonfigurationsBereiche(), systemObjektTypen,
 				ObjectTimeSpecification.valid());
-		this.objekte = objekte.toArray(new SystemObject[0]);
+		addSystemObjekte(objekte);
 
-		Assert.assertNotNull(this.objekte);
+		Assert.assertFalse(getSystemObjekte().isEmpty());
 
 		IBearbeitungsKnoten knoten1, knoten2;
 		AbstraktStufe stufeKnoten;
@@ -140,7 +140,7 @@ public class VerwaltungAufbereitungUFDTest extends VerwaltungAufbereitungUFD {
 	/**
 	 * Leifert den NiederschlagintensitaetsKnoten (wird in NaesseStufeTest
 	 * benutzt)
-	 * 
+	 *
 	 * @return NI-Knoten
 	 */
 	public NiederschlagIntensitaetStufeTest getNiKnoten() {
@@ -149,7 +149,7 @@ public class VerwaltungAufbereitungUFDTest extends VerwaltungAufbereitungUFD {
 
 	/**
 	 * Leifert den WasserflmdickeKnoten (wird in NaesseStufeTest benutzt)
-	 * 
+	 *
 	 * @return NI-Knoten
 	 */
 	public WasserFilmDickeStufeTest getWfdKnotne() {
@@ -160,6 +160,6 @@ public class VerwaltungAufbereitungUFDTest extends VerwaltungAufbereitungUFD {
 	 * Trennt die Verbindung
 	 */
 	public void disconnect() {
-		verbindung.disconnect(false, "");
+		getVerbindung().disconnect(false, "");
 	}
 }
