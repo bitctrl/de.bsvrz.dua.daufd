@@ -20,6 +20,9 @@ die Daten ggf. in den Datenverteiler publiziert.
 Versionsgeschichte
 ==================
 
+1.4.1
+- Kompatibilität zu DuA-2.0 hergestellt
+
 1.4.0
 - Umstellung auf Funclib-BitCtrl-Dua
 

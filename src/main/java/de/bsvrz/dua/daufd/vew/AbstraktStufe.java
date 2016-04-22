@@ -180,11 +180,12 @@ public abstract class AbstraktStufe implements IBearbeitungsKnoten, ClientReceiv
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(getStufeAttributGruppe()),
 				verwaltung.getVerbindung().getDataModel().getAspect(AbstraktStufe.ASP_KLASSIFIZIERUNG));
 
-		if (verwaltung.getSystemObjekte().isEmpty()) {
+		final SystemObject[] systemObjekte = verwaltung.getSystemObjekte();
+		if ((systemObjekte == null) || (systemObjekte.length <= 0)) {
 			return;
 		}
 
-		for (final SystemObject so : verwaltung.getSystemObjekte()) {
+		for (final SystemObject so : systemObjekte) {
 			if (!(so instanceof ConfigurationObject)) {
 				continue;
 			}

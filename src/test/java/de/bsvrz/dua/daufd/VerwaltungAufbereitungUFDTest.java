@@ -84,9 +84,10 @@ public class VerwaltungAufbereitungUFDTest extends VerwaltungAufbereitungUFD {
 		objekte = getVerbindung().getDataModel().getObjects(
 				this.getKonfigurationsBereiche(), systemObjektTypen,
 				ObjectTimeSpecification.valid());
-		addSystemObjekte(objekte);
 
-		Assert.assertFalse(getSystemObjekte().isEmpty());
+		Assert.assertFalse(objekte.isEmpty());
+
+		setSystemObjekte(objekte);
 
 		IBearbeitungsKnoten knoten1, knoten2;
 		AbstraktStufe stufeKnoten;

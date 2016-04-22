@@ -559,11 +559,12 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 				verwaltung1.getVerbindung().getDataModel().getAttributeGroup(Taupunkt.ATG_UFDMS_TTL),
 				verwaltung1.getVerbindung().getDataModel().getAspect(Taupunkt.ASP_ANALYSE));
 
-		if (verwaltung1.getSystemObjekte().isEmpty()) {
+		final SystemObject[] systemObjekte = verwaltung1.getSystemObjekte();
+		if ((systemObjekte == null) || (systemObjekte.length <= 0)) {
 			return;
 		}
 
-		for (final SystemObject so : verwaltung1.getSystemObjekte()) {
+		for (final SystemObject so : systemObjekte) {
 			try {
 				if (!(so instanceof ConfigurationObject)) {
 					continue;

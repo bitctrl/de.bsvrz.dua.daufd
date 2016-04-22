@@ -655,11 +655,12 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 				verwaltung.getVerbindung().getDataModel().getAttributeGroup(NaesseStufe.ATG_UFDMS_AP),
 				verwaltung.getVerbindung().getDataModel().getAspect(NaesseStufe.ASP_PARAM_SOLL));
 
-		if (verwaltung.getSystemObjekte().isEmpty()) {
+		final SystemObject[] systemObjekte = verwaltung.getSystemObjekte();
+		if ((systemObjekte == null) || (systemObjekte.length <= 0)) {
 			return;
 		}
 
-		for (final SystemObject so : verwaltung.getSystemObjekte()) {
+		for (final SystemObject so : systemObjekte) {
 			try {
 				if (so == null) {
 					continue;
@@ -697,7 +698,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 			}
 		}
 
-		verwaltung.getVerbindung().subscribeReceiver(this, verwaltung.getSystemObjekte(), ddAbtrocknungsphasen,
+		verwaltung.getVerbindung().subscribeReceiver(this, systemObjekte, ddAbtrocknungsphasen,
 				ReceiveOptions.normal(), ReceiverRole.receiver());
 
 	}

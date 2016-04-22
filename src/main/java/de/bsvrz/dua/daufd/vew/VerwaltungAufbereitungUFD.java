@@ -80,12 +80,12 @@ public class VerwaltungAufbereitungUFD extends AbstraktVerwaltungsAdapter {
 		objekte = getVerbindung().getDataModel().getObjects(this.getKonfigurationsBereiche(), systemObjektTypen,
 				ObjectTimeSpecification.valid());
 
-		addSystemObjekte(objekte);
-
-		if (getSystemObjekte().isEmpty()) {
+		if (objekte.isEmpty()) {
 			throw new DUAInitialisierungsException(
 					"Es wurden keine UmfeldDatenMessStellen im KB " + this.getKonfigurationsBereiche() + " gefunden");
 		}
+
+		setSystemObjekte(objekte);
 
 		IBearbeitungsKnoten knoten1, knoten2;
 		AbstraktStufe stufeKnoten;
