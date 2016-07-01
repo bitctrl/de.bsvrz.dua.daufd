@@ -1,5 +1,5 @@
 /*
- * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+ * Segment 4 DatenÃ¼bernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
  * Copyright (C) 2007-2015 BitCtrl Systems GmbH
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
  *
  * Contact Information:<br>
  * BitCtrl Systems GmbH<br>
- * Weißenfelser Straße 67<br>
+ * WeiÃŸenfelser StraÃŸe 67<br>
  * 04229 Leipzig<br>
  * Phone: +49 341-490670<br>
  * mailto: info@bitctrl.de
@@ -60,7 +60,7 @@ import de.bsvrz.sys.funclib.debug.Debug;
  * @author BitCtrl Systems GmbH, Bachraty
  *
  */
-@Ignore("Testdatenverteiler prüfen")
+@Ignore("Testdatenverteiler prÃ¼fen")
 public class NaesseStufeTest extends NaesseStufe implements ClientSenderInterface {
 
 	private static final Debug LOGGER = Debug.getLogger();
@@ -165,7 +165,7 @@ public class NaesseStufeTest extends NaesseStufe implements ClientSenderInterfac
 			try {
 				dav.subscribeSender(param, ufdsObjekte, NaesseStufeTest.ddAbtrocknungPhasen, SenderRole.sender());
 			} catch (final Exception e) {
-				NaesseStufeTest.LOGGER.error("Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ "
+				NaesseStufeTest.LOGGER.error("Fehler bei Anmeldung fÃ¼r Klassifizierung der Objekte vom Typ "
 						+ NaesseStufeTest.TYP_UFDMS + ":" + e.getMessage());
 				e.printStackTrace();
 			}
@@ -201,7 +201,7 @@ public class NaesseStufeTest extends NaesseStufe implements ClientSenderInterfac
 						"Objekt " + object.getPid() + " Atg: " + NaesseStufeTest.ATG_UFDMS_AP + " parametriert ");
 			} catch (final Exception e) {
 				NaesseStufeTest.LOGGER
-						.error("Fehler bei Sendung von Daten für Klassifizierung Niederschlaginetnsitaet des Objektes :"
+						.error("Fehler bei Sendung von Daten fÃ¼r Klassifizierung Niederschlaginetnsitaet des Objektes :"
 								+ object.getPid() + "\n Fehler:" + e.getMessage());
 				e.printStackTrace();
 			}
@@ -364,7 +364,7 @@ public class NaesseStufeTest extends NaesseStufe implements ClientSenderInterfac
 	 *            Der ZeitStempels
 	 */
 	private static void sendeFbofZustand(final SystemObject objekt, final int stufe, final long zeitStempel) {
-		NaesseStufeTest.sendeZustand(objekt, "FahrBahnOberFlächenZustand", NaesseStufeTest.ddFbofZustand, stufe,
+		NaesseStufeTest.sendeZustand(objekt, "FahrBahnOberFlÃ¤chenZustand", NaesseStufeTest.ddFbofZustand, stufe,
 				zeitStempel);
 	}
 
@@ -409,8 +409,8 @@ public class NaesseStufeTest extends NaesseStufe implements ClientSenderInterfac
 		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);
 		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").set(0);
 		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
-		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
-		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
+		data.getItem(att).getItem("GÃ¼te").getUnscaledValue("Index").set(1000);
+		data.getItem(att).getItem("GÃ¼te").getUnscaledValue("Verfahren").set(0);
 
 		final ResultData result = new ResultData(objekt, datenBeschreibung, zeitStempel, data);
 		try {

@@ -1,5 +1,5 @@
 /*
- * Segment 4 Daten¸bernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+ * Segment 4 Daten√ºbernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
  * Copyright (C) 2007-2015 BitCtrl Systems GmbH
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
  *
  * Contact Information:<br>
  * BitCtrl Systems GmbH<br>
- * Weiﬂenfelser Straﬂe 67<br>
+ * Wei√üenfelser Stra√üe 67<br>
  * 04229 Leipzig<br>
  * Phone: +49 341-490670<br>
  * mailto: info@bitctrl.de
@@ -54,7 +54,7 @@ import de.bsvrz.sys.funclib.debug.Debug;
  *
  * @author BitCtrl Systems GmbH, Bachraty
  */
-@Ignore("Testdatenverteiler pr¸fen")
+@Ignore("Testdatenverteiler pr√ºfen")
 public class NiederschlagIntensitaetStufeTest extends NiederschlagIntensitaetStufe {
 
 	private static final Debug LOGGER = Debug.getLogger();
@@ -91,10 +91,10 @@ public class NiederschlagIntensitaetStufeTest extends NiederschlagIntensitaetStu
 	/**
 	 * String-KOnstanten.
 	 */
-	private static final String TYP_UFDS_NI = "typ.ufdsNiederschlagsIntensit‰t";
-	private static final String ATG_UFDS_KLASS_NI = "atg.ufdsKlassifizierungNiederschlagsIntensit‰t";
-	private static final String ATT_UFDS_KLASS_NI = "KlassifizierungNiederschlagsIntensit‰t";
-	private static final String ATG_UFDS_AGGREG_NI = "atg.ufdsAggregationNiederschlagsIntensit‰t";
+	private static final String TYP_UFDS_NI = "typ.ufdsNiederschlagsIntensit√§t";
+	private static final String ATG_UFDS_KLASS_NI = "atg.ufdsKlassifizierungNiederschlagsIntensit√§t";
+	private static final String ATT_UFDS_KLASS_NI = "KlassifizierungNiederschlagsIntensit√§t";
+	private static final String ATG_UFDS_AGGREG_NI = "atg.ufdsAggregationNiederschlagsIntensit√§t";
 
 	/**
 	 * Einkommende Messwerte
@@ -366,8 +366,8 @@ public class NiederschlagIntensitaetStufeTest extends NiederschlagIntensitaetStu
 		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);
 		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").set(0);
 		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
-		data.getItem(att).getItem("G¸te").getUnscaledValue("Index").set(1000);
-		data.getItem(att).getItem("G¸te").getUnscaledValue("Verfahren").set(0);
+		data.getItem(att).getItem("G√ºte").getUnscaledValue("Index").set(1000);
+		data.getItem(att).getItem("G√ºte").getUnscaledValue("Verfahren").set(0);
 
 		final ResultData result = new ResultData(sensor, NiederschlagIntensitaetStufeTest.ddMessWerte, zeitStemepel,
 				data);

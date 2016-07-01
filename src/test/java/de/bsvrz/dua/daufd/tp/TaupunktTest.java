@@ -1,5 +1,5 @@
 /*
- * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+ * Segment 4 DatenÃ¼bernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
  * Copyright (C) 2007-2015 BitCtrl Systems GmbH
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
  *
  * Contact Information:<br>
  * BitCtrl Systems GmbH<br>
- * Weißenfelser Straße 67<br>
+ * WeiÃŸenfelser StraÃŸe 67<br>
  * 04229 Leipzig<br>
  * Phone: +49 341-490670<br>
  * mailto: info@bitctrl.de
@@ -46,7 +46,7 @@ import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IVerwaltung;
  * @author BitCtrl Systems GmbH, Bachraty
  *
  */
-@Ignore("Testdatenverteiler prüfen")
+@Ignore("Testdatenverteiler prÃ¼fen")
 public class TaupunktTest extends Taupunkt {
 
 	/** Der Index des aktuelles TestWertes im Array. */
@@ -151,8 +151,8 @@ public class TaupunktTest extends Taupunkt {
 		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel")
 				.set(implausibel);
 		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
-		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
-		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
+		data.getItem(att).getItem("GÃ¼te").getUnscaledValue("Index").set(1000);
+		data.getItem(att).getItem("GÃ¼te").getUnscaledValue("Verfahren").set(0);
 
 		final ResultData result = new ResultData(so, datenBeschreibung, zeitStemepel, data);
 		try {
@@ -210,7 +210,7 @@ public class TaupunktTest extends Taupunkt {
 			TaupunktTest.dav.subscribeSource(this, resultate);
 
 			TaupunktTest.ddSendeFboftDaten = new DataDescription(
-					TaupunktTest.dav.getDataModel().getAttributeGroup("atg.ufdsFahrBahnOberFlächenTemperatur"),
+					TaupunktTest.dav.getDataModel().getAttributeGroup("atg.ufdsFahrBahnOberFlÃ¤chenTemperatur"),
 					TaupunktTest.dav.getDataModel().getAspect("asp.messWertErsetzung"));
 			resultate = new ResultData(TaupunktTest.fbofSensor, TaupunktTest.ddSendeFboftDaten,
 					System.currentTimeMillis(), null);
@@ -331,7 +331,7 @@ public class TaupunktTest extends Taupunkt {
 					}
 					TaupunktTest.taupunktLuft[(i * feuchte.length) + j] = -1001;
 				}
-				sendeDaten(TaupunktTest.fbofSensor, TaupunktTest.ddSendeFboftDaten, "FahrBahnOberFlächenTemperatur",
+				sendeDaten(TaupunktTest.fbofSensor, TaupunktTest.ddSendeFboftDaten, "FahrBahnOberFlÃ¤chenTemperatur",
 						values[i], TaupunktTest.zeitStempel[(i * feuchte.length) + j], 0);
 				sendeDaten(TaupunktTest.rlfSensor, TaupunktTest.ddSendeRlfDaten, "RelativeLuftFeuchte", feuchte[j],
 						TaupunktTest.zeitStempel[(i * feuchte.length) + j], 0);

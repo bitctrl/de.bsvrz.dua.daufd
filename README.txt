@@ -1,27 +1,30 @@
 ************************************************************************************
-*  Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD  *
+*  Segment 4 DatenÃ¼bernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD  *
 ************************************************************************************
 
 Version: ${version}
 
-Übersicht
+Ãœbersicht
 =========
 
 Die SWE Datenaufbereitung UFD dient zu Abbildung quasi-kontinuierlicher Messwerte von
 Umfelddatenmessstellen auf eine parametrierbare Anzahl von Stufen mit frei parametrierbaren
-Schwellwerten. Dazu werden die Messwerte zuerst durch eine exponentielle Glättung mit
-wanderndem Abweichungswinkel geglättet und anschließend über eine parametrierbare
-Hysteresefunktion klassifiziert. Zusätzliche werden auf Basis der Lufttemperatur, der
-Fahrbahnoberflächentemperatur und der relativen Luftfeuchte die Taupunkttemperaturen
-für die Luft und die Fahrbahnoberfläche ermittelt. Nach dieser Klassifizierung werden
+Schwellwerten. Dazu werden die Messwerte zuerst durch eine exponentielle GlÃ¤ttung mit
+wanderndem Abweichungswinkel geglÃ¤ttet und anschlieÃŸend Ã¼ber eine parametrierbare
+Hysteresefunktion klassifiziert. ZusÃ¤tzliche werden auf Basis der Lufttemperatur, der
+FahrbahnoberflÃ¤chentemperatur und der relativen Luftfeuchte die Taupunkttemperaturen
+fÃ¼r die Luft und die FahrbahnoberflÃ¤che ermittelt. Nach dieser Klassifizierung werden
 die Daten ggf. in den Datenverteiler publiziert.
 
 
 Versionsgeschichte
 ==================
 
+1.5.0
+- Umstellung auf Java 8 und UTF-8
+
 1.4.1
-- Kompatibilität zu DuA-2.0 hergestellt
+- KompatibilitÃ¤t zu DuA-2.0 hergestellt
 
 1.4.0
 - Umstellung auf Funclib-BitCtrl-Dua
@@ -35,14 +38,14 @@ Versionsgeschichte
 
 1.0.5
 
-  - Berechnung der geglätteten Sichtweite abgepasst:
-    Vor der Bestimmung der Nässestufe, Wasserfilmdickestufe und der Sichtweitenstufe wird jeweils ein
-    geglätteter Messwert berechnet. Innerhalb dieser Berechnung wird der Glättungsfaktor b(i) bestimmt.
-    Die Berechnung von b(i) unterscheidet sich aber bei der Sichtweite von der für Nässe und Wasserfilmdicke
-    in der Hinsicht, dass bei der SW (Messwert) / (alten geglätteten Wert) gerechnet wird und bei den beiden
-    anderen umgekehrt (alter geglätteter Wert) / (Messwert).
-	Das Problem bestand darin, dass im Programm b(i) für alle Zielwerte gleich gerechnet wird, d.h. die
-	geglättete SW wird dadurch falsch berechnet.
+  - Berechnung der geglÃ¤tteten Sichtweite abgepasst:
+    Vor der Bestimmung der NÃ¤ssestufe, Wasserfilmdickestufe und der Sichtweitenstufe wird jeweils ein
+    geglÃ¤tteter Messwert berechnet. Innerhalb dieser Berechnung wird der GlÃ¤ttungsfaktor b(i) bestimmt.
+    Die Berechnung von b(i) unterscheidet sich aber bei der Sichtweite von der fÃ¼r NÃ¤sse und Wasserfilmdicke
+    in der Hinsicht, dass bei der SW (Messwert) / (alten geglÃ¤tteten Wert) gerechnet wird und bei den beiden
+    anderen umgekehrt (alter geglÃ¤tteter Wert) / (Messwert).
+	Das Problem bestand darin, dass im Programm b(i) fÃ¼r alle Zielwerte gleich gerechnet wird, d.h. die
+	geglÃ¤ttete SW wird dadurch falsch berechnet.
 
 1.0.4
 
@@ -50,7 +53,7 @@ Versionsgeschichte
 
 1.0.3
 
-  - FIX: Sämtliche Konstruktoren DataDescription(atg, asp, sim) ersetzt durch
+  - FIX: SÃ¤mtliche Konstruktoren DataDescription(atg, asp, sim) ersetzt durch
          DataDescription(atg, asp)
 1.0.0
 
@@ -62,18 +65,18 @@ Versionsgeschichte
 
 1.1.0
 
-  - Klassifizierung auch für Helligkeits-Sensoren hinzugefügt (um eine Steuerung der
-    Helligkeit von Betriebsmitteln der FG4 zu ermöglichen)
+  - Klassifizierung auch fÃ¼r Helligkeits-Sensoren hinzugefÃ¼gt (um eine Steuerung der
+    Helligkeit von Betriebsmitteln der FG4 zu ermÃ¶glichen)
 
 1.1.1
 
-  - Sämtliche Konstruktoren DataDescription(atg, asp, sim)
+  - SÃ¤mtliche Konstruktoren DataDescription(atg, asp, sim)
     ersetzt durch DataDescription(atg, asp)
 
 Bemerkungen
 ===========
 
-Diese SWE ist eine eigenständige Datenverteiler-Applikation, welche über die Klasse
+Diese SWE ist eine eigenstÃ¤ndige Datenverteiler-Applikation, welche Ã¼ber die Klasse
 de.bsvrz.dua.daufd.vew.VerwaltungAufbereitungUFD mit folgenden Parametern gestartet werden kann
 (zusaetzlich zu den normalen Parametern jeder Datenverteiler-Applikation):
 	-KonfigurationsBereichsPid=pid(,pid)
@@ -81,15 +84,15 @@ de.bsvrz.dua.daufd.vew.VerwaltungAufbereitungUFD mit folgenden Parametern gestar
 
 - Tests:
 
-	Für die Tests wird eine Verbindung zum Datenverteiler mit einer Konfiguration mit dem
-	Testkonfigurationsbereich "kb.daUfdTest" benötigt (Diese Konfiguration mit den entsprechenden
+	FÃ¼r die Tests wird eine Verbindung zum Datenverteiler mit einer Konfiguration mit dem
+	Testkonfigurationsbereich "kb.daUfdTest" benÃ¶tigt (Diese Konfiguration mit den entsprechenden
 	Parametern liegt bereits komplett im Archiv test_konfig_daufd.zip vor). Weiterhin muss die
 	SWE 4.8 mit diesem Konfigurationsbereich als Argument gestartet sein.
 
-	Die Tests selbst sind als JUnit-Tests (alle unterhalb von JUnit) ausführbar. Es sind
-	alle innerhalb der Prüfspezifikation verlangten Tests implementiert und so bereits durchgeführt
+	Die Tests selbst sind als JUnit-Tests (alle unterhalb von JUnit) ausfÃ¼hrbar. Es sind
+	alle innerhalb der PrÃ¼fspezifikation verlangten Tests implementiert und so bereits durchgefÃ¼hrt
 	worden.
-	Bevor die Tests gestartet werden können, muss die Verbindung zum Datenverteiler wird über
+	Bevor die Tests gestartet werden kÃ¶nnen, muss die Verbindung zum Datenverteiler wird Ã¼ber
 	die statische Variable CON_DATA der Klasse de.bsvrz.dua.daufd.DAVTest hergestellt werden:
 
 	/**
@@ -112,8 +115,8 @@ de.bsvrz.dua.daufd.vew.VerwaltungAufbereitungUFD mit folgenden Parametern gestar
 	- Interne unerwartete Fehler
 
 	WARNING:
-	- Fehler, die die Funktionalität grundsätzlich nicht
-	  beeinträchtigen, aber zum Datenverlust führen können
+	- Fehler, die die FunktionalitÃ¤t grundsÃ¤tzlich nicht
+	  beeintrÃ¤chtigen, aber zum Datenverlust fÃ¼hren kÃ¶nnen
 	- Nicht identifizierbare Konfigurationsbereiche
 	- Probleme beim Explorieren von Attributpfaden
 	  (von Plausibilisierungsbeschreibungen)
@@ -121,8 +124,8 @@ de.bsvrz.dua.daufd.vew.VerwaltungAufbereitungUFD mit folgenden Parametern gestar
 	  nur eine Instanz erwartet wird
 	- Wenn Parameter nicht korrekt ausgelesen werden konnten
 	  bzw. nicht interpretierbar sind
-	- Wenn inkompatible Parameter übergeben wurden
-	- Wenn Parameter unvollständig sind
+	- Wenn inkompatible Parameter Ã¼bergeben wurden
+	- Wenn Parameter unvollstÃ¤ndig sind
 	- Wenn ein Wert bzw. Status nicht gesetzt werden konnte
 
 	INFO:
@@ -132,20 +135,20 @@ de.bsvrz.dua.daufd.vew.VerwaltungAufbereitungUFD mit folgenden Parametern gestar
 	- Allgemeine Ausgaben, welche die Konfiguration betreffen
 	- Benutzte Konfigurationsbereiche der Applikation bzw.
 	  einzelner Funktionen innerhalb der Applikation
-	- Benutzte Objekte für Parametersteuerung von Applikationen
+	- Benutzte Objekte fÃ¼r Parametersteuerung von Applikationen
 	  (z.B. die Instanz der Datenflusssteuerung, die verwendet wird)
 	- An- und Abmeldungen von Daten beim Datenverteiler
 
 	FINE:
 	- Wenn Daten empfangen wurden, die nicht weiterverarbeitet
-	  (plausibilisiert) werden können (weil keine Parameter vorliegen)
+	  (plausibilisiert) werden kÃ¶nnen (weil keine Parameter vorliegen)
 	- Informationen, die nur zum Debugging interessant sind
 
 
 Disclaimer
 ==========
 
-Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+Segment 4 DatenÃ¼bernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
 Copyright (C) 2007-2009 BitCtrl Systems GmbH
 
 This program is free software; you can redistribute it and/or modify it under
@@ -167,7 +170,7 @@ Kontakt
 =======
 
 BitCtrl Systems GmbH
-Weißenfelser Straße 67
+WeiÃŸenfelser StraÃŸe 67
 04229 Leipzig
 Phone: +49 341-490670
 mailto: info@bitctrl.de

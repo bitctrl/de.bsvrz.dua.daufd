@@ -1,5 +1,5 @@
 /*
- * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+ * Segment 4 DatenÃ¼bernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
  * Copyright (C) 2007-2015 BitCtrl Systems GmbH
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
  *
  * Contact Information:<br>
  * BitCtrl Systems GmbH<br>
- * Weißenfelser Straße 67<br>
+ * WeiÃŸenfelser StraÃŸe 67<br>
  * 04229 Leipzig<br>
  * Phone: +49 341-490670<br>
  * mailto: info@bitctrl.de
@@ -55,7 +55,7 @@ import de.bsvrz.sys.funclib.debug.Debug;
  * @author BitCtrl Systems GmbH, Bachraty
  *
  */
-@Ignore("Testdatenverteiler prüfen")
+@Ignore("Testdatenverteiler prÃ¼fen")
 public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 
 	private static final Debug LOGGER = Debug.getLogger();
@@ -390,8 +390,8 @@ public class WasserFilmDickeStufeTest extends WasserFilmDickeStufe {
 		data.getItem(att).getItem("Status").getItem("PlFormal").getUnscaledValue("WertMin").set(0);
 		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Implausibel").set(0);
 		data.getItem(att).getItem("Status").getItem("MessWertErsetzung").getUnscaledValue("Interpoliert").set(0);
-		data.getItem(att).getItem("Güte").getUnscaledValue("Index").set(1000);
-		data.getItem(att).getItem("Güte").getUnscaledValue("Verfahren").set(0);
+		data.getItem(att).getItem("GÃ¼te").getUnscaledValue("Index").set(1000);
+		data.getItem(att).getItem("GÃ¼te").getUnscaledValue("Verfahren").set(0);
 
 		final ResultData result = new ResultData(sensor, WasserFilmDickeStufeTest.ddMessWerte, zeitStemepel, data);
 		try {

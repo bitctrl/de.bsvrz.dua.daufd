@@ -1,5 +1,5 @@
 /*
- * Segment 4 Daten¸bernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+ * Segment 4 Daten√ºbernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
  * Copyright (C) 2007-2015 BitCtrl Systems GmbH
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
  *
  * Contact Information:<br>
  * BitCtrl Systems GmbH<br>
- * Weiﬂenfelser Straﬂe 67<br>
+ * Wei√üenfelser Stra√üe 67<br>
  * 04229 Leipzig<br>
  * Phone: +49 341-490670<br>
  * mailto: info@bitctrl.de
@@ -91,7 +91,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	 */
 	protected Collection<SystemObject> naSensoren = new LinkedList<SystemObject>();
 	/**
-	 * Sensoren, die FahrBahnOberFl‰chenZustandDaten liefern
+	 * Sensoren, die FahrBahnOberFl√§chenZustandDaten liefern
 	 */
 	protected Collection<SystemObject> fbofZustandSensoren = new LinkedList<SystemObject>();
 	/**
@@ -333,20 +333,20 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	/**
 	 * String-Konstanten TYPEN
 	 */
-	public static final String TYP_UFDS_NI = "typ.ufdsNiederschlagsIntensit‰t";
+	public static final String TYP_UFDS_NI = "typ.ufdsNiederschlagsIntensit√§t";
 	public static final String TYP_UFDS_WFD = "typ.ufdsWasserFilmDicke";
 	public static final String TYP_UFDS_NA = "typ.ufdsNiederschlagsArt";
-	public static final String TYP_UFDS_FBOFZS = "typ.ufdsFahrBahnOberFl‰chenZustand";
+	public static final String TYP_UFDS_FBOFZS = "typ.ufdsFahrBahnOberFl√§chenZustand";
 
 	/**
 	 * String-Konstanten Attributgruppen
 	 */
 	public static final String ATG_UFDS_NA = "atg.ufdsNiederschlagsArt";
-	public static final String ATG_UFDS_FBOFZS = "atg.ufdsFahrBahnOberFl‰chenZustand";
-	public static final String ATG_UFDMS_NS = "atg.ufdmsN‰sseStufe";
+	public static final String ATG_UFDS_FBOFZS = "atg.ufdsFahrBahnOberFl√§chenZustand";
+	public static final String ATG_UFDMS_NS = "atg.ufdmsN√§sseStufe";
 	public static final String ATG_UFDMS_AP = "atg.ufdmsAbtrockungsPhasen";
 	public static final String ATG_WFD_STUFE = "atg.ufdsStufeWasserFilmDicke";
-	public static final String ATG_NI_STUFE = "atg.ufdsStufeNiederschlagsIntensit‰t";
+	public static final String ATG_NI_STUFE = "atg.ufdsStufeNiederschlagsIntensit√§t";
 
 	/**
 	 * String-Konstanten Aspekte
@@ -465,9 +465,9 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 					}
 					continue;
 				}
-				final int implausibel = data.getItem("FahrBahnOberFl‰chenZustand").getItem("Status")
+				final int implausibel = data.getItem("FahrBahnOberFl√§chenZustand").getItem("Status")
 						.getItem("MessWertErsetzung").getUnscaledValue("Implausibel").intValue();
-				final int fbZustand = data.getItem("FahrBahnOberFl‰chenZustand").getUnscaledValue("Wert").intValue();
+				final int fbZustand = data.getItem("FahrBahnOberFl√§chenZustand").getUnscaledValue("Wert").intValue();
 
 				synchronized (msDaten) {
 					if (implausibel == 0) {
@@ -588,7 +588,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 		} else {
 			final Data data = verwaltung.getVerbindung()
 					.createData(verwaltung.getVerbindung().getDataModel().getAttributeGroup(NaesseStufe.ATG_UFDMS_NS));
-			data.getItem("N‰sseStufe").asUnscaledValue().set(intStufe);
+			data.getItem("N√§sseStufe").asUnscaledValue().set(intStufe);
 			resultat = new ResultData(msDaten.messObject, ddNaesseStufe, msDaten.nsStufeZeitStempel, data);
 		}
 
@@ -779,7 +779,7 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	}
 
 	/**
-	 * erfragt die menge der bearbeiteten FahrBahnOberFl‰chenZustand Sensoren
+	 * erfragt die menge der bearbeiteten FahrBahnOberFl√§chenZustand Sensoren
 	 *
 	 * @return Menge der Sensoren
 	 */

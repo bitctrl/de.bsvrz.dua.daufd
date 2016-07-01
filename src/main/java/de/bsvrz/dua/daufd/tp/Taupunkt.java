@@ -1,5 +1,5 @@
 /*
- * Segment 4 Daten¸bernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+ * Segment 4 Daten√ºbernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
  * Copyright (C) 2007-2015 BitCtrl Systems GmbH
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
  *
  * Contact Information:<br>
  * BitCtrl Systems GmbH<br>
- * Weiﬂenfelser Straﬂe 67<br>
+ * Wei√üenfelser Stra√üe 67<br>
  * 04229 Leipzig<br>
  * Phone: +49 341-490670<br>
  * mailto: info@bitctrl.de
@@ -89,13 +89,13 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 * String-Konstanten
 	 */
 	private static final String TYP_UFDS_LT = "typ.ufdsLuftTemperatur";
-	private static final String TYP_UFDS_FBOFT = "typ.ufdsFahrBahnOberFl‰chenTemperatur";
+	private static final String TYP_UFDS_FBOFT = "typ.ufdsFahrBahnOberFl√§chenTemperatur";
 	private static final String TYP_UFDS_RLF = "typ.ufdsRelativeLuftFeuchte";
 
 	public static final String ATG_UFDMS_TTFB = "atg.ufdmsTaupunktTemperaturFahrBahn";
 	public static final String ATG_UFDMS_TTL = "atg.ufdmsTaupunktTemperaturLuft";
 	public static final String ATG_UFDS_LT = "atg.ufdsLuftTemperatur";
-	public static final String ATG_UFDS_FBOFT = "atg.ufdsFahrBahnOberFl‰chenTemperatur";
+	public static final String ATG_UFDS_FBOFT = "atg.ufdsFahrBahnOberFl√§chenTemperatur";
 	public static final String ATG_UFDS_RLF = "atg.ufdsRelativeLuftFeuchte";
 
 	private static final String ASP_ANALYSE = "asp.analyse";
@@ -328,8 +328,8 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		long fbofT = 0, rlF = 0;
 		// Nur wenn ermittelbar ist, lesen wir die Parameter aus
 		if (!nichtermittelbar) {
-			fbofT = lDaten.fbofTemperatur.getItem("FahrBahnOberFl‰chenTemperatur").getUnscaledValue("Wert").longValue();
-			if ((fbofT < -1000) || (lDaten.fbofTemperatur.getItem("FahrBahnOberFl‰chenTemperatur").getItem("Status")
+			fbofT = lDaten.fbofTemperatur.getItem("FahrBahnOberFl√§chenTemperatur").getUnscaledValue("Wert").longValue();
+			if ((fbofT < -1000) || (lDaten.fbofTemperatur.getItem("FahrBahnOberFl√§chenTemperatur").getItem("Status")
 					.getItem("MessWertErsetzung").getUnscaledValue("Implausibel").byteValue() == 1)) {
 				nichtermittelbar = true;
 			}

@@ -1,5 +1,5 @@
 /*
- * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+ * Segment 4 DatenÃ¼bernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
  * Copyright (C) 2007-2015 BitCtrl Systems GmbH
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
  *
  * Contact Information:<br>
  * BitCtrl Systems GmbH<br>
- * Weißenfelser Straße 67<br>
+ * WeiÃŸenfelser StraÃŸe 67<br>
  * 04229 Leipzig<br>
  * Phone: +49 341-490670<br>
  * mailto: info@bitctrl.de
@@ -31,8 +31,8 @@ import java.util.List;
 
 /**
  * Das Modul Hysterese stellt eine Berechnung eines diskreten Wertes
- * (Zustandswert) auf Basis von quasi-kontinuierlichen Eingangswerten über eine
- * Hystereseabbildung zur Verfügung.
+ * (Zustandswert) auf Basis von quasi-kontinuierlichen Eingangswerten Ã¼ber eine
+ * Hystereseabbildung zur VerfÃ¼gung.
  *
  * @author BitCtrl Systems GmbH, Thierfelder
  *
@@ -40,7 +40,7 @@ import java.util.List;
 public class Hysterese {
 
 	/**
-	 * Menge der Intervall-Anfänge
+	 * Menge der Intervall-AnfÃ¤nge
 	 */
 	private double[] vonMenge = null;
 
@@ -58,13 +58,13 @@ public class Hysterese {
 	 * Initialisiert dieses Hysterese mit <code>double</code>-Intervallen
 	 *
 	 * @param vonMenge1
-	 *            Menge der Intervall-Anfänge
+	 *            Menge der Intervall-AnfÃ¤nge
 	 * @param bisMenge1
 	 *            Menge der Intervall-Enden
 	 * @throws HystereseException
-	 *             wenn die beiden übergebenen Mengen leer sind, oder nicht die
+	 *             wenn die beiden Ã¼bergebenen Mengen leer sind, oder nicht die
 	 *             gleiche Anzahl an Elementen enthalten, oder zwischen den
-	 *             Intervallen Lücken existieren, etc..
+	 *             Intervallen LÃ¼cken existieren, etc..
 	 */
 	public final void initialisiere(final double[] vonMenge1,
 			final double[] bisMenge1) throws HystereseException {
@@ -81,13 +81,13 @@ public class Hysterese {
 		this.bisMenge = new double[bisMenge1.length];
 		for (int i = 0; i < vonMenge1.length; i++) {
 			// if(vonMenge1[i] >= bisMenge1[i]){
-			//				throw new HystereseException("Intervall Nr." + i + " hat negative Größe: [" //$NON-NLS-1$ //$NON-NLS-2$
+			//				throw new HystereseException("Intervall Nr." + i + " hat negative GrÃ¶ÃŸe: [" //$NON-NLS-1$ //$NON-NLS-2$
 			//						+ vonMenge1[i] + ", " + bisMenge1[i] + "["); //$NON-NLS-1$ //$NON-NLS-2$
 			// }
 			// if(i < vonMenge1.length - 1){
 			// if(vonMenge1[i + 1] <= vonMenge1[i]){
 			//					throw new HystereseException("Zwischen zwei aufeinander folgenden" + //$NON-NLS-1$
-			//							" Intervall-Anfängen muss ein positiver Abstand liegen:\n" + //$NON-NLS-1$
+			//							" Intervall-AnfÃ¤ngen muss ein positiver Abstand liegen:\n" + //$NON-NLS-1$
 			//							"Intervall Nr." + i + ": [" + + vonMenge1[i] + ", " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			//							+ bisMenge1[i] + "[\n" +  //$NON-NLS-1$
 			//							"Intervall Nr." + (i + 1) + ": [" + + vonMenge1[i + 1] +//$NON-NLS-1$ //$NON-NLS-2$
@@ -111,13 +111,13 @@ public class Hysterese {
 	 * Initialisiert dieses Hysterese mit <code>long</code>-Intervallen
 	 *
 	 * @param vonMenge1
-	 *            Menge der Intervall-Anfänge
+	 *            Menge der Intervall-AnfÃ¤nge
 	 * @param bisMenge1
 	 *            Menge der Intervall-Enden
 	 * @throws HystereseException
-	 *             wenn die beiden übergebenen Mengen leer sind, oder nicht die
+	 *             wenn die beiden Ã¼bergebenen Mengen leer sind, oder nicht die
 	 *             gleiche Anzahl an Elementen enthalten, oder zwischen den
-	 *             Intervallen Lücken existieren, etc..
+	 *             Intervallen LÃ¼cken existieren, etc..
 	 */
 	public final void initialisiere(final long[] vonMenge1,
 			final long[] bisMenge1) throws HystereseException {
@@ -144,7 +144,7 @@ public class Hysterese {
 	 *
 	 * @param wert
 	 *            ein <code>double</code>-Wert
-	 * @return die Hysterese-Stufe des übergebenen <code>double</code>-Wertes
+	 * @return die Hysterese-Stufe des Ã¼bergebenen <code>double</code>-Wertes
 	 *         oder <code>-1</code>, wenn keine Hysterese-Stufe errechnet werden
 	 *         konnte
 	 */
@@ -161,7 +161,7 @@ public class Hysterese {
 				stufe = intervalle.get(0);
 			} else if (intervalle.size() >= 2) {
 					/**
-					 * Wähle das Intervall, bei dem der Abstand des übergebenen
+					 * WÃ¤hle das Intervall, bei dem der Abstand des Ã¼bergebenen
 				 * Wertes zum Mittelpunkt (des Intervalls) am kleinsten ist
 					 */
 					stufe = this.getBestesIntervall(intervalle, wert);
@@ -179,12 +179,12 @@ public class Hysterese {
 						/**
 						 * Wenn eine, der errechneten Hysterese-Stufen schon im
 					 * letzten Schritt anlag, dann gebe einfach die letzte Stufe
-					 * zurück
+					 * zurÃ¼ck
 						 */
 						stufe = this.stufeAlt;
 					} else {
 						/**
-						 * Wähle das Intervall, bei dem der Abstand des übergebenen
+						 * WÃ¤hle das Intervall, bei dem der Abstand des Ã¼bergebenen
 					 * Wertes zum Mittelpunkt (des Intervalls) am kleinsten ist
 						 */
 						stufe = this.getBestesIntervall(intervalle, wert);
@@ -204,7 +204,7 @@ public class Hysterese {
 	 *
 	 * @param wert
 	 *            ein <code>long</code>-Wert
-	 * @return die Hysterese-Stufe des übergebenen <code>long</code>-Wertes oder
+	 * @return die Hysterese-Stufe des Ã¼bergebenen <code>long</code>-Wertes oder
 	 *         <code>-1</code>, wenn keine Hysterese-Stufe errechnet werden
 	 *         konnte
 	 */
@@ -213,15 +213,15 @@ public class Hysterese {
 	}
 
 	/**
-	 * Erfragt das Intervall (der übergebenen Intervalle), bei dem der Abstand
-	 * des übergebenen Wertes zum Mittelpunkt (des Intervalls) am kleinsten ist
+	 * Erfragt das Intervall (der Ã¼bergebenen Intervalle), bei dem der Abstand
+	 * des Ã¼bergebenen Wertes zum Mittelpunkt (des Intervalls) am kleinsten ist
 	 *
 	 * @param intervalle
 	 *            eine Liste mit Intervall-Indizes dieser Hysterese. Diese Liste
 	 *            darf nicht leer sein!
 	 * @param wert
 	 *            ein Wert
-	 * @return das Intervall, bei dem der Abstand des übergebenen Wertes zum
+	 * @return das Intervall, bei dem der Abstand des Ã¼bergebenen Wertes zum
 	 *         Mittelpunkt (des Intervalls) am kleinsten ist
 	 */
 	private int getBestesIntervall(final List<Integer> intervalle,
@@ -245,7 +245,7 @@ public class Hysterese {
 	}
 
 	/**
-	 * Ermittelt die Indizes der Intervalle, in denen der übergebene Wert liegt.<br>
+	 * Ermittelt die Indizes der Intervalle, in denen der Ã¼bergebene Wert liegt.<br>
 	 * <b>Achtung:</b> Ein Wert <code>wert</code> liegt innerhalb des Intervalls
 	 * <code>[a, b[</code>, wenn gilt: <code>a &lt;= wert &lt; b</code>
 	 *

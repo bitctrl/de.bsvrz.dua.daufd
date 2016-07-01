@@ -1,5 +1,5 @@
 /*
- * Segment 4 Daten¸bernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+ * Segment 4 Daten√ºbernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
  * Copyright (C) 2007-2015 BitCtrl Systems GmbH
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
  *
  * Contact Information:<br>
  * BitCtrl Systems GmbH<br>
- * Weiﬂenfelser Straﬂe 67<br>
+ * Wei√üenfelser Stra√üe 67<br>
  * 04229 Leipzig<br>
  * Phone: +49 341-490670<br>
  * mailto: info@bitctrl.de
@@ -39,37 +39,37 @@ public class NiederschlagIntensitaetStufe extends AbstraktStufe {
 
 	@Override
 	public String getAggregationsAtrributGruppe() {
-		return "atg.ufdsAggregationNiederschlagsIntensit‰t";
+		return "atg.ufdsAggregationNiederschlagsIntensit√§t";
 	}
 
 	@Override
 	public String getKlassifizierungsAttribut() {
-		return "KlassifizierungNiederschlagsIntensit‰t";
+		return "KlassifizierungNiederschlagsIntensit√§t";
 	}
 
 	@Override
 	public String getKlassifizierungsAttributGruppe() {
-		return "atg.ufdsKlassifizierungNiederschlagsIntensit‰t";
+		return "atg.ufdsKlassifizierungNiederschlagsIntensit√§t";
 	}
 
 	@Override
 	public String getMesswertAttribut() {
-		return "NiederschlagsIntensit‰t";
+		return "NiederschlagsIntensit√§t";
 	}
 
 	@Override
 	public String getMesswertAttributGruppe() {
-		return "atg.ufdsNiederschlagsIntensit‰t";
+		return "atg.ufdsNiederschlagsIntensit√§t";
 	}
 
 	@Override
 	public String getStufeAttributGruppe() {
-		return "atg.ufdsStufeNiederschlagsIntensit‰t";
+		return "atg.ufdsStufeNiederschlagsIntensit√§t";
 	}
 
 	@Override
 	public String getSensorTyp() {
-		return "typ.ufdsNiederschlagsIntensit‰t";
+		return "typ.ufdsNiederschlagsIntensit√§t";
 	}
 
 	@Override

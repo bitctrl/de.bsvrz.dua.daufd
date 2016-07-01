@@ -1,5 +1,5 @@
 /*
- * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
+ * Segment 4 DatenÃ¼bernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
  * Copyright (C) 2007-2015 BitCtrl Systems GmbH
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
  *
  * Contact Information:<br>
  * BitCtrl Systems GmbH<br>
- * Weißenfelser Straße 67<br>
+ * WeiÃŸenfelser StraÃŸe 67<br>
  * 04229 Leipzig<br>
  * Phone: +49 341-490670<br>
  * mailto: info@bitctrl.de
@@ -183,7 +183,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 			Thread.sleep(100);
 		} catch (final Exception e) {
 			UfdsKlassifizierungParametrierung.LOGGER.error(
-					"Fehler bei Anmeldung für Klassifizierung der Objekte vom Typ " + typ + ":" + e.getMessage());
+					"Fehler bei Anmeldung fÃ¼r Klassifizierung der Objekte vom Typ " + typ + ":" + e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -219,7 +219,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 				System.out.println("Objekt " + object.getPid() + " Atg: " + atgKlassifizierung + " parametriert ");
 			} catch (final Exception e) {
 				UfdsKlassifizierungParametrierung.LOGGER
-				.error("Fehler bei Sendung von Daten für Klassifizierung des Objektes :" + object.getPid()
+				.error("Fehler bei Sendung von Daten fÃ¼r Klassifizierung des Objektes :" + object.getPid()
 				+ "\n Fehler:" + e.getMessage());
 				e.printStackTrace();
 			}
@@ -238,7 +238,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 				System.out.println("Objekt " + object.getPid() + " Atg: " + atgAggregation + " parametriert ");
 			} catch (final Exception e) {
 				UfdsKlassifizierungParametrierung.LOGGER
-				.error("Fehler bei Sendung von Daten für Aggregation des Objektes :" + object.getPid()
+				.error("Fehler bei Sendung von Daten fÃ¼r Aggregation des Objektes :" + object.getPid()
 				+ "\n Fehler:" + e.getMessage());
 				e.printStackTrace();
 			}
