@@ -1,73 +1,67 @@
 /*
- * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
- * Copyright (C) 2007-2015 BitCtrl Systems GmbH
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * Contact Information:<br>
- * BitCtrl Systems GmbH<br>
- * Weißenfelser Straße 67<br>
- * 04229 Leipzig<br>
- * Phone: +49 341-490670<br>
- * mailto: info@bitctrl.de
+ * Segment Datenübernahme und Aufbereitung (DUA), SWE Datenaufbereitung UFD
+ * Copyright (C) 2007 BitCtrl Systems GmbH 
+ * Copyright 2015 by Kappich Systemberatung Aachen
+ * Copyright 2016 by Kappich Systemberatung Aachen
+ * 
+ * This file is part of de.bsvrz.dua.daufd.
+ * 
+ * de.bsvrz.dua.daufd is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * de.bsvrz.dua.daufd is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with de.bsvrz.dua.daufd.  If not, see <http://www.gnu.org/licenses/>.
+
+ * Contact Information:
+ * Kappich Systemberatung
+ * Martin-Luther-Straße 14
+ * 52062 Aachen, Germany
+ * phone: +49 241 4090 436 
+ * mail: <info@kappich.de>
  */
 package de.bsvrz.dua.daufd.stufenaesse;
 
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.LinkedList;
-
-import de.bsvrz.dav.daf.main.ClientReceiverInterface;
-import de.bsvrz.dav.daf.main.ClientSenderInterface;
-import de.bsvrz.dav.daf.main.Data;
-import de.bsvrz.dav.daf.main.DataDescription;
-import de.bsvrz.dav.daf.main.DataNotSubscribedException;
-import de.bsvrz.dav.daf.main.OneSubscriptionPerSendData;
-import de.bsvrz.dav.daf.main.ReceiveOptions;
-import de.bsvrz.dav.daf.main.ReceiverRole;
-import de.bsvrz.dav.daf.main.ResultData;
-import de.bsvrz.dav.daf.main.SendSubscriptionNotConfirmed;
-import de.bsvrz.dav.daf.main.config.ConfigurationObject;
-import de.bsvrz.dav.daf.main.config.ObjectSet;
+import de.bsvrz.dav.daf.main.*;
 import de.bsvrz.dav.daf.main.config.SystemObject;
-import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe;
-import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe.NIStufe;
-import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickeStufe;
-import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickeStufe.WFDStufe;
+import de.bsvrz.dua.daufd.stufeni.NiederschlagIntensitaetStufe.NI_Stufe;
+import de.bsvrz.dua.daufd.stufewfd.WasserFilmDickeStufe.WFD_Stufe;
+import de.bsvrz.dua.daufd.vew.FBZ_Klasse;
 import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
-import de.bsvrz.sys.funclib.bitctrl.dua.ObjektWecker;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.schnittstellen.IDatenFlussSteuerung;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.typen.ModulTyp;
 import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IBearbeitungsKnoten;
-import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IObjektWeckerListener;
 import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IVerwaltung;
 import de.bsvrz.sys.funclib.debug.Debug;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * Bestimmt die NS_Stufe aus der NI_Stufe und WFD_Stufe nach der eingegebener
- * Tabelle, bei fehlenden WFD Stufen und nachlassender Niederschlagintensitaet
- * Verzoegert die Senkung der NS Stufe
- *
+ * Bestimmt die NS_Stufe aus der NI_Stufe und WFD_Stufe nach 
+ * der eingegebener Tabelle, bei fehlenden WFD Stufen und nachlassender 
+ * Niederschlagintensitaet Verzoegert die Senkung der NS Stufe
+ * 
  * @author BitCtrl Systems GmbH, Bachraty
  *
  */
-public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, ClientReceiverInterface {
+public class NaesseStufe extends MessStellenDatenContainer implements IBearbeitungsKnoten, ClientSenderInterface, ClientReceiverInterface {
 
-	private static final Debug LOGGER = Debug.getLogger();
+	private static final Debug _debug = Debug.getLogger();
 	/**
-	 * Verbindung zum Hauptmodul
+	 * Verbindung zum  Hauptmodul
 	 */
 	private IVerwaltung verwaltung;
 	/**
@@ -77,269 +71,134 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	/**
 	 * Die Ausgabe Datensaetze
 	 */
-	private DataDescription ddNaesseStufe;
+	private DataDescription DD_NAESSE_STUFE;
 	/**
 	 * Die parameter Datensaetze
 	 */
-	private DataDescription ddAbtrocknungsphasen;
-	/**
-	 * Aktulaisiert die Stufen nachfolgend der Abtrocknungsphasen
-	 */
-	private static ObjektWecker stufeAkutalisierer = null;
-	/**
-	 * Sensoren, die NiederschlagsArtDaten liefern
-	 */
-	protected Collection<SystemObject> naSensoren = new LinkedList<SystemObject>();
-	/**
-	 * Sensoren, die FahrBahnOberFlächenZustandDaten liefern
-	 */
-	protected Collection<SystemObject> fbofZustandSensoren = new LinkedList<SystemObject>();
-	/**
-	 * Sensoren, die Niederschlagsintensitaet liefern
-	 */
-	protected Collection<SystemObject> niSensoren = new LinkedList<SystemObject>();
-	/**
-	 * Sensoren, die WasserFilmDicke liefern
-	 */
-	protected Collection<SystemObject> wfdSensoren = new LinkedList<SystemObject>();
+	private DataDescription DD_ABTROCKNUNGSPHASEN;
 
 	/**
-	 * Die letzte empfangene Daten fuer jede MessStelle nud andere parameter
-	 * werden in diese Klasse gespeichert
-	 *
-	 * @author BitCtrl Systems GmbH, Bachraty
-	 *
-	 */
-	protected class MessStelleDaten implements IObjektWeckerListener {
-		/**
-		 * Standardkonstruktor
-		 *
-		 * @param so
-		 *            Systemokjekt MessStelle
-		 */
-		public MessStelleDaten(final SystemObject so) {
-			messObject = so;
-		}
-
-		/**
-		 * SystemObjekt UmfdMessStelle
-		 */
-		public SystemObject messObject = null;
-		/**
-		 * Die ZeitDauer, bis sich die Fahrbahnoberflaeche abtrocknet
-		 */
-		public long[] abtrocknungsPhasen = new long[NaesseStufe.ATT_STUFE.length];
-		/**
-		 * Letzte empfangene NI_Stufe
-		 */
-		public NIStufe niStufe = NIStufe.NI_WERT_NV;
-		/**
-		 * Zeitstempel letzter empfangenen NI_Stufe
-		 */
-		public long niStufeZeitStempel = 0;
-		/**
-		 * Letzte empfangene WFD_Stufe
-		 */
-		public WFDStufe wfdStufe = WFDStufe.WFD_WERT_NV;
-		/**
-		 * Zeitstempel letzter empfangenen WFD_Stufe
-		 */
-		public long wfdStufeZeitStempel = 0;
-		/**
-		 * Ob die Abtrocknungsphasen initialisiert sind
-		 */
-		public boolean initialisiert = false;
-		/**
-		 * ZeitStempel der NaesseSteufe der MessStelle
-		 */
-		public long nsStufeZeitStempel = 0;
-		/**
-		 * NaesseSteufe der MessStelle
-		 */
-		public NSStufe nsStufe = NSStufe.NS_WERT_NE;
-		/**
-		 * NaesseSteufe der MessStelle die erreicht werden soll bei verzoegerten
-		 * Aenderungen
-		 */
-		public NSStufe zielNsStufe = NSStufe.NS_WERT_NE;
-		/**
-		 * Die aktuelle Niederschlagsart
-		 */
-		public int niederschlagsArt = 0;
-		/**
-		 * der aktuelle FahrbahnOberflaecheZustand
-		 */
-		public int fbofZustand = 0;
-		/**
-		 * ZeitStempel des letzten DS mit Niederschlagsart
-		 */
-		public long niederschlagsArtZeitStemepel = 0;
-		/**
-		 * ZeitStempel des Letzten DS mit FahrbahnOberflaecheZustand
-		 */
-		public long fbofZustandZeitStempel = 0;
-		/**
-		 * Ob ein aktulasierungsauftrag lauft
-		 */
-		public boolean aktualisierungLaeuft = false;
-		/**
-		 * Ob wir am letzten mal einen leeren DS bekommen haben
-		 */
-		public boolean keineDaten = true;
-		/**
-		 * Bestimmt, ob die Naessestufe unbestimmbar ist (haengt von
-		 * NiederschlagsArt und FahrbahnoberflaecheZustand ab)
-		 */
-		public boolean unbestimmbar = false;
-
-		/**
-		 * Akutlaisiert die NaesseStufe nach den Abtrocknungsphasen, ermoeglicht
-		 * verzoegerte Aktualsierung
-		 */
-		@Override
-		public void alarm() {
-			synchronized (this) {
-				if ((nsStufe != zielNsStufe) && (unbestimmbar == false)) {
-					long zeitIntervall;
-					int intStufe = NaesseStufe.getStufe(nsStufe);
-					if (intStufe < 1) {
-						aktualisierungLaeuft = false;
-						return;
-					}
-					// nur zum Test-Zwecken
-					infoVerzoegerung(intStufe);
-					zeitIntervall = abtrocknungsPhasen[intStufe - 1];
-					intStufe--;
-
-					nsStufe = NaesseStufe.MAP_INT_NS_STUFE[intStufe];
-					nsStufeZeitStempel += zeitIntervall;
-					publiziereNsStufe(this, false);
-
-					if ((nsStufe != zielNsStufe) && (intStufe > 0)) {
-						zeitIntervall = abtrocknungsPhasen[intStufe - 1];
-						NaesseStufe.stufeAkutalisierer.setWecker(this, nsStufeZeitStempel + zeitIntervall);
-					} else {
-						aktualisierungLaeuft = false;
-					}
-				}
-				aktualisierungLaeuft = false;
-			}
-		}
-	}
-
-	/**
-	 * Ermoeglicht die Abbildung der Sensoren und MessStellen auf die Klasse mit
-	 * Lokalen Daten fuer die gegebene MessStelle
-	 */
-	protected Hashtable<SystemObject, MessStelleDaten> naesseTabelle = new Hashtable<SystemObject, MessStelleDaten>();
-
-	/**
-	 * Naesse Stufen, die unterscheidet werden
-	 *
+	 *  Naesse Stufen, die unterscheidet werden
+	 *  
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 */
-	public enum NSStufe implements Comparable<NSStufe> {
+	public enum  NS_Stufe implements Comparable<NS_Stufe> {
 		NS_TROCKEN, // ordinal = 0
-		NS_NASS1, // ordinal = 1
-		NS_NASS2, // etc.
-		NS_NASS3, NS_NASS4, NS_WERT_NE; // Wert nicht ermittelbar (-1)
-
+		NS_NASS1,  // ordinal = 1
+		NS_NASS2,  // etc.
+		NS_NASS3,
+		NS_NASS4,
+		NS_WERT_NE; // Wert nicht ermittelbar (-1)
+		
 	};
-
 	/**
 	 * Abbildet integer Werte auf Symbolische Konstanten
 	 */
-	private final static NSStufe[] MAP_INT_NS_STUFE = new NSStufe[] { NSStufe.NS_TROCKEN, NSStufe.NS_NASS1,
-			NSStufe.NS_NASS2, NSStufe.NS_NASS3, NSStufe.NS_NASS4 };
-
+	protected final static NS_Stufe [] mapIntNSStufe = new NS_Stufe []  
+	{ NS_Stufe.NS_TROCKEN, NS_Stufe.NS_NASS1, NS_Stufe.NS_NASS2, NS_Stufe.NS_NASS3, NS_Stufe.NS_NASS4 };
+	
 	/**
 	 * Abbildet die NS_Stufe von Int zur symbolischen Wert
-	 *
-	 * @param stufe
-	 *            Stufe int
+	 * @param stufe Stufe int
 	 * @return Stufe enum
 	 */
-	public static NSStufe getStufe(final int stufe) {
-		if ((stufe < 0) || (stufe > (NaesseStufe.MAP_INT_NS_STUFE.length - 1))) {
-			return NSStufe.NS_WERT_NE;
-		}
-		return NaesseStufe.MAP_INT_NS_STUFE[stufe];
+	public static NS_Stufe getStufe(int stufe) {
+		if(stufe<0 || stufe> mapIntNSStufe.length-1)
+			return NS_Stufe.NS_WERT_NE;
+		return mapIntNSStufe[stufe];
 	}
-
+	
 	/**
 	 * Nur fuer Testzwecken
-	 *
-	 * @param stufe
-	 *            Naessestufe
+	 * 
+	 * @param stufe Naessestufe
 	 */
-	void infoVerzoegerung(final int stufe) {
+	void infoVerzoegerung(int stufe) { }
+	
+	/**
+	 *  Tabelle aus AFo - Ermittelt aus WFD und NI stufe die NaesseStufe
+	 * 
+	 *  Die Tabellen bildet WFDStufen an Tabellen von  NiStufen ab
+	 *  Jede Zeile ist eine Abbildung von NI-Stufen auf NaesseStufen
+	 *  
+	 *  Es gibt je FBZ-Klasse eien Tabelle
+	 */
+	private static final Map<FBZ_Klasse,Map<WFD_Stufe,
+			Map<NI_Stufe, NS_Stufe>>> tabellenWFDNIzumNS = new EnumMap<>(FBZ_Klasse.class);
+
+	/**
+	 * Funktion, die die gelesene Tabelle zurückgibt (für Testfälle)
+	 * @return
+	 */
+	public static Map<FBZ_Klasse,Map<WFD_Stufe, Map<NI_Stufe, NS_Stufe>>> getTabellenWFDNIzumNS() {
+		return tabellenWFDNIzumNS;
 	}
 
-	/**
-	 * Tabelle aus AFo - Ermitellt aus WFD und NI stufe die NaesseStufe
-	 *
-	 * Die Tabelle bildet WFDStufen an Tabellen von NiStufen ab Jede Zeile ist
-	 * eine Abbildung von NI-Stufen auf NaesseStufen
-	 */
-	private static final Hashtable<WFDStufe, Hashtable<NIStufe, NSStufe>> TABELLE_WFDNI_ZUM_NS = new Hashtable<WFDStufe, Hashtable<NIStufe, NSStufe>>();
+	private static void initTable() {
+		for(FBZ_Klasse klasse : FBZ_Klasse.values()) {
+			Map<WFD_Stufe, Map<NI_Stufe, NS_Stufe>> table = new EnumMap<>(WFD_Stufe.class);
+			
+			Map<NI_Stufe, NS_Stufe> zeile = new EnumMap<>(NI_Stufe.class);
+			zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_TROCKEN);
+			zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_TROCKEN);
+			zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS1);
+			zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS2);
+			zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS2);
+			zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_TROCKEN);
+			table.put(WFD_Stufe.WFD_STUFE0, zeile);
 
-	static {
-		Hashtable<NIStufe, NSStufe> zeile = new Hashtable<NIStufe, NSStufe>();
-		zeile.put(NIStufe.NI_STUFE0, NSStufe.NS_TROCKEN);
-		zeile.put(NIStufe.NI_STUFE1, NSStufe.NS_TROCKEN);
-		zeile.put(NIStufe.NI_STUFE2, NSStufe.NS_NASS1);
-		zeile.put(NIStufe.NI_STUFE3, NSStufe.NS_NASS2);
-		zeile.put(NIStufe.NI_STUFE4, NSStufe.NS_NASS2);
-		zeile.put(NIStufe.NI_WERT_NV, NSStufe.NS_TROCKEN);
-		NaesseStufe.TABELLE_WFDNI_ZUM_NS.put(WFDStufe.WFD_STUFE0, zeile);
+			zeile = new EnumMap<>(NI_Stufe.class);
+			zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_NASS1);
+			zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_NASS1);
+			zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS2);
+			zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS3);
+			zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS4);
+			zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_NASS1);
+			table.put(WFD_Stufe.WFD_STUFE1, zeile);
 
-		zeile = new Hashtable<NIStufe, NSStufe>();
-		zeile.put(NIStufe.NI_STUFE0, NSStufe.NS_NASS1);
-		zeile.put(NIStufe.NI_STUFE1, NSStufe.NS_NASS1);
-		zeile.put(NIStufe.NI_STUFE2, NSStufe.NS_NASS2);
-		zeile.put(NIStufe.NI_STUFE3, NSStufe.NS_NASS3);
-		zeile.put(NIStufe.NI_STUFE4, NSStufe.NS_NASS4);
-		zeile.put(NIStufe.NI_WERT_NV, NSStufe.NS_NASS1);
-		NaesseStufe.TABELLE_WFDNI_ZUM_NS.put(WFDStufe.WFD_STUFE1, zeile);
+			zeile = new EnumMap<>(NI_Stufe.class);
+			zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_NASS2);
+			zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_NASS2);
+			zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS2);
+			zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS3);
+			zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS4);
+			zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_NASS2);
+			table.put(WFD_Stufe.WFD_STUFE2, zeile);
 
-		zeile = new Hashtable<NIStufe, NSStufe>();
-		zeile.put(NIStufe.NI_STUFE0, NSStufe.NS_NASS2);
-		zeile.put(NIStufe.NI_STUFE1, NSStufe.NS_NASS2);
-		zeile.put(NIStufe.NI_STUFE2, NSStufe.NS_NASS2);
-		zeile.put(NIStufe.NI_STUFE3, NSStufe.NS_NASS3);
-		zeile.put(NIStufe.NI_STUFE4, NSStufe.NS_NASS4);
-		zeile.put(NIStufe.NI_WERT_NV, NSStufe.NS_NASS2);
-		NaesseStufe.TABELLE_WFDNI_ZUM_NS.put(WFDStufe.WFD_STUFE2, zeile);
+			zeile = new EnumMap<>(NI_Stufe.class);
+			zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_NASS2);
+			zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_NASS2);
+			zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS3);
+			zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS3);
+			zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS4);
+			zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_NASS3);
+			table.put(WFD_Stufe.WFD_STUFE3, zeile);
 
-		zeile = new Hashtable<NIStufe, NSStufe>();
-		zeile.put(NIStufe.NI_STUFE0, NSStufe.NS_NASS2);
-		zeile.put(NIStufe.NI_STUFE1, NSStufe.NS_NASS2);
-		zeile.put(NIStufe.NI_STUFE2, NSStufe.NS_NASS3);
-		zeile.put(NIStufe.NI_STUFE3, NSStufe.NS_NASS3);
-		zeile.put(NIStufe.NI_STUFE4, NSStufe.NS_NASS4);
-		zeile.put(NIStufe.NI_WERT_NV, NSStufe.NS_NASS3);
-		NaesseStufe.TABELLE_WFDNI_ZUM_NS.put(WFDStufe.WFD_STUFE3, zeile);
+			zeile = new EnumMap<>(NI_Stufe.class);
+			zeile.put(NI_Stufe.NI_STUFE0, NS_Stufe.NS_TROCKEN);
+			zeile.put(NI_Stufe.NI_STUFE1, NS_Stufe.NS_TROCKEN);
+			zeile.put(NI_Stufe.NI_STUFE2, NS_Stufe.NS_NASS1);
+			zeile.put(NI_Stufe.NI_STUFE3, NS_Stufe.NS_NASS2);
+			zeile.put(NI_Stufe.NI_STUFE4, NS_Stufe.NS_NASS3);
+			zeile.put(NI_Stufe.NI_WERT_NV, NS_Stufe.NS_WERT_NE);
+			table.put(WFD_Stufe.WFD_WERT_NV, zeile);
+			
+			tabellenWFDNIzumNS.put(klasse, table);
+		}
+	}
 
-		zeile = new Hashtable<NIStufe, NSStufe>();
-		zeile.put(NIStufe.NI_STUFE0, NSStufe.NS_TROCKEN);
-		zeile.put(NIStufe.NI_STUFE1, NSStufe.NS_NASS1);
-		zeile.put(NIStufe.NI_STUFE2, NSStufe.NS_NASS2);
-		zeile.put(NIStufe.NI_STUFE3, NSStufe.NS_NASS3);
-		zeile.put(NIStufe.NI_STUFE4, NSStufe.NS_NASS4);
-		zeile.put(NIStufe.NI_WERT_NV, NSStufe.NS_WERT_NE);
-		NaesseStufe.TABELLE_WFDNI_ZUM_NS.put(WFDStufe.WFD_WERT_NV, zeile);
-	};
-
-	/**
-	 * String-Konstanten TYPEN
+	;
+	
+	/** 
+	 *  String-Konstanten TYPEN
 	 */
 	public static final String TYP_UFDS_NI = "typ.ufdsNiederschlagsIntensität";
 	public static final String TYP_UFDS_WFD = "typ.ufdsWasserFilmDicke";
 	public static final String TYP_UFDS_NA = "typ.ufdsNiederschlagsArt";
 	public static final String TYP_UFDS_FBOFZS = "typ.ufdsFahrBahnOberFlächenZustand";
-
-	/**
-	 * String-Konstanten Attributgruppen
+	
+	/** 
+	 *  String-Konstanten Attributgruppen
 	 */
 	public static final String ATG_UFDS_NA = "atg.ufdsNiederschlagsArt";
 	public static final String ATG_UFDS_FBOFZS = "atg.ufdsFahrBahnOberFlächenZustand";
@@ -347,443 +206,411 @@ public class NaesseStufe implements IBearbeitungsKnoten, ClientSenderInterface, 
 	public static final String ATG_UFDMS_AP = "atg.ufdmsAbtrockungsPhasen";
 	public static final String ATG_WFD_STUFE = "atg.ufdsStufeWasserFilmDicke";
 	public static final String ATG_NI_STUFE = "atg.ufdsStufeNiederschlagsIntensität";
-
-	/**
-	 * String-Konstanten Aspekte
+	
+	/** 
+	 *  String-Konstanten Aspekte
 	 */
 	public static final String ASP_MESSWERTERSETZUNG = "asp.messWertErsetzung";
 	public static final String ASP_KLASSIFIZIERUNG = "asp.klassifizierung";
 	public static final String ASP_PARAM_SOLL = "asp.parameterSoll";
-
-	/**
-	 * String-Konstanten Attribute
+	
+	/** 
+	 *  String-Konstanten Attribute
 	 */
 	public static final String MNG_SENSOREN = "UmfeldDatenSensoren";
-	public static final String[] ATT_STUFE = new String[] { "ZeitNass1Trocken", "ZeitNass4Nass3", "ZeitNass3Nass2",
-	"ZeitNass2Nass1" };
+	public static final String ATT_STUFE[] = {
+			"ZeitNass1Trocken", "ZeitNass2Nass1", "ZeitNass3Nass2", "ZeitNass4Nass3"
+	};
 
-	@Override
-	public void aktualisiereDaten(final ResultData[] resultate) {
+	/**
+	 * {@inheritDoc}
+	 */
+	public void aktualisiereDaten(ResultData[] resultate) {
 
-		for (final ResultData resData : resultate) {
+		for(ResultData resData : resultate) {
 
-			final Data data = resData.getData();
-			final SystemObject so = resData.getObject();
-			final MessStelleDaten msDaten = naesseTabelle.get(so);
-			final long zeitStempel = resData.getDataTime();
-			long vorletzteZeitStempel;
+			long zeitStempel = resData.getDataTime();
+			SystemObject so = resData.getObject();
+			NaesseMessStelleDaten msDaten = (NaesseMessStelleDaten) messStellenDaten.get(so);
 
-			if (NaesseStufe.ATG_NI_STUFE.equals(resData.getDataDescription().getAttributeGroup().getPid())
-					&& NaesseStufe.ASP_KLASSIFIZIERUNG.equals(resData.getDataDescription().getAspect().getPid())) {
-				if (msDaten == null) {
-					NaesseStufe.LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
-					continue;
-				} else if (!msDaten.initialisiert) {
-					continue;
-				} else if (data == null) {
-					if (msDaten.keineDaten == false) {
-						msDaten.nsStufeZeitStempel = zeitStempel;
-						publiziereNsStufe(msDaten, true);
-					}
-					continue;
+			if(msDaten == null) continue;
+			
+			if(aktualisiereMessstellenDaten(resData)) continue;
+			synchronized(msDaten){
+				if(!msDaten.keineDaten){
+					publiziereNsStufe(msDaten, false);
 				}
-
-				final int stufe = data.getItem("Stufe").asUnscaledValue().intValue();
-				final NIStufe niStufe = NiederschlagIntensitaetStufe.getStufe(stufe);
-
-				synchronized (msDaten) {
-					msDaten.niStufe = niStufe;
-					vorletzteZeitStempel = msDaten.niStufeZeitStempel;
-					msDaten.niStufeZeitStempel = zeitStempel;
-					aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel);
-				}
-			} else if (NaesseStufe.ATG_WFD_STUFE.equals(resData.getDataDescription().getAttributeGroup().getPid())
-					&& NaesseStufe.ASP_KLASSIFIZIERUNG.equals(resData.getDataDescription().getAspect().getPid())) {
-				if (msDaten == null) {
-					NaesseStufe.LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
-					continue;
-				} else if (!msDaten.initialisiert) {
-					continue;
-				} else if (data == null) {
-					if (msDaten.keineDaten == false) {
-						msDaten.nsStufeZeitStempel = zeitStempel;
-						publiziereNsStufe(msDaten, true);
-					}
-					continue;
-				}
-
-				final int stufe = data.getItem("Stufe").asUnscaledValue().intValue();
-				final WFDStufe wfdStufe = WasserFilmDickeStufe.getStufe(stufe);
-
-				synchronized (msDaten) {
-					msDaten.wfdStufe = wfdStufe;
-					vorletzteZeitStempel = msDaten.wfdStufeZeitStempel;
-					msDaten.wfdStufeZeitStempel = zeitStempel;
-					aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel);
-				}
-			} else if (NaesseStufe.ATG_UFDS_NA.equals(resData.getDataDescription().getAttributeGroup().getPid())
-					&& NaesseStufe.ASP_MESSWERTERSETZUNG.equals(resData.getDataDescription().getAspect().getPid())) {
-
-				if (msDaten == null) {
-					NaesseStufe.LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
-					continue;
-				} else if (!msDaten.initialisiert) {
-					continue;
-				} else if (data == null) {
-					if (msDaten.keineDaten == false) {
-						msDaten.nsStufeZeitStempel = zeitStempel;
-						publiziereNsStufe(msDaten, true);
-					}
-					continue;
-				}
-
-				final int implausibel = data.getItem("NiederschlagsArt").getItem("Status").getItem("MessWertErsetzung")
-						.getUnscaledValue("Implausibel").intValue();
-				final int niederschlagsArt = data.getItem("NiederschlagsArt").getUnscaledValue("Wert").intValue();
-
-				synchronized (msDaten) {
-					if (implausibel == 0) {
-						msDaten.niederschlagsArt = niederschlagsArt;
-					}
-
-					vorletzteZeitStempel = msDaten.niederschlagsArtZeitStemepel;
-					msDaten.niederschlagsArtZeitStemepel = zeitStempel;
-					aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel);
-				}
-			} else if (NaesseStufe.ATG_UFDS_FBOFZS.equals(resData.getDataDescription().getAttributeGroup().getPid())
-					&& NaesseStufe.ASP_MESSWERTERSETZUNG.equals(resData.getDataDescription().getAspect().getPid())) {
-
-				if (msDaten == null) {
-					NaesseStufe.LOGGER.warning("Objekt " + so + " in der Hashtabelle nicht gefunden");
-					continue;
-				} else if (!msDaten.initialisiert) {
-					continue;
-				} else if (data == null) {
-					if (msDaten.keineDaten == false) {
-						msDaten.nsStufeZeitStempel = zeitStempel;
-						publiziereNsStufe(msDaten, true);
-					}
-					continue;
-				}
-				final int implausibel = data.getItem("FahrBahnOberFlächenZustand").getItem("Status")
-						.getItem("MessWertErsetzung").getUnscaledValue("Implausibel").intValue();
-				final int fbZustand = data.getItem("FahrBahnOberFlächenZustand").getUnscaledValue("Wert").intValue();
-
-				synchronized (msDaten) {
-					if (implausibel == 0) {
-						msDaten.fbofZustand = fbZustand;
-					}
-					vorletzteZeitStempel = msDaten.fbofZustandZeitStempel;
-					msDaten.fbofZustandZeitStempel = zeitStempel;
-					aktualisiereNaesseStufe(msDaten, zeitStempel, vorletzteZeitStempel);
-
-				}
+				aktualisiereNaesseStufe(msDaten, zeitStempel, msDaten.vorletzteZeitStempel);
 			}
 		}
 
-		if (naechsterBearbeitungsKnoten != null) {
+		if(naechsterBearbeitungsKnoten !=  null)
 			naechsterBearbeitungsKnoten.aktualisiereDaten(resultate);
-		}
 	}
 
 	/**
 	 * Aktualisiert die NaesseStefe einer MessStelle nach den Regel aus [Afo]
-	 *
-	 * @param msDaten
-	 *            MessStelle
+	 * @param msDaten MessStelle
 	 */
-	public void aktualisiereNaesseStufe(final MessStelleDaten msDaten, final long zeitStempel,
-			final long vorletzeZeitStemepel) {
-
-		NSStufe neueStufe;
-
-		// init
-		if (msDaten.nsStufeZeitStempel == 0) {
-			msDaten.nsStufeZeitStempel = zeitStempel - 10;
-		}
+	public void aktualisiereNaesseStufe(NaesseMessStelleDaten msDaten, long zeitStempel, long vorletzeZeitStempel){
+		
+		FBZ_Klasse klasse = msDaten.getFbzKlasse();
+		
+		NS_Stufe neueStufe;
+	
 		// Ob die NS Stufe unbestimmbar ist
-		if (((msDaten.niederschlagsArt > 69) && (msDaten.niederschlagsArt < 80))
-				|| ((msDaten.fbofZustand > 63) && (msDaten.fbofZustand < 68))) {
-			msDaten.unbestimmbar = true;
-		} else {
-			msDaten.unbestimmbar = false;
-		}
-
-		// Ein Datum faehlt noch
-		if (!((msDaten.niStufeZeitStempel == msDaten.wfdStufeZeitStempel)
-				&& (msDaten.fbofZustandZeitStempel == msDaten.niederschlagsArtZeitStemepel)
-				&& (msDaten.fbofZustandZeitStempel == msDaten.niStufeZeitStempel))) {
-			loesche(msDaten);
-
-			// Auch im vorherigen zyklus faehlt ein DS, nsStufe wurde nicht
-			// publiziert
-			if (msDaten.nsStufeZeitStempel < vorletzeZeitStemepel) {
-				msDaten.nsStufe = msDaten.zielNsStufe;
-				msDaten.nsStufeZeitStempel = vorletzeZeitStemepel;
-				if (msDaten.unbestimmbar) {
-					msDaten.nsStufe = NSStufe.NS_WERT_NE;
-				}
-				publiziereNsStufe(msDaten, false);
+		msDaten.unbestimmbar = klasse == null;
+		
+		// Ein Datum fehlt noch
+		if(!(msDaten.niStufeZeitStempel == msDaten.wfdStufeZeitStempel && 
+			msDaten.fbofZustandZeitStempel == msDaten.niederschlagsArtZeitStempel &&
+			msDaten.fbofZustandZeitStempel == msDaten.niStufeZeitStempel)) {
+			
+			// Auch im vorherigen zyklus fehlt ein DS, nsStufe wurde nicht publiziert
+			if(msDaten.nsStufeZeitStempel != vorletzeZeitStempel) {
+				neueStufe = msDaten.zielNsStufe;
+				aktualisiereNsStufe(msDaten, neueStufe, vorletzeZeitStempel);
 			}
-
-			if (msDaten.niStufeZeitStempel < msDaten.wfdStufeZeitStempel) {
-				msDaten.zielNsStufe = NaesseStufe.TABELLE_WFDNI_ZUM_NS.get(msDaten.wfdStufe).get(NIStufe.NI_WERT_NV);
-			} else if (msDaten.niStufeZeitStempel > msDaten.wfdStufeZeitStempel) {
-				msDaten.zielNsStufe = NaesseStufe.TABELLE_WFDNI_ZUM_NS.get(WFDStufe.WFD_WERT_NV).get(msDaten.niStufe);
+			
+			if(klasse == null){
+				return;
+			} 
+			else if(msDaten.niStufeZeitStempel < msDaten.wfdStufeZeitStempel ) {
+				msDaten.zielNsStufe = tabellenWFDNIzumNS.get(klasse).get(msDaten.wfdStufe).get(NI_Stufe.NI_WERT_NV);
+			}
+			else if(msDaten.niStufeZeitStempel > msDaten.wfdStufeZeitStempel ) {
+				msDaten.zielNsStufe = tabellenWFDNIzumNS.get(klasse).get(WFD_Stufe.WFD_WERT_NV).get(msDaten.niStufe);
 			}
 			return;
 		}
-
-		// Alle Daten sind vorhanden
-		neueStufe = NaesseStufe.TABELLE_WFDNI_ZUM_NS.get(msDaten.wfdStufe).get(msDaten.niStufe);
-		if (msDaten.unbestimmbar) {
-			msDaten.nsStufe = neueStufe = NSStufe.NS_WERT_NE;
+		
+		
+		if(msDaten.unbestimmbar) {
+			// FBZ-Klasse ungültig
+			msDaten.nsStufe = neueStufe = NS_Stufe.NS_WERT_NE;
+		}
+		else {
+			// Alle Daten sind vorhanden
+			neueStufe = tabellenWFDNIzumNS.get(klasse).get(msDaten.wfdStufe).get(msDaten.niStufe);
 		}
 		msDaten.zielNsStufe = neueStufe;
 
-		// Wir gehen mehr als eine Stufe nach unten
-		if ((msDaten.nsStufe != NSStufe.NS_WERT_NE) && (neueStufe.compareTo(msDaten.nsStufe) < -1)
-				&& (msDaten.wfdStufe != WFDStufe.WFD_WERT_NV)) {
-			loesche(msDaten);
-			int intStufe = NaesseStufe.getStufe(msDaten.nsStufe);
-			intStufe--;
-			msDaten.nsStufe = NaesseStufe.MAP_INT_NS_STUFE[intStufe];
-			msDaten.nsStufeZeitStempel = msDaten.wfdStufeZeitStempel;
-			publiziereNsStufe(msDaten, false);
-			erstelleAuktualisierungsAuftrag(msDaten);
-			return;
-		}
-		// bei nachlassenden Niederschlag wenn WFD nicht verfuegbar ist
-		if ((msDaten.nsStufe != NSStufe.NS_WERT_NE) && (neueStufe.compareTo(msDaten.nsStufe) < 0)
-				&& (msDaten.wfdStufe == WFDStufe.WFD_WERT_NV)) {
-			// die Aktualisierungsmethode addiert nur den Zeitintervall der
-			// Verzoegerung
-			// hier wird die Basiszeit gestellt.
-			msDaten.nsStufeZeitStempel = msDaten.wfdStufeZeitStempel;
-			erstelleAuktualisierungsAuftrag(msDaten);
-			return;
+		aktualisiereNsStufe(msDaten, neueStufe, zeitStempel);		
+	}
+
+	private void aktualisiereNsStufe(final NaesseMessStelleDaten msDaten, NS_Stufe neueStufe, final long zeitStempel) {
+		if(msDaten.minimumStufe != null && neueStufe.ordinal() >= msDaten.minimumStufe.ordinal()
+				|| msDaten.abtrockungsZeitStempel < zeitStempel){
+			msDaten.minimumStufe = null;
 		}
 
+
+		if(msDaten.wfdStufe == WFD_Stufe.WFD_WERT_NV) {
+			// Prüfen ob der Wert durch die Abtrocknungsphasen angepasst werden muss
+			if(msDaten.minimumStufe != null && msDaten.abtrockungsZeitStempel > zeitStempel){
+				neueStufe = msDaten.minimumStufe;
+			}
+
+			if(msDaten.nsStufe != NS_Stufe.NS_WERT_NE
+					&& neueStufe.ordinal() < msDaten.nsStufe.ordinal()) {
+				// WFD nicht vorhanden, aber NI-Stufe, also Verzögerung beim Abklingen
+
+
+				if(msDaten.minimumStufe != null 
+						&& msDaten.minimumStufe.ordinal() >= msDaten.nsStufe.ordinal()) {
+					// Zwischenstufen durchlaufen
+					neueStufe = msDaten.nsStufe = NS_Stufe.values()[msDaten.nsStufe.ordinal() - 1];
+				}
+
+				if(msDaten.nsStufe != NS_Stufe.NS_TROCKEN) {
+					long abtrocknungsDauer = msDaten.abtrocknungsPhasen[getStufe(msDaten.nsStufe) - 1];
+					if(abtrocknungsDauer > 0) {
+						// Diese Stufe muss die Verzögerung lang beibehalten werden
+						msDaten.minimumStufe = msDaten.nsStufe;
+
+						// Der Endzeitstempel für die Verzögerung
+						msDaten.abtrockungsZeitStempel = zeitStempel + abtrocknungsDauer;
+
+						// Vorerst den alten Wert beibehalten
+						neueStufe = msDaten.nsStufe;
+					}
+				}
+			}
+		}
+
+
 		msDaten.nsStufe = neueStufe;
-		msDaten.nsStufeZeitStempel = msDaten.wfdStufeZeitStempel;
-		publiziereNsStufe(msDaten, false);
+		msDaten.nsStufeZeitStempel = zeitStempel;
+		if(zeitStempel != Long.MIN_VALUE) {
+			publiziereNsStufe(msDaten, false);
+		}
 	}
 
 	/**
 	 * Publiziert die NS stufe einer Messstelle
-	 *
-	 * @param msDaten
-	 *            MessStelle Daten
-	 * @param keineDaten
-	 *            True, wenn ein Null Datensatz geschickt werden soll
+	 * @param msDaten MessStelle Daten
+	 * @param keineDaten True, wenn ein Null Datensatz geschickt werden soll
 	 */
-	public void publiziereNsStufe(final MessStelleDaten msDaten, final boolean keineDaten) {
-
-		final int intStufe = NaesseStufe.getStufe(msDaten.nsStufe);
+	public void publiziereNsStufe(MessStelleDaten msDaten, boolean keineDaten) {
+		
+		int intStufe = getStufe(msDaten.nsStufe);
 		ResultData resultat;
 		msDaten.keineDaten = keineDaten;
-
-		if (keineDaten) {
-			resultat = new ResultData(msDaten.messObject, ddNaesseStufe, msDaten.nsStufeZeitStempel, null);
-		} else {
-			final Data data = verwaltung.getVerbindung()
-					.createData(verwaltung.getVerbindung().getDataModel().getAttributeGroup(NaesseStufe.ATG_UFDMS_NS));
+		
+		if(msDaten.nsStufeZeitStempelGesendet == msDaten.nsStufeZeitStempel) return;
+		
+		if(keineDaten)
+			 resultat = new ResultData(msDaten.messObject, DD_NAESSE_STUFE, msDaten.nsStufeZeitStempel, null);
+		else {
+			Data data = verwaltung.getVerbindung().createData(
+					verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_UFDMS_NS));
 			data.getItem("NässeStufe").asUnscaledValue().set(intStufe);
-			resultat = new ResultData(msDaten.messObject, ddNaesseStufe, msDaten.nsStufeZeitStempel, data);
+			resultat = new ResultData(msDaten.messObject, DD_NAESSE_STUFE, msDaten.nsStufeZeitStempel, data);
 		}
-
+		
+		msDaten.nsStufeZeitStempelGesendet = msDaten.nsStufeZeitStempel;
+		
 		try {
 			verwaltung.getVerbindung().sendData(resultat);
-		} catch (final DataNotSubscribedException e) {
-			NaesseStufe.LOGGER.error("Fehler bei Sendung der Daten fuer " + msDaten.messObject.getPid() + " ATG "
-					+ NaesseStufe.ATG_UFDMS_NS + " :\n" + e.getMessage());
-		} catch (final SendSubscriptionNotConfirmed e) {
-			NaesseStufe.LOGGER.error("Fehler bei Sendung der Daten fuer " + msDaten.messObject.getPid() + " ATG "
-					+ NaesseStufe.ATG_UFDMS_NS + " :\n" + e.getMessage());
-		}
+		} catch (DataNotSubscribedException  e) {
+			Debug.getLogger().error("Fehler bei Sendung der Daten fuer " + msDaten.messObject.getPid() + " ATG " + ATG_UFDMS_NS + " :\n" + e.getMessage());
+		} catch (SendSubscriptionNotConfirmed e){
+			Debug.getLogger().error("Fehler bei Sendung der Daten fuer " + msDaten.messObject.getPid() + " ATG " + ATG_UFDMS_NS + " :\n" + e.getMessage());
+		}		
 	}
 
 	/**
-	 * Loescht alle AktualisierungsAuftraege fuer die MessStelle
-	 *
-	 * @param messStelleDaten
-	 *            Messtelle mit Daten
+	 * {@inheritDoc}
 	 */
-	public void loesche(final MessStelleDaten messStelleDaten) {
-		messStelleDaten.aktualisierungLaeuft = false;
-		NaesseStufe.stufeAkutalisierer.setWecker(messStelleDaten, ObjektWecker.AUS);
-	}
-
-	/**
-	 * Fuegt ein AktualisierungsAuftraeg fuer die MessStelle ein
-	 *
-	 * @param messStelleDaten
-	 *            Messtelle mit Daten
-	 */
-	public void erstelleAuktualisierungsAuftrag(final MessStelleDaten messStelleDaten) {
-		long zeitIntervall;
-		if (messStelleDaten.aktualisierungLaeuft == true) {
-			return;
-		}
-
-		final int intStufe = NaesseStufe.getStufe(messStelleDaten.nsStufe);
-		if (intStufe < 1) {
-			return;
-		} else {
-			zeitIntervall = messStelleDaten.abtrocknungsPhasen[intStufe - 1];
-		}
-
-		messStelleDaten.aktualisierungLaeuft = true;
-		NaesseStufe.stufeAkutalisierer.setWecker(messStelleDaten, messStelleDaten.nsStufeZeitStempel + zeitIntervall);
-	}
-
-	@Override
 	public ModulTyp getModulTyp() {
 		return null;
 	}
 
-	@Override
-	public void initialisiere(final IVerwaltung verwaltung) throws DUAInitialisierungsException {
+	/**
+	 * {@inheritDoc}
+	 */
+	public void initialisiere(IVerwaltung verwaltung)
+			throws DUAInitialisierungsException {
 		this.verwaltung = verwaltung;
-		NaesseStufe.stufeAkutalisierer = new ObjektWecker();
 
-		ddNaesseStufe = new DataDescription(
-				verwaltung.getVerbindung().getDataModel().getAttributeGroup(NaesseStufe.ATG_UFDMS_NS),
-				verwaltung.getVerbindung().getDataModel().getAspect(NaesseStufe.ASP_KLASSIFIZIERUNG));
+		initTable();
 
-		ddAbtrocknungsphasen = new DataDescription(
-				verwaltung.getVerbindung().getDataModel().getAttributeGroup(NaesseStufe.ATG_UFDMS_AP),
-				verwaltung.getVerbindung().getDataModel().getAspect(NaesseStufe.ASP_PARAM_SOLL));
-
-		final SystemObject[] systemObjekte = verwaltung.getSystemObjekte();
-		if ((systemObjekte == null) || (systemObjekte.length <= 0)) {
-			return;
+		for(FBZ_Klasse klasse : FBZ_Klasse.values()) {
+			// erstmal alle Tabellen vorbelegen
+			readTable(verwaltung, "konfigurationNS", tabellenWFDNIzumNS.get(klasse));
 		}
+		
+		// und dann konkrete tabellen füllen:
 
-		for (final SystemObject so : systemObjekte) {
+		// erstmal alle Tabellen vorbelegen
+		readTable(verwaltung, "konfigurationNSRegen", tabellenWFDNIzumNS.get(FBZ_Klasse.Regen));
+		readTable(verwaltung, "konfigurationNSSchnee", tabellenWFDNIzumNS.get(FBZ_Klasse.Schnee));
+		readTable(verwaltung, "konfigurationNSPlatzregen", tabellenWFDNIzumNS.get(FBZ_Klasse.Platzregen));
+		readTable(verwaltung, "konfigurationNSGlaette", tabellenWFDNIzumNS.get(FBZ_Klasse.Glaette));
+
+		DD_NAESSE_STUFE = new DataDescription(
+				verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_UFDMS_NS), 
+				verwaltung.getVerbindung().getDataModel().getAspect(ASP_KLASSIFIZIERUNG));
+		
+		DD_ABTROCKNUNGSPHASEN = new DataDescription(
+				verwaltung.getVerbindung().getDataModel().getAttributeGroup(ATG_UFDMS_AP), 
+				verwaltung.getVerbindung().getDataModel().getAspect(ASP_PARAM_SOLL));
+		
+		if(verwaltung.getSystemObjekte() == null || verwaltung.getSystemObjekte().length == 0) return;
+
+		initDaten(verwaltung);
+
+		for(SystemObject systemObject : verwaltung.getSystemObjekte()) {
+			ResultData resultate = new ResultData(systemObject, DD_NAESSE_STUFE, System.currentTimeMillis(), null);
 			try {
-				if (so == null) {
-					continue;
-				}
-				final MessStelleDaten messStelleDaten = new MessStelleDaten(so);
-				final ResultData resultate = new ResultData(so, ddNaesseStufe, System.currentTimeMillis(), null);
 				verwaltung.getVerbindung().subscribeSource(this, resultate);
-
-				final ConfigurationObject confObjekt = (ConfigurationObject) so;
-				final ObjectSet sensorMenge = confObjekt.getObjectSet(NaesseStufe.MNG_SENSOREN);
-				naesseTabelle.put(so, messStelleDaten);
-				for (final SystemObject sensor : sensorMenge.getElements()) {
-					if (sensor.isValid()) {
-						if (NaesseStufe.TYP_UFDS_NA.equals(sensor.getType().getPid())) {
-							naSensoren.add(sensor);
-							naesseTabelle.put(sensor, messStelleDaten);
-						} else if (NaesseStufe.TYP_UFDS_FBOFZS.equals(sensor.getType().getPid())) {
-							fbofZustandSensoren.add(sensor);
-							naesseTabelle.put(sensor, messStelleDaten);
-						} else if (NaesseStufe.TYP_UFDS_NI.equals(sensor.getType().getPid())) {
-							niSensoren.add(sensor);
-							naesseTabelle.put(sensor, messStelleDaten);
-						} else if (NaesseStufe.TYP_UFDS_WFD.equals(sensor.getType().getPid())) {
-							wfdSensoren.add(sensor);
-							naesseTabelle.put(sensor, messStelleDaten);
-						}
-					}
-				}
-			} catch (final OneSubscriptionPerSendData e) {
-				// Debug.getLogger().error("Anmeldung als Quelle fuer
-				// Taupunkttemperatur fuer Objekt"
-				// + so.getPid() + " unerfolgreich:" + e.getMessage());
-				throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Taupunkttemperatur fuer Objekt"
-						+ so.getPid() + " unerfolgreich:" + e.getMessage());
+			}
+			catch(OneSubscriptionPerSendData e) {
+				throw new DUAInitialisierungsException("Anmeldung als Quelle fuer Nässestufe fuer Objekt" + systemObject.getPid() + " unerfolgreich:" + e.getMessage());
 			}
 		}
 
-		verwaltung.getVerbindung().subscribeReceiver(this, systemObjekte, ddAbtrocknungsphasen,
-				ReceiveOptions.normal(), ReceiverRole.receiver());
-
+		verwaltung.getVerbindung().subscribeReceiver(this, 
+					verwaltung.getSystemObjekte(), DD_ABTROCKNUNGSPHASEN, ReceiveOptions.normal(), ReceiverRole.receiver());
+			
+			
 	}
 
 	@Override
-	public void setNaechstenBearbeitungsKnoten(final IBearbeitungsKnoten knoten) {
+	protected NaesseStufe.NaesseMessStelleDaten getMessStelleDaten(final SystemObject so) {
+		return new NaesseMessStelleDaten(so);
+	}
+
+	protected void readTable(final IVerwaltung verwaltung, final String argument, final Map<WFD_Stufe, Map<NI_Stufe, NS_Stufe>> table) {
+		String naesseStufenKonfigDatei = verwaltung.getArgument(argument);
+		if(naesseStufenKonfigDatei != null) {
+			Path path = Paths.get(naesseStufenKonfigDatei);
+			try {
+				List<String> lines = Files.readAllLines(path);
+				int zeilenNummer = 0;
+				for(String zeile : lines) {
+					WFD_Stufe wfdStufe = WFD_Stufe.values()[zeilenNummer];
+					String[] split = zeile.split("[,;]");
+					int spaltenNummer = 0;
+					for(String eintrag : split) {
+						NI_Stufe niStufe = NI_Stufe.values()[spaltenNummer];
+						String trim = eintrag.trim();
+						table.get(wfdStufe).put(niStufe, stringZuNsStufe(trim));
+						spaltenNummer++;
+					}
+					zeilenNummer++;
+				}
+				_debug.info("Nässestufenkonfiguration " + argument + " erfolgreich eingelesen: " + printTable(table));
+			}
+			catch(Exception e){
+				_debug.error("Kann Nässestufenkonfiguration nicht aus Datei " + path.toAbsolutePath() + " einlesen", e);
+				System.exit(-1);
+			}
+		}
+		else {
+			_debug.info("Verwende Standard-Nässestufenkonfiguration, da der Parameter -" + argument + " nicht angegeben wurde");
+		}
+	}
+
+	private String printTable(final Map<WFD_Stufe, Map<NI_Stufe, NS_Stufe>> table) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for(NI_Stufe ni_stufe : NI_Stufe.values()) {
+			stringBuilder.append(String.format("%15s ", ni_stufe));
+		}
+		for(WFD_Stufe wfd_stufe : WFD_Stufe.values()) {
+			stringBuilder.append("\n");
+			stringBuilder.append(String.format("%15s ", wfd_stufe));
+			for(NI_Stufe ni_stufe : NI_Stufe.values()) {
+				stringBuilder.append(String.format("%15s ", table.get(wfd_stufe).get(ni_stufe)));
+			}
+		}		
+		return stringBuilder.toString();
+	}
+
+	private NS_Stufe stringZuNsStufe(final String string) throws IOException {
+		switch(string.toLowerCase()){
+			case "trocken" : return NS_Stufe.NS_TROCKEN;
+			case "nass1" : return NS_Stufe.NS_NASS1;
+			case "nass2" : return NS_Stufe.NS_NASS2;
+			case "nass3" : return NS_Stufe.NS_NASS3;
+			case "nass4" : return NS_Stufe.NS_NASS4;
+			case "" : return NS_Stufe.NS_WERT_NE;
+		}
+		throw new IOException("Ungültige Nässestufe in CSV-Datei: " + string + ". Gültige Werte: trocken, nass[1-4], <leer>");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setNaechstenBearbeitungsKnoten(IBearbeitungsKnoten knoten) {
 		this.naechsterBearbeitungsKnoten = knoten;
 	}
 
-	@Override
-	public void setPublikation(final boolean publizieren) {
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setPublikation(boolean publizieren) {		
 	}
 
-	@Override
-	public void aktualisierePublikation(final IDatenFlussSteuerung dfs) {
+	/**
+	 * {@inheritDoc}
+	 */
+	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 	}
 
-	@Override
-	public void dataRequest(final SystemObject object, final DataDescription dataDescription, final byte state) {
+	/**
+	 * {@inheritDoc}
+	 */
+	public void dataRequest(SystemObject object,
+			DataDescription dataDescription, byte state) {
 	}
 
-	@Override
-	public boolean isRequestSupported(final SystemObject object, final DataDescription dataDescription) {
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isRequestSupported(SystemObject object,
+			DataDescription dataDescription) {
 		return false;
 	}
 
-	@Override
-	public void update(final ResultData[] results) {
-		for (final ResultData resData : results) {
-			final DataDescription dataDescription = resData.getDataDescription();
-			final Data daten = resData.getData();
-			final SystemObject objekt = resData.getObject();
-			final MessStelleDaten messStelleDaten = this.naesseTabelle.get(objekt);
-
-			if (dataDescription.getAttributeGroup().getPid().equals(NaesseStufe.ATG_UFDMS_AP)
-					&& dataDescription.getAspect().getPid().equals(NaesseStufe.ASP_PARAM_SOLL)) {
-
-				if (messStelleDaten == null) {
-					NaesseStufe.LOGGER.warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
+	/**
+	 * {@inheritDoc}
+	 */
+	public void update(ResultData[] results) {
+		for(ResultData resData : results) {
+			DataDescription dataDescription = resData.getDataDescription();
+			Data daten = resData.getData();
+			SystemObject objekt = resData.getObject();
+			NaesseMessStelleDaten messStelleDaten = (NaesseMessStelleDaten) this.messStellenDaten.get(objekt);
+			
+			if(dataDescription.getAttributeGroup().getPid().equals(ATG_UFDMS_AP) &&
+					dataDescription.getAspect().getPid().equals(ASP_PARAM_SOLL)) {
+				
+				if(messStelleDaten == null) {
+					Debug.getLogger().warning("Objekt " + objekt + " in der Hashtabelle nicht gefunden");
 					continue;
 				}
-				if (daten == null) {
-					messStelleDaten.initialisiert = false;
+				if(daten == null) {
 					continue;
 				}
-				// Auslesen der Parameter
-				for (int i = 0; i < NaesseStufe.ATT_STUFE.length; i++) {
-					messStelleDaten.abtrocknungsPhasen[i] = daten.getItem(NaesseStufe.ATT_STUFE[i]).asTimeValue()
-							.getMillis();
-				}
-				messStelleDaten.initialisiert = true;
+				// Auslesen der Parameter 
+				for(int i=0; i< ATT_STUFE.length; i++)
+					messStelleDaten.abtrocknungsPhasen[i] = daten.getItem(ATT_STUFE[i]).asTimeValue().getMillis();
 			}
 		}
 	}
-
+	
 	/**
 	 * Ergibt den Integer Wert einer NS_Stufe
-	 *
-	 * @param stufe
-	 *            NS_Stufe
+	 * @param stufe NS_Stufe
 	 * @return int Wert
 	 */
-	public static int getStufe(final NSStufe stufe) {
+	public static int getStufe(NS_Stufe stufe) {
 		int intStufe = stufe.ordinal();
-		if (stufe == NSStufe.NS_WERT_NE) {
-			intStufe = -1;
-		}
+		if(stufe == NS_Stufe.NS_WERT_NE) intStufe = -1;
 		return intStufe;
 	}
-
 	/**
 	 * erfragt die menge der bearbeiteten NiederschalgsArt Sensoren
-	 *
 	 * @return Menge der Sensoren
 	 */
 	public Collection<SystemObject> getNaSensoren() {
 		return this.naSensoren;
 	}
-
+	
 	/**
 	 * erfragt die menge der bearbeiteten FahrBahnOberFlächenZustand Sensoren
-	 *
 	 * @return Menge der Sensoren
 	 */
 	public Collection<SystemObject> getFbofZustandSensoren() {
 		return this.fbofZustandSensoren;
+	}
+
+
+	/**
+	 *  Die letzte empfangene Daten fuer jede MessStelle
+	 *  nud andere parameter werden in diese Klasse gespeichert
+	 *
+	 *  @author BitCtrl Systems GmbH, Bachraty
+	 *
+	 */
+	protected class NaesseMessStelleDaten extends MessStelleDaten {
+
+		public NS_Stufe minimumStufe = null;
+		
+		public long abtrockungsZeitStempel = -1;
+
+		/**
+		 * Standardkonstruktor
+		 * @param so Systemokjekt MessStelle
+		 */
+		public NaesseMessStelleDaten(SystemObject so) {
+			super(so);
+		}
+
+		/**
+		 * Die ZeitDauer, bis sich die Fahrbahnoberflaeche abtrocknet
+		 */
+		public long [] abtrocknungsPhasen = new long[ATT_STUFE.length];
 	}
 }

@@ -1,41 +1,45 @@
 /*
- * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
- * Copyright (C) 2007-2015 BitCtrl Systems GmbH
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * Contact Information:<br>
- * BitCtrl Systems GmbH<br>
- * Weißenfelser Straße 67<br>
- * 04229 Leipzig<br>
- * Phone: +49 341-490670<br>
- * mailto: info@bitctrl.de
+ * Segment Datenübernahme und Aufbereitung (DUA), SWE Datenaufbereitung UFD
+ * Copyright (C) 2007 BitCtrl Systems GmbH 
+ * Copyright 2015 by Kappich Systemberatung Aachen
+ * Copyright 2016 by Kappich Systemberatung Aachen
+ * 
+ * This file is part of de.bsvrz.dua.daufd.
+ * 
+ * de.bsvrz.dua.daufd is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * de.bsvrz.dua.daufd is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with de.bsvrz.dua.daufd.  If not, see <http://www.gnu.org/licenses/>.
+
+ * Contact Information:
+ * Kappich Systemberatung
+ * Martin-Luther-Straße 14
+ * 52062 Aachen, Germany
+ * phone: +49 241 4090 436 
+ * mail: <info@kappich.de>
  */
 package de.bsvrz.dua.daufd.stufewfd;
 
-import de.bsvrz.dua.daufd.vew.AbstraktStufe;
+import de.bsvrz.dua.daufd.vew.AbstraktNiFbzStufe;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.schnittstellen.IDatenFlussSteuerung;
 
 /**
- * Berechnet die WasserFilmDickeStufe aus den Messwerten Die eigentliche
- * berechnung ins fuer mehrere Module gemeinsam in der Klasse AbstraktStufe
- *
+ * Berechnet die WasserFilmDickeStufe aus den Messwerten
+ * Die eigentliche berechnung ins fuer mehrere Module gemeinsam
+ * in der Klasse AbstraktStufe 
+ * 
  * @author BitCtrl Systems GmbH, Bachraty
- *
+ * 
  */
-public class WasserFilmDickeStufe extends AbstraktStufe {
+public class WasserFilmDickeStufe extends AbstraktNiFbzStufe {
 
 	@Override
 	public String getAggregationsAtrributGruppe() {
@@ -72,55 +76,53 @@ public class WasserFilmDickeStufe extends AbstraktStufe {
 		return "typ.ufdsWasserFilmDicke";
 	}
 
-	@Override
-	public void aktualisierePublikation(final IDatenFlussSteuerung dfs) {
-		// TODO Auto-generated method stub
+	/**
+	 * {@inheritDoc}
+	 */
+	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 	}
 
 	/**
-	 * WFD Stufen, die unterscheidet werden
-	 *
+	 *  WFD Stufen, die unterscheidet werden
+	 *  
 	 * @author BitCtrl Systems GmbH, Bachraty
 	 */
-	public enum WFDStufe {
-		WFD_STUFE0, WFD_STUFE1, WFD_STUFE2, WFD_STUFE3, WFD_WERT_NV // Wert
-		// nicht
-		// verfuegbar
+	public enum WFD_Stufe {
+		WFD_STUFE0,
+		WFD_STUFE1,
+		WFD_STUFE2,
+		WFD_STUFE3,
+		WFD_WERT_NV // Wert nicht verfuegbar
 	}
-
 	/**
 	 * Abbildet Integer Stufen auf Symbolische Konstanten
 	 */
-	private final static WFDStufe[] MAP_INT_STUFE = new WFDStufe[] { WFDStufe.WFD_STUFE0, WFDStufe.WFD_STUFE1,
-			WFDStufe.WFD_STUFE2, WFDStufe.WFD_STUFE3 };
+	protected final static WFD_Stufe mapIntStufe [] = new WFD_Stufe [] 
+    { WFD_Stufe.WFD_STUFE0, WFD_Stufe.WFD_STUFE1, WFD_Stufe.WFD_STUFE2, WFD_Stufe.WFD_STUFE3 };
 
+	
 	/**
 	 * Konvertiert die WFD_stufe aus Integer ins symbolischen Format
-	 *
-	 * @param stufe
-	 *            Stufe Int
+	 * @param stufe Stufe Int
 	 * @return WFD Stufe symbolisch
 	 */
-	static public WFDStufe getStufe(final int stufe) {
-		WFDStufe stufeSymb;
-		if ((stufe < 0) || (stufe > WasserFilmDickeStufe.MAP_INT_STUFE.length)) {
-			stufeSymb = WFDStufe.WFD_WERT_NV;
-		} else {
-			stufeSymb = WasserFilmDickeStufe.MAP_INT_STUFE[stufe];
-		}
+	static public WFD_Stufe getStufe(int stufe) {
+		WFD_Stufe stufeSymb;
+		if(  stufe < 0 || stufe > mapIntStufe.length)
+			stufeSymb = WFD_Stufe.WFD_WERT_NV;
+		else stufeSymb = mapIntStufe[stufe];
 		return stufeSymb;
 	}
+	
 
 	/**
-	 * Konvertiert die WFD_stufe aus symbolischen Format ins Integer
-	 *
-	 * @param stufe
-	 *            WFD_Stufe symbolisch
+	 * Konvertiert die WFD_stufe aus  symbolischen Format ins Integer
+	 * @param stufe WFD_Stufe symbolisch
 	 * @return Stufe int
 	 */
-	static public int getStufe(final WFDStufe stufe) {
+	static public int getStufe(WFD_Stufe stufe) {
 		int intStufe = -1;
-		if (stufe != WFDStufe.WFD_WERT_NV) {
+		if(stufe != WFD_Stufe.WFD_WERT_NV) {
 			intStufe = stufe.ordinal();
 		}
 		return intStufe;

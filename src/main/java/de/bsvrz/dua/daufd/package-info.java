@@ -1,7 +1,5 @@
 /*
  * Segment Datenübernahme und Aufbereitung (DUA), SWE Datenaufbereitung UFD
- * Copyright (C) 2007 BitCtrl Systems GmbH 
- * Copyright 2015 by Kappich Systemberatung Aachen
  * Copyright 2016 by Kappich Systemberatung Aachen
  * 
  * This file is part of de.bsvrz.dua.daufd.
@@ -26,30 +24,10 @@
  * phone: +49 241 4090 436 
  * mail: <info@kappich.de>
  */
-package de.bsvrz.dua.daufd.hysterese;
 
 /**
- * Wird geworfen, wenn versucht wird eine Hysterese anzulegen, deren 
- * Parameter ungültig sind
- * 
- * @author BitCtrl Systems GmbH, Thierfelder
+ * Segment Datenübernahme und Aufbereitung (DUA), SWE Datenaufbereitung UFD
  *
+ * @author Kappich Systemberatung
  */
-public class HystereseException 
-extends Exception{
-
-	/**
-	 * Auto-generiert
-	 */
-	private static final long serialVersionUID = -776648941014738233L;
-
-	/**
-	 * Standardkonstruktor
-	 * 
-	 * @param nachricht eine Nachricht
-	 */
-	HystereseException(String nachricht){
-		super(nachricht);
-	}
-	
-}
+package de.bsvrz.dua.daufd;

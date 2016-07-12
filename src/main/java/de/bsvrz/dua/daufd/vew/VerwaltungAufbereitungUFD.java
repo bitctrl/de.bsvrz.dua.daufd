@@ -1,32 +1,32 @@
 /*
- * Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
- * Copyright (C) 2007-2015 BitCtrl Systems GmbH
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * Contact Information:<br>
- * BitCtrl Systems GmbH<br>
- * Weißenfelser Straße 67<br>
- * 04229 Leipzig<br>
- * Phone: +49 341-490670<br>
- * mailto: info@bitctrl.de
+ * Segment Datenübernahme und Aufbereitung (DUA), SWE Datenaufbereitung UFD
+ * Copyright (C) 2007 BitCtrl Systems GmbH
+ * Copyright 2015 by Kappich Systemberatung Aachen
+ * Copyright 2016 by Kappich Systemberatung Aachen
+ * 
+ * This file is part of de.bsvrz.dua.daufd.
+ * 
+ * de.bsvrz.dua.daufd is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * de.bsvrz.dua.daufd is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with de.bsvrz.dua.daufd.  If not, see <http://www.gnu.org/licenses/>.
+
+ * Contact Information:
+ * Kappich Systemberatung
+ * Martin-Luther-Straße 14
+ * 52062 Aachen, Germany
+ * phone: +49 241 4090 436 
+ * mail: <info@kappich.de>
  */
 package de.bsvrz.dua.daufd.vew;
-
-import java.util.Collection;
-import java.util.LinkedList;
 
 import de.bsvrz.dav.daf.main.DataDescription;
 import de.bsvrz.dav.daf.main.ReceiveOptions;
@@ -48,15 +48,20 @@ import de.bsvrz.sys.funclib.bitctrl.dua.adapter.AbstraktVerwaltungsAdapter;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.typen.SWETyp;
 import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IBearbeitungsKnoten;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 /**
- * Hauptklasse der SWE 4.8 Datenaufbereitung UFD Bildet eine Kette von Modulen,
- * die sie weiter steuert, alle empfagene Daten gibt weiter dem ersten Modul in
+ * Hauptklasse der SWE 4.8 Datenaufbereitung UFD
+ * Bildet eine Kette von Modulen, die sie weiter steuert,
+ * alle empfagene Daten gibt weiter dem ersten Modul in
  * der Kette
  *
  * @author BitCtrl Systems GmbH, Bachraty
  *
  */
-public class VerwaltungAufbereitungUFD extends AbstraktVerwaltungsAdapter {
+public class VerwaltungAufbereitungUFD
+extends AbstraktVerwaltungsAdapter {
 
 	/**
 	 * Typ der MessStelle
@@ -71,21 +76,21 @@ public class VerwaltungAufbereitungUFD extends AbstraktVerwaltungsAdapter {
 	 */
 	protected IBearbeitungsKnoten ersterKnoten = null;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void initialisiere() throws DUAInitialisierungsException {
+	protected void initialisiere()
+	throws DUAInitialisierungsException {
 
 		Collection<SystemObject> objekte;
-		final Collection<SystemObjectType> systemObjektTypen = new LinkedList<SystemObjectType>();
-		systemObjektTypen.add(getVerbindung().getDataModel().getType(VerwaltungAufbereitungUFD.TYP_UFDMS));
-		objekte = getVerbindung().getDataModel().getObjects(this.getKonfigurationsBereiche(), systemObjektTypen,
-				ObjectTimeSpecification.valid());
+		Collection<SystemObjectType> systemObjektTypen = new LinkedList<SystemObjectType>();
+		systemObjektTypen.add(verbindung.getDataModel().getType(TYP_UFDMS));
+		objekte = verbindung.getDataModel().getObjects(this.getKonfigurationsBereiche(), systemObjektTypen, ObjectTimeSpecification.valid());
+		this.objekte = objekte.toArray(new SystemObject [0]);
 
-		if (objekte.isEmpty()) {
-			throw new DUAInitialisierungsException(
-					"Es wurden keine UmfeldDatenMessStellen im KB " + this.getKonfigurationsBereiche() + " gefunden");
-		}
-
-		setSystemObjekte(objekte);
+		if(this.objekte == null || this.objekte.length == 0)
+			throw new DUAInitialisierungsException("Es wurden keine UmfeldDatenMessStellen im KB "  + this.getKonfigurationsBereiche() + " gefunden");
 
 		IBearbeitungsKnoten knoten1, knoten2;
 		AbstraktStufe stufeKnoten;
@@ -94,50 +99,40 @@ public class VerwaltungAufbereitungUFD extends AbstraktVerwaltungsAdapter {
 
 		ersterKnoten = knoten2 = stufeKnoten = new NiederschlagIntensitaetStufe();
 		knoten2.initialisiere(this);
-		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(),
-				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 
 		knoten1 = stufeKnoten = new WasserFilmDickeStufe();
 		knoten1.initialisiere(this);
-		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(),
-				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
 
 		knoten2 = naesseKnoten = new NaesseStufe();
 		knoten2.initialisiere(this);
-		anmeldeEmpfaenger(naesseKnoten.getNaSensoren(), NaesseStufe.ATG_UFDS_NA,
-				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
-		anmeldeEmpfaenger(naesseKnoten.getFbofZustandSensoren(), NaesseStufe.ATG_UFDS_FBOFZS,
-				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(naesseKnoten.getNaSensoren(), NaesseStufe.ATG_UFDS_NA, ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(naesseKnoten.getFbofZustandSensoren(), NaesseStufe.ATG_UFDS_FBOFZS, ASP_MESSWERTERSETZUNG);
 		knoten1.setNaechstenBearbeitungsKnoten(knoten2);
 
 		knoten1 = stufeKnoten = new SichtWeiteStufe();
 		knoten1.initialisiere(this);
-		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(),
-				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
 
 		knoten2 = taupunkt = new Taupunkt();
 		knoten2.initialisiere(this);
 		knoten1.setNaechstenBearbeitungsKnoten(knoten2);
 
-		anmeldeEmpfaenger(taupunkt.getFbofSensoren(), Taupunkt.ATG_UFDS_FBOFT,
-				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
-		anmeldeEmpfaenger(taupunkt.getLtSensoren(), Taupunkt.ATG_UFDS_LT,
-				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
-		anmeldeEmpfaenger(taupunkt.getRlfSensoren(), Taupunkt.ATG_UFDS_RLF,
-				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(taupunkt.getFbofSensoren(), Taupunkt.ATG_UFDS_FBOFT, ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(taupunkt.getLtSensoren(), Taupunkt.ATG_UFDS_LT, ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(taupunkt.getRlfSensoren(), Taupunkt.ATG_UFDS_RLF, ASP_MESSWERTERSETZUNG);
 
 		knoten1 = stufeKnoten = new StufeHelligkeit();
 		knoten1.initialisiere(this);
-		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(),
-				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
 
 		knoten1 = stufeKnoten = new StufeWindrichtung();
 		knoten1.initialisiere(this);
-		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(),
-				VerwaltungAufbereitungUFD.ASP_MESSWERTERSETZUNG);
+		anmeldeEmpfaenger(stufeKnoten.getSensoren(), stufeKnoten.getMesswertAttributGruppe(), ASP_MESSWERTERSETZUNG);
 		knoten2.setNaechstenBearbeitungsKnoten(knoten1);
 
 		knoten1.setNaechstenBearbeitungsKnoten(null);
@@ -145,43 +140,38 @@ public class VerwaltungAufbereitungUFD extends AbstraktVerwaltungsAdapter {
 
 	/**
 	 * Meldet sich ein Als empfaenger fuer Daten
-	 *
-	 * @param sensoren
-	 *            SystemObjekte die die Daten liefern
-	 * @param attributGruppe
-	 *            Atributgruppe der Daten
-	 * @param aspekt
-	 *            Aspek der Daten
+	 * @param sensoren SystemObjekte die die Daten liefern
+	 * @param attributGruppe Atributgruppe der Daten
+	 * @param aspekt Aspek der Daten
 	 */
-	protected void anmeldeEmpfaenger(final Collection<SystemObject> sensoren, final String attributGruppe,
-			final String aspekt) throws DUAInitialisierungsException {
+	protected void anmeldeEmpfaenger(Collection<SystemObject> sensoren, String attributGruppe, String aspekt) throws DUAInitialisierungsException{
 
-		final DataDescription datenBeschreibung = new DataDescription(
-				getVerbindung().getDataModel().getAttributeGroup(attributGruppe),
-				getVerbindung().getDataModel().getAspect(aspekt));
-		getVerbindung().subscribeReceiver(this, sensoren, datenBeschreibung, ReceiveOptions.normal(),
-				ReceiverRole.receiver());
+		DataDescription datenBeschreibung =  new DataDescription(verbindung.getDataModel().getAttributeGroup(attributGruppe),
+																verbindung.getDataModel().getAspect(aspekt));
+		verbindung.subscribeReceiver(this, sensoren, datenBeschreibung, ReceiveOptions.normal(), ReceiverRole.receiver());
 
 	}
 
-	@Override
+	/**
+	 * {@inheritDoc}
+	 */
 	public SWETyp getSWETyp() {
 		return SWETyp.SWE_DATENAUFBEREITUNG_UFD;
 	}
 
-	@Override
-	public void update(final ResultData[] results) {
+	/**
+	 * {@inheritDoc}
+	 */
+	public void update(ResultData[] results) {
 		ersterKnoten.aktualisiereDaten(results);
 	}
 
 	/**
 	 * Haupmethode
-	 *
-	 * @param args
-	 *            Aufrufsargumente
+	 * @param args Aufrufsargumente
 	 */
-	public static void main(final String[] args) {
-		final VerwaltungAufbereitungUFD verwaltung = new VerwaltungAufbereitungUFD();
+	public static void main(String args[]) {
+		VerwaltungAufbereitungUFD verwaltung = new VerwaltungAufbereitungUFD();
 		StandardApplicationRunner.run(verwaltung, args);
 	}
 }

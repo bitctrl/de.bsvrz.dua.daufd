@@ -4,7 +4,7 @@
 
 	<groupId>de.bsvrz.dua</groupId>
 	<artifactId>de.bsvrz.dua.daufd</artifactId>
-	<version>1.5.0-SNAPSHOT</version>
+	<version>2.0.0</version>
 
 	<name>Datenaufbereitung UFD (SWE 4.8)</name>
 
@@ -17,7 +17,7 @@
 
 	<licenses>
 		<license>
-			<name>GNU General Public License, Version 3.0</name>
+			<name>GNU General Public License, Version 3</name>
 			<url>LICENSE.txt</url>
 		</license>
 	</licenses>
@@ -47,7 +47,7 @@
 		<dependency>
 			<groupId>de.bsvrz.dav</groupId>
 			<artifactId>de.bsvrz.dav.daf</artifactId>
-			<version>3.6.2</version>
+			<version>3.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>de.bsvrz.sys</groupId>
@@ -162,6 +162,7 @@
 						<configuration>
 							<show>protected</show>
 							<finalName>${project.artifactId}-${project.version}-doc-api</finalName>
+		   				    <additionalparam>-Xdoclint:none</additionalparam>
 						</configuration>
 					</execution>
 					<execution>
@@ -174,6 +175,7 @@
 							<show>private</show>
 							<finalName>${project.artifactId}-${project.version}-doc-design</finalName>
 							<classifier>design</classifier>
+		   				    <additionalparam>-Xdoclint:none</additionalparam>
 						</configuration>
 					</execution>
 				</executions>
