@@ -1,0 +1,5 @@
+trocken; trocken; nass1;   nass2;   nass2;   trocken
+nass1;   nass1;   nass2;   nass3;   nass4;   nass1
+nass2;   nass2;   nass2;   nass3;   nass4;   nass2
+nass2;   nass2;   nass3;   nass3;   nass4;   nass3
+trocken; trocken; nass1;   nass2;   nass3;   
