@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/bitctrl/de.bsvrz.dua.daufd.svg?branch=develop)](https://travis-ci.org/bitctrl/de.bsvrz.dua.daufd)
+[![Build Status](https://api.bintray.com/packages/bitctrl/maven/de.bsvrz.dua.daufd/images/download.svg)](https://bintray.com/bitctrl/maven/de.bsvrz.dua.daufd)
+
 # Segment 4 Datenübernahme und Aufbereitung (DUA), SWE 4.8 Datenaufbereitung UFD
 
 Version: ${version}
