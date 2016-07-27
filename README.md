@@ -18,6 +18,11 @@ die Daten ggf. in den Datenverteiler publiziert.
 
 ## Versionsgeschichte
 
+### 2.0.1
+
+Release-Datum: 22.07.2016
+  - Umpacketierung gemäß NERZ-Konvention
+
 ### 2.0.0
 
 Release-Datum: 31.05.2016
@@ -43,7 +48,7 @@ Folgende Änderungen gegenüber vorhergehenden Versionen wurden durchgeführt:
   – Platzregen
   – Glätte
   – Nicht bestimmbar.
-		
+
 - Die Tabellen zur Zuordnung der Niederschlagsintensitätsstufen und Wasserfilmdickenstufen
   können nun (bei aktualisierten Datenmodell) abhängig von der NSFBZ-
   Klasse parametriert werden.
