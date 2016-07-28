@@ -51,10 +51,11 @@ import java.util.LinkedList;
  */
 public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 
+	private static final Debug LOGGER = Debug.getLogger();
 	/**
 	 * Verbindung zum Hauptmodul
 	 */
-	protected static IVerwaltung verwaltung;
+	private IVerwaltung verwaltung;
 	/**
 	 * der Nachste Bearbeitungsknoten
 	 */
@@ -201,9 +202,6 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 */
 	private Hashtable<SystemObject, LokaleDaten> taupunktTabelle = new Hashtable<SystemObject, LokaleDaten>();
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void aktualisiereDaten(ResultData[] resultate) {
 		for (ResultData resData : resultate) {
 
@@ -216,7 +214,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					&& ASP_MESSWERT_ERSETZUNG.equals(resData
 							.getDataDescription().getAspect().getPid())) {
 				if (lDaten == null) {
-					Debug.getLogger().warning(
+					LOGGER.warning(
 							"Objekt " + so
 									+ " in der Hashtabelle nicht gefunden");
 					continue;
@@ -239,7 +237,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 					&& ASP_MESSWERT_ERSETZUNG.equals(resData
 							.getDataDescription().getAspect().getPid())) {
 				if (lDaten == null) {
-					Debug.getLogger().warning(
+					LOGGER.warning(
 							"Objekt " + so
 									+ " in der Hashtabelle nicht gefunden");
 					continue;
@@ -264,7 +262,7 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 							.getDataDescription().getAspect().getPid())) {
 
 				if (lDaten == null) {
-					Debug.getLogger().warning(
+					LOGGER.warning(
 							"Objekt " + so
 									+ " in der Hashtabelle nicht gefunden");
 					continue;
@@ -525,13 +523,13 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		try {
 			verwaltung.getVerbindung().sendData(resDatei);
 		} catch (DataNotSubscribedException e) {
-			Debug.getLogger().error(
+			LOGGER.error(
 					"Sendung von Datensatz "
 							+ DD_UFDMS_TT_FB.getAttributeGroup().getPid()
 							+ " fuer Objekt " + lDaten.messStelle.getPid()
 							+ " unerfolgreich:\n" + e.getMessage());
 		} catch (SendSubscriptionNotConfirmed e) {
-			Debug.getLogger().error(
+			LOGGER.error(
 					"Sendung von Datensatz "
 							+ DD_UFDMS_TT_FB.getAttributeGroup().getPid()
 							+ " fuer Objekt " + lDaten.messStelle.getPid()
@@ -565,13 +563,13 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		try {
 			verwaltung.getVerbindung().sendData(resDatei);
 		} catch (DataNotSubscribedException e) {
-			Debug.getLogger().error(
+			LOGGER.error(
 					"Sendung von Datensatz "
 							+ DD_UFDMS_TT_L.getAttributeGroup().getPid()
 							+ " fuer Objekt " + lDaten.messStelle.getPid()
 							+ " unerfolgreich:\n" + e.getMessage());
 		} catch (SendSubscriptionNotConfirmed e) {
-			Debug.getLogger().error(
+			LOGGER.error(
 					"Sendung von Datensatz "
 							+ DD_UFDMS_TT_L.getAttributeGroup().getPid()
 							+ " fuer Objekt " + lDaten.messStelle.getPid()
@@ -596,18 +594,13 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		return x / y;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public ModulTyp getModulTyp() {
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void initialisiere(IVerwaltung verwaltung1)
 			throws DUAInitialisierungsException {
+		
 		verwaltung = verwaltung1;
 
 		DD_UFDMS_TT_FB = new DataDescription(verwaltung1.getVerbindung()
@@ -674,37 +667,22 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 			}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setNaechstenBearbeitungsKnoten(IBearbeitungsKnoten knoten) {
 		this.naechsterBearbeitungsKnoten = knoten;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setPublikation(boolean publizieren) {
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 		// TODO Auto-generated method stub
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void dataRequest(SystemObject object,
 			DataDescription dataDescription, byte state) {
 		// TODO Auto-generated method stub
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public boolean isRequestSupported(SystemObject object,
 			DataDescription dataDescription) {
 		// TODO Auto-generated method stub

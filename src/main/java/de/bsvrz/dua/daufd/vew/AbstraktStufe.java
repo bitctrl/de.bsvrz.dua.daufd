@@ -153,9 +153,6 @@ public abstract class AbstraktStufe extends MessStellenDatenContainer implements
 	 */
 	protected Hashtable<SystemObject, SensorParameter> sensorDaten = new Hashtable<SystemObject, SensorParameter>();
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void initialisiere(IVerwaltung verwaltung)
 			throws DUAInitialisierungsException {
 		this.verwaltung = verwaltung;
@@ -210,9 +207,6 @@ public abstract class AbstraktStufe extends MessStellenDatenContainer implements
 				ReceiverRole.receiver());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void update(ResultData[] results) {
 		for (ResultData resData : results) {
 			DataDescription dataDescription = resData.getDataDescription();
@@ -293,9 +287,6 @@ public abstract class AbstraktStufe extends MessStellenDatenContainer implements
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void aktualisiereDaten(ResultData[] resultate) {
 
 		for (ResultData resData : resultate) {
@@ -492,38 +483,23 @@ public abstract class AbstraktStufe extends MessStellenDatenContainer implements
 	 */
 	public abstract String getSensorTyp();
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setNaechstenBearbeitungsKnoten(IBearbeitungsKnoten knoten) {
 		this.naechsterBearbeitungsKnoten = knoten;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setPublikation(boolean publizieren) {
 		this.publizieren = publizieren;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void dataRequest(SystemObject object,
 			DataDescription dataDescription, byte state) {
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public boolean isRequestSupported(SystemObject object,
 			DataDescription dataDescription) {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public ModulTyp getModulTyp() {
 		return null;
 	}
