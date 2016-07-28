@@ -38,7 +38,7 @@ import de.bsvrz.sys.funclib.commandLineArgs.ArgumentList;
  * @author Kappich Systemberatung
  */
 public class DuAUfdTestBase extends DuATestBase {
-	protected static VerwaltungAufbereitungUFD aufbereitungUFD;
+	protected VerwaltungAufbereitungUFD aufbereitungUFD;
 
 	protected static String[] getUfdArgs() {
 		return new String[]{"-KonfigurationsBereichsPid=kb.duaTestUfd"};

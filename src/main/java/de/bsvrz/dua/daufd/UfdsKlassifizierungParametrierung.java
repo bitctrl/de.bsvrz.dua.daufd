@@ -118,7 +118,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		this.ATT_KLASS = attKlasifizierung;
 		this.ATG_AGGREG = atgAggregation;
 		
-		if(stufeBis == null || stufeBis == null || stufeVon.length != stufeBis.length)
+		if(stufeBis == null || stufeVon == null || stufeVon.length != stufeBis.length)
 			throw new DUAInitialisierungsException("StufeVon oder StufeBis nicht korrekt eingegeben");
 		
 		this.stufeVon = stufeVon;
