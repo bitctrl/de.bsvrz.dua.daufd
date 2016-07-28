@@ -201,9 +201,6 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 	 */
 	private Hashtable<SystemObject, LokaleDaten> taupunktTabelle = new Hashtable<SystemObject, LokaleDaten>();
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void aktualisiereDaten(ResultData[] resultate) {
 		for (ResultData resData : resultate) {
 
@@ -596,16 +593,10 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 		return x / y;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public ModulTyp getModulTyp() {
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void initialisiere(IVerwaltung verwaltung1)
 			throws DUAInitialisierungsException {
 		verwaltung = verwaltung1;
@@ -674,37 +665,22 @@ public class Taupunkt implements IBearbeitungsKnoten, ClientSenderInterface {
 			}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setNaechstenBearbeitungsKnoten(IBearbeitungsKnoten knoten) {
 		this.naechsterBearbeitungsKnoten = knoten;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setPublikation(boolean publizieren) {
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 		// TODO Auto-generated method stub
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void dataRequest(SystemObject object,
 			DataDescription dataDescription, byte state) {
 		// TODO Auto-generated method stub
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public boolean isRequestSupported(SystemObject object,
 			DataDescription dataDescription) {
 		// TODO Auto-generated method stub

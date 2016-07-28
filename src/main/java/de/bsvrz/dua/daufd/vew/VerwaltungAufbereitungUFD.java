@@ -76,9 +76,6 @@ extends AbstraktVerwaltungsAdapter {
 	 */
 	protected IBearbeitungsKnoten ersterKnoten = null;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void initialisiere()
 	throws DUAInitialisierungsException {
@@ -152,16 +149,10 @@ extends AbstraktVerwaltungsAdapter {
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public SWETyp getSWETyp() {
 		return SWETyp.SWE_DATENAUFBEREITUNG_UFD;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void update(ResultData[] results) {
 		ersterKnoten.aktualisiereDaten(results);
 	}

@@ -177,9 +177,6 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void dataRequest(SystemObject object,
 			DataDescription dataDescription, byte state) {
 		if(dataDescription.getAttributeGroup().getPid().equals(ATG_KLASS) 
@@ -224,9 +221,6 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public boolean isRequestSupported(SystemObject object,
 			DataDescription dataDescription) {
 		return false;

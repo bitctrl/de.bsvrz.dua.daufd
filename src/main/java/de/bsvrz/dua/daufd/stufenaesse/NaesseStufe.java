@@ -222,9 +222,6 @@ public class NaesseStufe extends MessStellenDatenContainer implements IBearbeitu
 			"ZeitNass1Trocken", "ZeitNass2Nass1", "ZeitNass3Nass2", "ZeitNass4Nass3"
 	};
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void aktualisiereDaten(ResultData[] resultate) {
 
 		for(ResultData resData : resultate) {
@@ -379,16 +376,10 @@ public class NaesseStufe extends MessStellenDatenContainer implements IBearbeitu
 		}		
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public ModulTyp getModulTyp() {
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void initialisiere(IVerwaltung verwaltung)
 			throws DUAInitialisierungsException {
 		this.verwaltung = verwaltung;
@@ -499,43 +490,25 @@ public class NaesseStufe extends MessStellenDatenContainer implements IBearbeitu
 		throw new IOException("Ungültige Nässestufe in CSV-Datei: " + string + ". Gültige Werte: trocken, nass[1-4], <leer>");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setNaechstenBearbeitungsKnoten(IBearbeitungsKnoten knoten) {
 		this.naechsterBearbeitungsKnoten = knoten;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setPublikation(boolean publizieren) {		
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void dataRequest(SystemObject object,
 			DataDescription dataDescription, byte state) {
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public boolean isRequestSupported(SystemObject object,
 			DataDescription dataDescription) {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void update(ResultData[] results) {
 		for(ResultData resData : results) {
 			DataDescription dataDescription = resData.getDataDescription();

@@ -76,9 +76,6 @@ public class NiederschlagIntensitaetStufe extends AbstraktNiFbzStufe {
 		return "typ.ufdsNiederschlagsIntensität";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 	}
 
