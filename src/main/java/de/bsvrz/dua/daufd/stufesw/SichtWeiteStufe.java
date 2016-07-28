@@ -76,9 +76,6 @@ public class SichtWeiteStufe extends AbstraktStufe {
 		return "typ.ufdsSichtWeite";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 		// TODO Auto-generated method stub
 

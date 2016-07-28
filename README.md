@@ -18,10 +18,29 @@ die Daten ggf. in den Datenverteiler publiziert.
 
 ## Versionsgeschichte
 
+### 2.0.2
+
+Release-Datum: 28.07.2016
+
+de.bsvrz.dua.daufd.UfdsKlassifizierungParametrierung
+- im Konstruktor wurde fälschlicherweise zweimal der gleiche Parameter auf null geprüft und nicht der
+  gewünschte - potentielle NPE
+
+de.bsvrz.dua.daufd.tp.Taupunkt.initialisiere(IVerwaltung)
+- das verwendete Verwaltungsmodul kann potentiell mehrfach zugewiesen werden, was zu einem Bruch der Modulkette
+  führen würde. Wenn ein neues Modul zugewiesen werden soll wird eine IllegalStateEception geworfen
+
+de.bsvrz.dua.daufd.tests.DuAUfdTestBase
+- der Member "aufbereitungUFD" sollte nicht statisch sein, der er bei jedem Test neu initialisiert wird
+
+- Javadoc für Java8-Kompatibilität korrigiert	
+- Obsolete inheritDoc-Kommentare entfernt
+
 ### 2.0.1
 
 Release-Datum: 22.07.2016
-  - Umpacketierung gemäß NERZ-Konvention
+
+- Umpacketierung gemäß NERZ-Konvention
 
 ### 2.0.0
 

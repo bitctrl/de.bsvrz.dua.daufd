@@ -76,9 +76,6 @@ public class WasserFilmDickeStufe extends AbstraktNiFbzStufe {
 		return "typ.ufdsWasserFilmDicke";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void aktualisierePublikation(IDatenFlussSteuerung dfs) {
 	}
 

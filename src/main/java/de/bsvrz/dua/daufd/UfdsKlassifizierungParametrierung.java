@@ -118,7 +118,7 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		this.ATT_KLASS = attKlasifizierung;
 		this.ATG_AGGREG = atgAggregation;
 		
-		if(stufeBis == null || stufeBis == null || stufeVon.length != stufeBis.length)
+		if(stufeBis == null || stufeVon == null || stufeVon.length != stufeBis.length)
 			throw new DUAInitialisierungsException("StufeVon oder StufeBis nicht korrekt eingegeben");
 		
 		this.stufeVon = stufeVon;
@@ -177,9 +177,6 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void dataRequest(SystemObject object,
 			DataDescription dataDescription, byte state) {
 		if(dataDescription.getAttributeGroup().getPid().equals(ATG_KLASS) 
@@ -224,9 +221,6 @@ public class UfdsKlassifizierungParametrierung implements ClientSenderInterface 
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public boolean isRequestSupported(SystemObject object,
 			DataDescription dataDescription) {
 		return false;
