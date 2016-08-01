@@ -241,6 +241,7 @@
 							</excludes>
 							<archive>
 								<manifest>
+									<mainClass>de.bsvrz.dua.daufd.vew.VerwaltungAufbereitungUFD</mainClass>
 									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 									<addClasspath>true</addClasspath>
 									<classpathLayoutType>custom</classpathLayoutType>
