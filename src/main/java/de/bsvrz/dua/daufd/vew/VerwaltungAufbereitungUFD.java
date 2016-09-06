@@ -28,6 +28,7 @@
  */
 package de.bsvrz.dua.daufd.vew;
 
+import de.bsvrz.dav.daf.main.ClientDavInterface;
 import de.bsvrz.dav.daf.main.DataDescription;
 import de.bsvrz.dav.daf.main.ReceiveOptions;
 import de.bsvrz.dav.daf.main.ReceiverRole;
@@ -47,6 +48,7 @@ import de.bsvrz.sys.funclib.bitctrl.dua.DUAInitialisierungsException;
 import de.bsvrz.sys.funclib.bitctrl.dua.adapter.AbstraktVerwaltungsAdapter;
 import de.bsvrz.sys.funclib.bitctrl.dua.dfs.typen.SWETyp;
 import de.bsvrz.sys.funclib.bitctrl.dua.schnittstellen.IBearbeitungsKnoten;
+import de.bsvrz.sys.funclib.operatingMessage.MessageSender;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -76,6 +78,12 @@ extends AbstraktVerwaltungsAdapter {
 	 */
 	protected IBearbeitungsKnoten ersterKnoten = null;
 
+	@Override
+	public void initialize(ClientDavInterface dieVerbindung) throws Exception {
+		MessageSender.getInstance().setApplicationLabel("Datenaufbereitung UFD");
+		super.initialize(dieVerbindung);
+	}
+	
 	@Override
 	protected void initialisiere()
 	throws DUAInitialisierungsException {

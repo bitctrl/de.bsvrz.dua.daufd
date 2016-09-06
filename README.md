@@ -18,7 +18,11 @@ die Daten ggf. in den Datenverteiler publiziert.
 
 ## Versionsgeschichte
 
-### 2.0.2
+### Version 2.0.3
+
+- Applikationsname für MessageSender entsprechend NERZ-Vorgabe gesetzt
+
+### Version 2.0.2
 
 Release-Datum: 28.07.2016
 
@@ -36,13 +40,13 @@ de.bsvrz.dua.daufd.tests.DuAUfdTestBase
 - Javadoc für Java8-Kompatibilität korrigiert	
 - Obsolete inheritDoc-Kommentare entfernt
 
-### 2.0.1
+### Version 2.0.1
 
 Release-Datum: 22.07.2016
 
 - Umpacketierung gemäß NERZ-Konvention
 
-### 2.0.0
+### Version 2.0.0
 
 Release-Datum: 31.05.2016
 
@@ -96,38 +100,38 @@ Folgende Änderungen gegenüber vorhergehenden Versionen wurden durchgeführt:
 - Die Berechnung der geglätteten Sichtweite wurde korrigiert.
 - Die Berechnung der Abtrockungsstufen wurde überarbeitet.
 
-### 1.5.0
+### Version 1.5.0
 
 - Umstellung auf Java 8 und UTF-8
 
-### 1.4.1
+### Version 1.4.1
 
 - Kompatibilität zu DuA-2.0 hergestellt
 
-### 1.4.0
+### Version 1.4.0
 
 - Umstellung auf Funclib-BitCtrl-Dua
 
-### 1.3.0
+### Version 1.3.0
 
 - Umstellung auf Maven-Build
 
-### 1.2.0
+### Version 1.2.0
 
   - Stufe fuer Windrichtung ergaenzt
   - Stufe fuer Helligkeit aus Projekt Augsburg uebernommen
 
-### 1.1.1
+### Version 1.1.1
 
   - Sämtliche Konstruktoren DataDescription(atg, asp, sim)
     ersetzt durch DataDescription(atg, asp)
 
-### 1.1.0
+### Version 1.1.0
 
   - Klassifizierung auch für Helligkeits-Sensoren hinzugefügt (um eine Steuerung der
     Helligkeit von Betriebsmitteln der FG4 zu ermöglichen)
 
-### 1.0.5
+### Version 1.0.5
 
   - Berechnung der geglätteten Sichtweite abgepasst:
     Vor der Bestimmung der Nässestufe, Wasserfilmdickestufe und der Sichtweitenstufe wird jeweils ein
@@ -138,20 +142,20 @@ Folgende Änderungen gegenüber vorhergehenden Versionen wurden durchgeführt:
 	Das Problem bestand darin, dass im Programm b(i) für alle Zielwerte gleich gerechnet wird, d.h. die
 	geglättete SW wird dadurch falsch berechnet.
 
-### 1.0.4
+### Version 1.0.4
 
   - FIX: Die Hysterese kann jetzt auch mit abfallenden Intervallen bestueckt werden
 
-### 1.0.3
+### Version 1.0.3
 
   - FIX: Sämtliche Konstruktoren DataDescription(atg, asp, sim) ersetzt durch
          DataDescription(atg, asp)
 
-### 1.0.1
+### Version 1.0.1
 
   - Startskripte hinzu
 
-### 1.0.0
+### Version 1.0.0
 
   - Erste Auslieferung
 
